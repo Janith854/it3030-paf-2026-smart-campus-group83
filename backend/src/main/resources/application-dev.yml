@@ -7,7 +7,8 @@ spring:
       client:
         registration:
           google:
-           
+            client-id: YOUR_GOOGLE_CLIENT_ID
+            client-secret: YOUR_GOOGLE_CLIENT_SECRET
             scope: email, profile
 
 jwt:
