@@ -1,5 +1,6 @@
 package com.smartcampus.controller;
 
+import com.smartcampus.dto.response.AuthResponse;
 import com.smartcampus.dto.request.LoginRequest;
 import com.smartcampus.dto.request.RegisterRequest;
 import com.smartcampus.service.AuthService;
@@ -28,7 +29,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Map<String, Object>> register(@Valid @RequestBody RegisterRequest request) {
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(authService.register(
                 request.getName(),
@@ -41,7 +42,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(
             request.getEmail(),
             request.getPassword(),

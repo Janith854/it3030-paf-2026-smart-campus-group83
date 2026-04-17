@@ -1,5 +1,6 @@
 package com.smartcampus.service.impl;
 
+import com.smartcampus.dto.ResourceDTO;
 import com.smartcampus.exception.ResourceNotFoundException;
 import com.smartcampus.model.Resource;
 import com.smartcampus.repository.ResourceRepository;
@@ -10,10 +11,11 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
- * TODO Member 1: Implement all methods
- * Branch: feature/facilities
+ * Module A — Facilities & Assets
+ * Member 1: feature/facilities
  */
 @Service
 @RequiredArgsConstructor
@@ -23,32 +25,34 @@ public class ResourceServiceImpl implements ResourceService {
     private final MongoTemplate mongoTemplate;
 
     @Override
-    public Resource createResource(Resource resource) {
-        // TODO: validate fields, save and return
-        return resourceRepository.save(resource);
+    public ResourceDTO createResource(ResourceDTO resourceDto) {
+        Resource resource = resourceDto.toEntity();
+        Resource saved = resourceRepository.save(resource);
+        return ResourceDTO.fromEntity(saved);
     }
 
     @Override
-    public Resource getResourceById(String id) {
-        return resourceRepository.findById(id)
+    public ResourceDTO getResourceById(String id) {
+        Resource resource = resourceRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Resource not found: " + id));
+        return ResourceDTO.fromEntity(resource);
     }
 
     @Override
-    public List<Resource> getAllResources() {
-        return resourceRepository.findAll();
+    public List<ResourceDTO> getAllResources() {
+        return resourceRepository.findAll().stream()
+            .map(ResourceDTO::fromEntity)
+            .collect(Collectors.toList());
     }
 
     @Override
-    public List<Resource> searchResources(String type, Integer minCapacity, String location, String status) {
+    public List<ResourceDTO> searchResources(String type, Integer minCapacity, String location, String status) {
         Query query = new Query();
         
         if (type != null && !type.trim().isEmpty()) {
             try {
                 query.addCriteria(Criteria.where("type").is(Resource.ResourceType.valueOf(type.toUpperCase())));
-            } catch (IllegalArgumentException e) {
-                // Ignore invalid type for filtering, or handle accordingly
-            }
+            } catch (IllegalArgumentException e) {}
         }
         
         if (minCapacity != null) {
@@ -56,7 +60,7 @@ public class ResourceServiceImpl implements ResourceService {
         }
         
         if (location != null && !location.trim().isEmpty()) {
-            query.addCriteria(Criteria.where("location").regex(location, "i")); // Case-insensitive partial match
+            query.addCriteria(Criteria.where("location").regex(location, "i"));
         }
         
         if (status != null && !status.trim().isEmpty()) {
@@ -65,31 +69,42 @@ public class ResourceServiceImpl implements ResourceService {
             } catch (IllegalArgumentException e) {}
         }
         
-        return mongoTemplate.find(query, Resource.class);
+        return mongoTemplate.find(query, Resource.class).stream()
+            .map(ResourceDTO::fromEntity)
+            .collect(Collectors.toList());
     }
 
     @Override
-    public Resource updateResource(String id, Resource resource) {
-        // TODO: fetch existing, update fields, save
-        Resource existing = getResourceById(id);
-        existing.setName(resource.getName());
-        existing.setCapacity(resource.getCapacity());
-        existing.setLocation(resource.getLocation());
-        existing.setDescription(resource.getDescription());
-        existing.setAvailabilityWindows(resource.getAvailabilityWindows());
-        return resourceRepository.save(existing);
+    public ResourceDTO updateResource(String id, ResourceDTO resourceDto) {
+        Resource existing = resourceRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Resource not found: " + id));
+        
+        existing.setName(resourceDto.getName());
+        existing.setType(resourceDto.getType()); // FIXED: was ignored
+        existing.setCapacity(resourceDto.getCapacity());
+        existing.setLocation(resourceDto.getLocation());
+        existing.setDescription(resourceDto.getDescription());
+        existing.setStatus(resourceDto.getStatus()); // FIXED: was ignored
+        existing.setAvailabilityWindows(resourceDto.getAvailabilityWindows());
+        
+        Resource saved = resourceRepository.save(existing);
+        return ResourceDTO.fromEntity(saved);
     }
 
     @Override
-    public Resource updateStatus(String id, Resource.ResourceStatus status) {
-        Resource existing = getResourceById(id);
+    public ResourceDTO updateStatus(String id, Resource.ResourceStatus status) {
+        Resource existing = resourceRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Resource not found: " + id));
         existing.setStatus(status);
-        return resourceRepository.save(existing);
+        Resource saved = resourceRepository.save(existing);
+        return ResourceDTO.fromEntity(saved);
     }
 
     @Override
     public void deleteResource(String id) {
-        getResourceById(id);
+        if (!resourceRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Resource not found: " + id);
+        }
         resourceRepository.deleteById(id);
     }
 }

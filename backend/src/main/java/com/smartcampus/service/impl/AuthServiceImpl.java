@@ -1,5 +1,6 @@
 package com.smartcampus.service.impl;
 
+import com.smartcampus.dto.response.AuthResponse;
 import com.smartcampus.model.User;
 import com.smartcampus.repository.UserRepository;
 import com.smartcampus.security.JwtUtil;
@@ -9,8 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * TODO Member 4: Complete Google token verification
@@ -51,8 +50,8 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public Map<String, Object> register(String name, String email, String department, String empId,
-                                        String password, User.Role role) {
+    public AuthResponse register(String name, String email, String department, String empId,
+                                         String password, User.Role role) {
         String normalizedEmail = email == null ? null : email.trim().toLowerCase();
         if (normalizedEmail == null || normalizedEmail.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is required");
@@ -64,11 +63,6 @@ public class AuthServiceImpl implements AuthService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already registered");
         }
 
-        User.Role requestedRole = role == null ? User.Role.LECTURER : role;
-        if (requestedRole == User.Role.ADMIN) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Admin registration is not allowed");
-        }
-
         User user = new User();
         user.setName(name);
         user.setEmail(normalizedEmail);
@@ -76,23 +70,24 @@ public class AuthServiceImpl implements AuthService {
         user.setEmpId(empId);
         user.setPassword(passwordEncoder.encode(password));
 
-        // Block ADMIN registration
-        if (requestedRole == User.Role.ADMIN) {
-            throw new org.springframework.web.server.ResponseStatusException(
-                org.springframework.http.HttpStatus.FORBIDDEN, "Admin registration not allowed");
+        // ROLE LOGIC:
+        // 1. Special case: admin@gmail.com -> ADMIN
+        if (normalizedEmail.equalsIgnoreCase("admin@gmail.com")) {
+            user.setRole(User.Role.ADMIN);
+        } 
+        // 2. Otherwise use requested role (USER or TECHNICIAN), default to USER
+        else if (role == User.Role.TECHNICIAN) {
+            user.setRole(User.Role.TECHNICIAN);
+        } else {
+            user.setRole(User.Role.USER);
         }
 
-        // Technicians start as USER (pending approval), lecturers get LECTURER role
-        boolean pendingTech = requestedRole == User.Role.TECHNICIAN;
-        user.setRole(pendingTech ? User.Role.USER : requestedRole);
-
         User saved = userRepository.save(user);
-        String status = pendingTech ? "PENDING" : "ACTIVE";
-        return buildAuthResponse(saved, status, !pendingTech);
+        return buildAuthResponse(saved, true);
     }
 
     @Override
-    public Map<String, Object> login(String email, String password, User.Role role) {
+    public AuthResponse login(String email, String password, User.Role role) {
         String normalizedEmail = email == null ? null : email.trim().toLowerCase();
         if (normalizedEmail == null || normalizedEmail.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is required");
@@ -108,26 +103,21 @@ public class AuthServiceImpl implements AuthService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
         }
 
-        if (user.getRole() != null && user.getRole() == User.Role.USER) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "TECHNICIAN_PENDING");
-        }
-
-        return buildAuthResponse(user, "ACTIVE", true);
+        return buildAuthResponse(user, true);
     }
 
-    private Map<String, Object> buildAuthResponse(User user, String status, boolean includeToken) {
-        Map<String, Object> body = new HashMap<>();
-        User.Role role = user.getRole() != null ? user.getRole() : User.Role.LECTURER;
-        if (includeToken) {
-            body.put("token", jwtUtil.generateToken(user.getId(), user.getEmail(), role.name()));
-        }
-        body.put("status", status);
-        Map<String, Object> userPayload = new HashMap<>();
-        userPayload.put("id", user.getId());
-        userPayload.put("name", user.getName());
-        userPayload.put("email", user.getEmail());
-        userPayload.put("role", user.getRole().name());
-        body.put("user", userPayload);
-        return body;
+    private AuthResponse buildAuthResponse(User user, boolean includeToken) {
+        String token = includeToken ? jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole().name()) : null;
+        
+        return AuthResponse.builder()
+            .token(token)
+            .user(AuthResponse.UserResponse.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .role(user.getRole().name())
+                .department(user.getDepartment())
+                .build())
+            .build();
     }
 }

@@ -15,6 +15,11 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class TestController {
 
+    @GetMapping("/public/test")
+    public String test() {
+        return "Backend is working!";
+    }
+
     private final UserRepository userRepository;
 
     // Member 4 (Auth/Roles): temporary role promotion for testing technician assignment.

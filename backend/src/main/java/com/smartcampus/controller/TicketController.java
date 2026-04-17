@@ -1,5 +1,6 @@
 package com.smartcampus.controller;
 
+import com.smartcampus.dto.TicketDTO;
 import com.smartcampus.model.Ticket;
 import com.smartcampus.security.UserPrincipal;
 import com.smartcampus.service.TicketService;
@@ -25,68 +26,68 @@ public class TicketController {
     private final TicketService ticketService;
 
     @PostMapping(consumes = "application/json")
-    public ResponseEntity<Ticket> createTicketJson(
-            @Valid @RequestBody Ticket ticket,
+    public ResponseEntity<TicketDTO> createTicketJson(
+            @Valid @RequestBody TicketDTO ticketDto,
             @AuthenticationPrincipal UserPrincipal user) {
         return ResponseEntity.status(HttpStatus.CREATED)
-            .body(ticketService.createTicket(ticket, user.getId(), null));
+            .body(ticketService.createTicket(ticketDto, user.getId(), null));
     }
 
     @PostMapping(consumes = "multipart/form-data")
-    public ResponseEntity<Ticket> createTicketMultipart(
-            @RequestPart("ticket") Ticket ticket,
+    public ResponseEntity<TicketDTO> createTicketMultipart(
+            @RequestPart("ticket") TicketDTO ticketDto,
             @RequestPart(value = "images", required = false) List<MultipartFile> images,
             @AuthenticationPrincipal UserPrincipal user) {
         return ResponseEntity.status(HttpStatus.CREATED)
-            .body(ticketService.createTicket(ticket, user.getId(), images));
+            .body(ticketService.createTicket(ticketDto, user.getId(), images));
     }
 
     @GetMapping("/my")
-    public ResponseEntity<List<Ticket>> getMyTickets(@AuthenticationPrincipal UserPrincipal user) {
+    public ResponseEntity<List<TicketDTO>> getMyTickets(@AuthenticationPrincipal UserPrincipal user) {
         return ResponseEntity.ok(ticketService.getMyTickets(user.getId()));
     }
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN','TECHNICIAN')")
-    public ResponseEntity<List<Ticket>> getAllTickets(
+    public ResponseEntity<List<TicketDTO>> getAllTickets(
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String priority) {
         return ResponseEntity.ok(ticketService.getAllTickets(status, priority));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Ticket> getById(@PathVariable String id) {
+    public ResponseEntity<TicketDTO> getById(@PathVariable String id) {
         return ResponseEntity.ok(ticketService.getTicketById(id));
     }
 
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasAnyRole('ADMIN','TECHNICIAN')")
-    public ResponseEntity<Ticket> updateStatus(@PathVariable String id,
-                                                @RequestParam Ticket.TicketStatus status,
-                                                @RequestParam(required = false) String notes,
-                                                @AuthenticationPrincipal UserPrincipal user) {
+    public ResponseEntity<TicketDTO> updateStatus(@PathVariable String id,
+                                                 @RequestParam Ticket.TicketStatus status,
+                                                 @RequestParam(required = false) String notes,
+                                                 @AuthenticationPrincipal UserPrincipal user) {
         return ResponseEntity.ok(ticketService.updateTicketStatus(id, status, notes, user.getId(), user.getRole()));
     }
 
     @PatchMapping("/{id}/assign")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Ticket> assign(@PathVariable String id,
-                                          @RequestParam String technicianId) {
+    public ResponseEntity<TicketDTO> assign(@PathVariable String id,
+                                           @RequestParam String technicianId) {
         return ResponseEntity.ok(ticketService.assignTechnician(id, technicianId));
     }
 
     @PostMapping("/{id}/comments")
-    public ResponseEntity<Ticket> addComment(@PathVariable String id,
-                                              @RequestParam String content,
-                                              @AuthenticationPrincipal UserPrincipal user) {
+    public ResponseEntity<TicketDTO> addComment(@PathVariable String id,
+                                               @RequestParam String content,
+                                               @AuthenticationPrincipal UserPrincipal user) {
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(ticketService.addComment(id, user.getId(), content));
     }
 
     @DeleteMapping("/{ticketId}/comments/{commentId}")
-    public ResponseEntity<Ticket> deleteComment(@PathVariable String ticketId,
-                                                 @PathVariable String commentId,
-                                                 @AuthenticationPrincipal UserPrincipal user) {
+    public ResponseEntity<TicketDTO> deleteComment(@PathVariable String ticketId,
+                                                  @PathVariable String commentId,
+                                                  @AuthenticationPrincipal UserPrincipal user) {
         return ResponseEntity.ok(ticketService.deleteComment(ticketId, commentId, user.getId()));
     }
 }

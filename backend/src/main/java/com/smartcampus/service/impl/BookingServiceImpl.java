@@ -1,5 +1,6 @@
 package com.smartcampus.service.impl;
 
+import com.smartcampus.dto.BookingDTO;
 import com.smartcampus.exception.BookingConflictException;
 import com.smartcampus.exception.ResourceNotFoundException;
 import com.smartcampus.model.Booking;
@@ -8,16 +9,19 @@ import com.smartcampus.repository.BookingRepository;
 import com.smartcampus.service.BookingService;
 import com.smartcampus.service.NotificationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
- * TODO Member 2: Implement all methods
- * Branch: feature/bookings
+ * Module B — Booking Management
+ * Member 2: feature/bookings
  */
 @Service
 @RequiredArgsConstructor
@@ -28,23 +32,23 @@ public class BookingServiceImpl implements BookingService {
     private final MongoTemplate mongoTemplate;
 
     @Override
-    public Booking createBooking(Booking booking, String userId) {
+    public BookingDTO createBooking(BookingDTO bookingDto, String userId) {
         // 1. Basic validation: Start must be before End
-        if (booking.getStartTime() != null && booking.getEndTime() != null) {
-            if (!booking.getStartTime().isBefore(booking.getEndTime())) {
-                throw new com.smartcampus.exception.InvalidTicketStatusException("Start time must be before end time");
+        if (bookingDto.getStartTime() != null && bookingDto.getEndTime() != null) {
+            if (!bookingDto.getStartTime().isBefore(bookingDto.getEndTime())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start time must be before end time");
             }
         }
 
+        Booking booking = bookingDto.toEntity();
+
         // 2. Conflict detection logic:
         // (newStart < existingEnd) AND (newEnd > existingStart)
-        // for same resource, same date, and active statuses.
         Query conflictQuery = new Query();
         conflictQuery.addCriteria(Criteria.where("resourceId").is(booking.getResourceId()));
         conflictQuery.addCriteria(Criteria.where("bookingDate").is(booking.getBookingDate()));
         conflictQuery.addCriteria(Criteria.where("status").in(Booking.BookingStatus.PENDING, Booking.BookingStatus.APPROVED));
         
-        // Time overlap logic:
         conflictQuery.addCriteria(new Criteria().andOperator(
             Criteria.where("startTime").lt(booking.getEndTime()),
             Criteria.where("endTime").gt(booking.getStartTime())
@@ -58,31 +62,42 @@ public class BookingServiceImpl implements BookingService {
         booking.setUserId(userId);
         booking.setCreatedAt(LocalDateTime.now());
         booking.setStatus(Booking.BookingStatus.PENDING);
-        return bookingRepository.save(booking);
+        Booking saved = bookingRepository.save(booking);
+        return BookingDTO.fromEntity(saved);
     }
 
     @Override
-    public Booking getBookingById(String id) {
-        return bookingRepository.findById(id)
+    public BookingDTO getBookingById(String id) {
+        Booking booking = bookingRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Booking not found: " + id));
+        return BookingDTO.fromEntity(booking);
     }
 
     @Override
-    public List<Booking> getMyBookings(String userId) {
-        return bookingRepository.findByUserId(userId);
+    public List<BookingDTO> getMyBookings(String userId) {
+        return bookingRepository.findByUserId(userId).stream()
+            .map(BookingDTO::fromEntity)
+            .collect(Collectors.toList());
     }
 
     @Override
-    public List<Booking> getAllBookings(String status) {
+    public List<BookingDTO> getAllBookings(String status) {
+        List<Booking> list;
         if (status != null) {
-            return bookingRepository.findByStatus(Booking.BookingStatus.valueOf(status));
+            list = bookingRepository.findByStatus(Booking.BookingStatus.valueOf(status));
+        } else {
+            list = bookingRepository.findAll();
         }
-        return bookingRepository.findAll();
+        return list.stream()
+            .map(BookingDTO::fromEntity)
+            .collect(Collectors.toList());
     }
 
     @Override
-    public Booking approveBooking(String id, String adminId) {
-        Booking booking = getBookingById(id);
+    public BookingDTO approveBooking(String id, String adminId) {
+        Booking booking = bookingRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Booking not found: " + id));
+            
         booking.setStatus(Booking.BookingStatus.APPROVED);
         booking.setApprovedByAdminId(adminId);
         Booking saved = bookingRepository.save(booking);
@@ -94,12 +109,14 @@ public class BookingServiceImpl implements BookingService {
             Notification.NotificationType.BOOKING_APPROVED,
             saved.getId()
         );
-        return saved;
+        return BookingDTO.fromEntity(saved);
     }
 
     @Override
-    public Booking rejectBooking(String id, String reason, String adminId) {
-        Booking booking = getBookingById(id);
+    public BookingDTO rejectBooking(String id, String reason, String adminId) {
+        Booking booking = bookingRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Booking not found: " + id));
+            
         booking.setStatus(Booking.BookingStatus.REJECTED);
         booking.setRejectionReason(reason);
         Booking saved = bookingRepository.save(booking);
@@ -115,24 +132,24 @@ public class BookingServiceImpl implements BookingService {
             Notification.NotificationType.BOOKING_REJECTED,
             saved.getId()
         );
-        return saved;
+        return BookingDTO.fromEntity(saved);
     }
 
     @Override
-    public Booking cancelBooking(String id, String userId) {
-        Booking booking = getBookingById(id);
+    public BookingDTO cancelBooking(String id, String userId) {
+        Booking booking = bookingRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Booking not found: " + id));
         
-        // Security check: only the owner can cancel
         if (!booking.getUserId().equals(userId)) {
-            throw new com.smartcampus.exception.InvalidTicketStatusException("You can only cancel your own bookings");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only cancel your own bookings");
         }
         
-        // Status check: only PENDING or APPROVED can be cancelled
         if (booking.getStatus() != Booking.BookingStatus.PENDING && booking.getStatus() != Booking.BookingStatus.APPROVED) {
-            throw new com.smartcampus.exception.InvalidTicketStatusException("Only pending or approved bookings can be cancelled");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only pending or approved bookings can be cancelled");
         }
         
         booking.setStatus(Booking.BookingStatus.CANCELLED);
-        return bookingRepository.save(booking);
+        Booking saved = bookingRepository.save(booking);
+        return BookingDTO.fromEntity(saved);
     }
 }

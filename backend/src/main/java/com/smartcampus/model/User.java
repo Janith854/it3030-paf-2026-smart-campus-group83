@@ -22,7 +22,7 @@ public class User {
     private String password;
     private String department;
     private String empId;
-    private Role role = Role.LECTURER;
+    private Role role = Role.USER;
 
     @CreatedDate
     private LocalDateTime createdAt;
@@ -31,6 +31,6 @@ public class User {
     private LocalDateTime updatedAt;
 
     public enum Role {
-        USER, ADMIN, TECHNICIAN, LECTURER
+        USER, ADMIN, TECHNICIAN
     }
 }

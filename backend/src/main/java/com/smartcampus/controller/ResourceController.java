@@ -1,5 +1,6 @@
 package com.smartcampus.controller;
 
+import com.smartcampus.dto.ResourceDTO;
 import com.smartcampus.model.Resource;
 import com.smartcampus.service.ResourceService;
 import jakarta.validation.Valid;
@@ -22,12 +23,12 @@ public class ResourceController {
     private final ResourceService resourceService;
 
     @GetMapping
-    public ResponseEntity<List<Resource>> getAll() {
+    public ResponseEntity<List<ResourceDTO>> getAll() {
         return ResponseEntity.ok(resourceService.searchResources(null, null, null, null));
     }
 
     @GetMapping("/filter")
-    public ResponseEntity<List<Resource>> filterResources(
+    public ResponseEntity<List<ResourceDTO>> filterResources(
             @RequestParam(required = false) String type,
             @RequestParam(required = false) Integer minCapacity,
             @RequestParam(required = false) String location,
@@ -36,26 +37,26 @@ public class ResourceController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Resource> getById(@PathVariable String id) {
+    public ResponseEntity<ResourceDTO> getById(@PathVariable String id) {
         return ResponseEntity.ok(resourceService.getResourceById(id));
     }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Resource> create(@Valid @RequestBody Resource resource) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(resourceService.createResource(resource));
+    public ResponseEntity<ResourceDTO> create(@Valid @RequestBody ResourceDTO resourceDto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(resourceService.createResource(resourceDto));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Resource> update(@PathVariable String id, @Valid @RequestBody Resource resource) {
-        return ResponseEntity.ok(resourceService.updateResource(id, resource));
+    public ResponseEntity<ResourceDTO> update(@PathVariable String id, @Valid @RequestBody ResourceDTO resourceDto) {
+        return ResponseEntity.ok(resourceService.updateResource(id, resourceDto));
     }
 
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Resource> updateStatus(@PathVariable String id,
-                                                  @RequestParam Resource.ResourceStatus status) {
+    public ResponseEntity<ResourceDTO> updateStatus(@PathVariable String id,
+                                                   @RequestParam Resource.ResourceStatus status) {
         return ResponseEntity.ok(resourceService.updateStatus(id, status));
     }
 

@@ -29,13 +29,12 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/v1/auth/**").permitAll()
-                .requestMatchers("/api/v1/resources/**").authenticated()
+                .requestMatchers("/api/v1/auth/**", "/api/v1/test/public/**").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/resources/**").permitAll()
+                .requestMatchers("/api/v1/resources/**").hasRole("ADMIN")
+                .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/v1/bookings/**").authenticated()
                 .requestMatchers("/api/v1/tickets/**").authenticated()
-                .requestMatchers("/api/v1/users/**").authenticated()
-                .requestMatchers("/api/v1/test/**").authenticated()
-                .requestMatchers("/api/v1/notifications/**").authenticated()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

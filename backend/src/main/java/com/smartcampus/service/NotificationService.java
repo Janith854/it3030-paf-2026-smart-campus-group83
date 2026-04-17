@@ -1,15 +1,16 @@
 package com.smartcampus.service;
 
+import com.smartcampus.dto.NotificationDTO;
 import com.smartcampus.model.Notification;
 import java.util.List;
 
 /** Member 4 implements this */
 public interface NotificationService {
-    Notification createNotification(String userId, String title, String message,
+    NotificationDTO createNotification(String userId, String title, String message,
                                     Notification.NotificationType type, String referenceId);
-    List<Notification> getMyNotifications(String userId);
-    List<Notification> getUnreadNotifications(String userId);
+    List<NotificationDTO> getMyNotifications(String userId);
+    List<NotificationDTO> getUnreadNotifications(String userId);
     long getUnreadCount(String userId);
-    Notification markAsRead(String id, String userId);
+    NotificationDTO markAsRead(String id, String userId);
     void markAllAsRead(String userId);
 }

@@ -1,5 +1,6 @@
 package com.smartcampus.service.impl;
 
+import com.smartcampus.dto.TicketDTO;
 import com.smartcampus.exception.ResourceNotFoundException;
 import com.smartcampus.exception.InvalidTicketStatusException;
 import com.smartcampus.model.Notification;
@@ -15,10 +16,11 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
- * TODO Member 3: Implement all methods
- * Branch: feature/tickets
+ * Module C — Maintenance & Incident Ticketing
+ * Member 3: feature/tickets
  */
 @Service
 @RequiredArgsConstructor
@@ -29,11 +31,12 @@ public class TicketServiceImpl implements TicketService {
     private final FileStorageService fileStorageService;
 
     @Override
-    public Ticket createTicket(Ticket ticket, String userId, List<MultipartFile> images) {
-        if (ticket.getDescription() == null || ticket.getDescription().isBlank()) {
+    public TicketDTO createTicket(TicketDTO ticketDto, String userId, List<MultipartFile> images) {
+        if (ticketDto.getDescription() == null || ticketDto.getDescription().isBlank()) {
             throw new InvalidTicketStatusException("Description is required");
         }
 
+        Ticket ticket = ticketDto.toEntity();
         ticket.setReportedByUserId(userId);
         ticket.setStatus(Ticket.TicketStatus.OPEN);
         ticket.setCreatedAt(java.time.LocalDateTime.now());
@@ -49,33 +52,45 @@ public class TicketServiceImpl implements TicketService {
             ticket.setImageAttachments(new ArrayList<>());
         }
         
-        return ticketRepository.save(ticket);
+        Ticket saved = ticketRepository.save(ticket);
+        return TicketDTO.fromEntity(saved);
     }
 
     @Override
-    public Ticket getTicketById(String id) {
-        return ticketRepository.findById(id)
+    public TicketDTO getTicketById(String id) {
+        Ticket ticket = ticketRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Ticket not found: " + id));
+        return TicketDTO.fromEntity(ticket);
     }
 
     @Override
-    public List<Ticket> getMyTickets(String userId) {
-        return ticketRepository.findByReportedByUserId(userId);
+    public List<TicketDTO> getMyTickets(String userId) {
+        return ticketRepository.findByReportedByUserId(userId).stream()
+            .map(TicketDTO::fromEntity)
+            .collect(Collectors.toList());
     }
 
     @Override
-    public List<Ticket> getAllTickets(String status, String priority) {
+    public List<TicketDTO> getAllTickets(String status, String priority) {
+        List<Ticket> list;
         if (status != null && priority != null) {
-            return ticketRepository.findByStatusAndPriority(
+            list = ticketRepository.findByStatusAndPriority(
                 Ticket.TicketStatus.valueOf(status), Ticket.Priority.valueOf(priority));
+        } else if (status != null) {
+            list = ticketRepository.findByStatus(Ticket.TicketStatus.valueOf(status));
+        } else {
+            list = ticketRepository.findAll();
         }
-        if (status != null) return ticketRepository.findByStatus(Ticket.TicketStatus.valueOf(status));
-        return ticketRepository.findAll();
+        return list.stream()
+            .map(TicketDTO::fromEntity)
+            .collect(Collectors.toList());
     }
 
     @Override
-    public Ticket updateTicketStatus(String id, Ticket.TicketStatus status, String notes, String actorId, User.Role actorRole) {
-        Ticket ticket = getTicketById(id);
+    public TicketDTO updateTicketStatus(String id, Ticket.TicketStatus status, String notes, String actorId, User.Role actorRole) {
+        Ticket ticket = ticketRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Ticket not found: " + id));
+            
         validateStatusTransition(ticket, status, notes, actorId, actorRole);
         ticket.setStatus(status);
         if (status == Ticket.TicketStatus.RESOLVED) {
@@ -85,7 +100,7 @@ public class TicketServiceImpl implements TicketService {
             ticket.setRejectionReason(notes);
         }
         Ticket saved = ticketRepository.save(ticket);
-        // Member 4 (Notifications): alert ticket owner about status changes.
+        
         notificationService.createNotification(
             saved.getReportedByUserId(),
             "Ticket Status Updated",
@@ -93,19 +108,21 @@ public class TicketServiceImpl implements TicketService {
             Notification.NotificationType.TICKET_STATUS_CHANGED,
             saved.getId()
         );
-        return saved;
+        return TicketDTO.fromEntity(saved);
     }
 
     @Override
-    public Ticket assignTechnician(String id, String technicianId) {
-        Ticket ticket = getTicketById(id);
+    public TicketDTO assignTechnician(String id, String technicianId) {
+        Ticket ticket = ticketRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Ticket not found: " + id));
+            
         Ticket.TicketStatus current = ticket.getStatus();
         if (current != Ticket.TicketStatus.OPEN) {
             throw new InvalidTicketStatusException("Cannot assign technician when ticket is " + current);
         }
         ticket.setAssignedTechnicianId(technicianId);
         Ticket saved = ticketRepository.save(ticket);
-        // Member 4 (Notifications): alert technician about assignment.
+        
         notificationService.createNotification(
             technicianId,
             "Ticket Assigned",
@@ -113,12 +130,14 @@ public class TicketServiceImpl implements TicketService {
             Notification.NotificationType.TICKET_ASSIGNED,
             saved.getId()
         );
-        return saved;
+        return TicketDTO.fromEntity(saved);
     }
 
     @Override
-    public Ticket addComment(String id, String userId, String content) {
-        Ticket ticket = getTicketById(id);
+    public TicketDTO addComment(String id, String userId, String content) {
+        Ticket ticket = ticketRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Ticket not found: " + id));
+            
         Ticket.Comment comment = new Ticket.Comment();
         comment.setId(UUID.randomUUID().toString());
         comment.setUserId(userId);
@@ -126,7 +145,7 @@ public class TicketServiceImpl implements TicketService {
         comment.setCreatedAt(java.time.LocalDateTime.now());
         ticket.getComments().add(comment);
         Ticket saved = ticketRepository.save(ticket);
-        // Member 4 (Notifications): notify ticket owner about new comments.
+        
         if (saved.getReportedByUserId() != null && !saved.getReportedByUserId().equals(userId)) {
             String preview = content == null ? "" : content.trim();
             if (preview.length() > 60) preview = preview.substring(0, 60) + "...";
@@ -138,13 +157,14 @@ public class TicketServiceImpl implements TicketService {
                 saved.getId()
             );
         }
-        return saved;
+        return TicketDTO.fromEntity(saved);
     }
 
     @Override
-    public Ticket deleteComment(String ticketId, String commentId, String userId) {
-        Ticket ticket = getTicketById(ticketId);
-        // Security check: only comment owner can delete
+    public TicketDTO deleteComment(String ticketId, String commentId, String userId) {
+        Ticket ticket = ticketRepository.findById(ticketId)
+            .orElseThrow(() -> new ResourceNotFoundException("Ticket not found: " + ticketId));
+            
         boolean removed = ticket.getComments().removeIf(c -> 
             c.getId().equals(commentId) && c.getUserId().equals(userId)
         );
@@ -153,7 +173,8 @@ public class TicketServiceImpl implements TicketService {
             throw new InvalidTicketStatusException("Comment not found or you don't have permission to delete it");
         }
         
-        return ticketRepository.save(ticket);
+        Ticket saved = ticketRepository.save(ticket);
+        return TicketDTO.fromEntity(saved);
     }
 
     // Member 3 (Tickets): enforce state machine transitions for status updates.

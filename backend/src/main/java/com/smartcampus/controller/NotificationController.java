@@ -1,6 +1,6 @@
 package com.smartcampus.controller;
 
-import com.smartcampus.model.Notification;
+import com.smartcampus.dto.NotificationDTO;
 import com.smartcampus.security.UserPrincipal;
 import com.smartcampus.service.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ public class NotificationController {
     private final NotificationService notificationService;
 
     @GetMapping
-    public ResponseEntity<List<Notification>> getAll(@AuthenticationPrincipal UserPrincipal user) {
+    public ResponseEntity<List<NotificationDTO>> getAll(@AuthenticationPrincipal UserPrincipal user) {
         return ResponseEntity.ok(notificationService.getMyNotifications(user.getId()));
     }
 
@@ -32,8 +32,8 @@ public class NotificationController {
     }
 
     @PatchMapping("/{id}/read")
-    public ResponseEntity<Notification> markAsRead(@PathVariable String id,
-                                                    @AuthenticationPrincipal UserPrincipal user) {
+    public ResponseEntity<NotificationDTO> markAsRead(@PathVariable String id,
+                                                     @AuthenticationPrincipal UserPrincipal user) {
         return ResponseEntity.ok(notificationService.markAsRead(id, user.getId()));
     }
 
