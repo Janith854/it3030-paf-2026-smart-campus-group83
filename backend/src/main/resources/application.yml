@@ -1,0 +1,16 @@
+spring:
+  profiles:
+    active: dev
+  application:
+    name: smart-campus
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 15MB
+
+server:
+  port: 8081
+
+logging:
+  level:
+    com.smartcampus: DEBUG
