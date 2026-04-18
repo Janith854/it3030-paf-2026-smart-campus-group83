@@ -211,7 +211,7 @@ const DashboardPage = () => {
               <ArrowUpRight size={18} className="opacity-40 group-hover:opacity-100 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
             </Link>
             <Link to="/facilities" className="flex w-full py-4 bg-white/5 hover:bg-white/10 text-white text-xs font-black uppercase tracking-widest rounded-2xl transition-all border border-white/5 px-6 justify-between items-center group">
-              Reserve Lab
+              Facilities
               <ArrowUpRight size={18} className="opacity-40 group-hover:opacity-100 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
             </Link>
             <Link to="/profile" className="flex w-full py-4 bg-white/5 hover:bg-white/10 text-white text-xs font-black uppercase tracking-widest rounded-2xl transition-all border border-white/5 px-6 justify-between items-center group">

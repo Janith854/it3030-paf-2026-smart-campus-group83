@@ -146,14 +146,10 @@ const RegisterPage = () => {
                   onChange={(e) => setFormData({...formData, role: e.target.value})}
                   className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-2xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all appearance-none cursor-pointer"
                 >
-<<<<<<< HEAD
-                  <option value="USER">Student / Staff</option>
+                  <option value="USER">Student</option>
+                  <option value="LECTURER">Lecturer / Staff</option>
                   <option value="TECHNICIAN">Facility Technician</option>
-                  <option value="ADMIN">System Administrator</option>
-=======
-                  <option value="LECTURER">Lecturer</option>
-                  <option value="TECHNICIAN">Technician</option>
->>>>>>> origin/feature/auth
+                  <option value="ADMIN">System Administrator (ADMIN)</option>
                 </select>
               </div>
             </div>
