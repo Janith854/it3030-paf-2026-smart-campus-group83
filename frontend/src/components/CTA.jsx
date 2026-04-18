@@ -1,9 +1,11 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, BookOpen, Zap } from 'lucide-react';
 import './CTA.css';
 
 export default function CTA() {
+  const navigate = useNavigate();
   return (
     <section className="section cta" id="cta">
       <div className="cta__bg-orb cta__bg-orb--1" />
@@ -29,11 +31,11 @@ export default function CTA() {
             accelerate maintenance, and gain full visibility over campus operations.
           </p>
           <div className="cta__actions" id="cta-actions">
-            <a href="#resources" className="btn btn-primary btn-lg cta__btn-primary" id="cta-get-started">
+            <button onClick={() => navigate('/login')} className="btn btn-primary btn-lg cta__btn-primary" id="cta-get-started">
               <BookOpen size={20} />
               Get Started Free
               <ArrowRight size={18} />
-            </a>
+            </button>
             <a href="#features" className="btn btn-secondary btn-lg" id="cta-learn-more">
               Learn More
             </a>

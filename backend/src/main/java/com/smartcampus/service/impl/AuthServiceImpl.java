@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.List;
 import java.util.Map;
 
@@ -19,6 +20,7 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public String loginWithGoogle(String googleToken) {
@@ -51,6 +53,35 @@ public class AuthServiceImpl implements AuthService {
                 created.setRole(User.Role.USER);
                 return userRepository.save(created);
             });
+
+        return jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole().name());
+    }
+
+    @Override
+    public String registerLocal(String email, String password, String name, User.Role role) {
+        if (userRepository.findByEmail(email).isPresent()) {
+            throw new RuntimeException("Email is already registered");
+        }
+
+        User user = new User();
+        user.setEmail(email);
+        user.setPassword(passwordEncoder.encode(password));
+        user.setName(name);
+        user.setRole(role != null ? role : User.Role.USER);
+        
+        User saved = userRepository.save(user);
+        return jwtUtil.generateToken(saved.getId(), saved.getEmail(), saved.getRole().name());
+    }
+
+    @Override
+    public String loginLocal(String email, String password) {
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("Invalid email or password"));
+
+        // If user logged in through Google previously, they might not have a password
+        if (user.getPassword() == null || !passwordEncoder.matches(password, user.getPassword())) {
+            throw new RuntimeException("Invalid email or password");
+        }
 
         return jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole().name());
     }

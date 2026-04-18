@@ -16,9 +16,10 @@ public class User {
     private String name;
     private String picture;
     private String googleId;
+    private String password;
     private Role role = Role.USER;
     @CreatedDate private LocalDateTime createdAt;
     @LastModifiedDate private LocalDateTime updatedAt;
 
-    public enum Role { USER, ADMIN, TECHNICIAN }
+    public enum Role { USER, LECTURER, ADMIN, TECHNICIAN }
 }

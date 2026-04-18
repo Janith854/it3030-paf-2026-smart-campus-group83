@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Menu, X, BookOpen, Zap } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Menu, X, Zap, User as UserIcon } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import './Navbar.css';
 
 const navLinks = [
@@ -12,12 +14,26 @@ const navLinks = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const navigate = useNavigate();
+  const { user } = useAuth(); // Call your auth context to know who is logged in
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', onScroll);
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  const handleGetStarted = (e) => {
+    e.preventDefault();
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    // Route securely to native workspaces based on authentication role
+    if (user.role === 'ADMIN') navigate('/admin');
+    else if (user.role === 'TECHNICIAN') navigate('/technician');
+    else navigate('/lecturer');
+  };
 
   return (
     <nav className={`navbar ${scrolled ? 'navbar--scrolled' : ''}`} id="navbar">
@@ -45,9 +61,10 @@ export default function Navbar() {
 
         {/* CTA */}
         <div className="navbar__cta">
-          <a href="#cta" className="btn btn-primary btn-sm" id="navbar-login-btn">
-            Get Started
-          </a>
+          <button onClick={handleGetStarted} className="btn btn-primary btn-sm" id="navbar-login-btn" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <UserIcon size={16} />
+            {user ? 'My Dashboard' : 'Sign In'}
+          </button>
         </div>
 
         {/* Mobile Toggle */}
@@ -74,9 +91,9 @@ export default function Navbar() {
               {link.label}
             </a>
           ))}
-          <a href="#cta" className="btn btn-primary btn-sm" onClick={() => setMobileOpen(false)}>
-            Get Started
-          </a>
+          <button onClick={(e) => { setMobileOpen(false); handleGetStarted(e); }} className="btn btn-primary btn-sm">
+            {hasToken ? 'Dashboard' : 'Get Started'}
+          </button>
         </div>
       )}
     </nav>

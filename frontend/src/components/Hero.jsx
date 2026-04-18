@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, BookOpen, AlertCircle, ChevronDown, Sparkles, Shield, Clock } from 'lucide-react';
 import './Hero.css';
@@ -10,6 +11,7 @@ const stats = [
 ];
 
 export default function Hero() {
+  const navigate = useNavigate();
   return (
     <section className="hero" id="home">
       {/* Background Effects */}
@@ -66,15 +68,15 @@ export default function Hero() {
           className="hero__actions"
           id="hero-actions"
         >
-          <a href="#resources" className="btn btn-primary btn-lg" id="hero-book-btn">
+          <button onClick={() => navigate('/dashboard/bookings')} className="btn btn-primary btn-lg" id="hero-book-btn">
             <BookOpen size={20} />
             Book Resource
             <ArrowRight size={18} />
-          </a>
-          <a href="#maintenance" className="btn btn-secondary btn-lg" id="hero-report-btn">
+          </button>
+          <button onClick={() => navigate('/dashboard/tickets')} className="btn btn-secondary btn-lg" id="hero-report-btn">
             <AlertCircle size={20} />
             Report Issue
-          </a>
+          </button>
         </motion.div>
 
         {/* Stats Row */}

@@ -8,6 +8,8 @@ import com.smartcampus.model.Notification;
 import com.smartcampus.repository.BookingRepository;
 import com.smartcampus.service.BookingService;
 import com.smartcampus.service.NotificationService;
+import com.smartcampus.model.User;
+import com.smartcampus.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -22,6 +24,7 @@ public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepository;
     private final NotificationService notificationService;
+    private final UserRepository userRepository;
 
     @Override
     public Booking createBooking(Booking booking, String userId) {
@@ -40,7 +43,20 @@ public class BookingServiceImpl implements BookingService {
 
         booking.setUserId(userId);
         booking.setStatus(Booking.BookingStatus.PENDING);
-        return bookingRepository.save(booking);
+        Booking saved = bookingRepository.save(booking);
+
+        List<User> admins = userRepository.findByRole(User.Role.ADMIN);
+        for (User admin : admins) {
+            notificationService.createNotification(
+                admin.getId(),
+                "New Booking Request",
+                "A new booking request for " + saved.getPurpose() + " is pending your approval.",
+                Notification.NotificationType.BOOKING_CREATED,
+                saved.getId()
+            );
+        }
+        
+        return saved;
     }
 
     @Override

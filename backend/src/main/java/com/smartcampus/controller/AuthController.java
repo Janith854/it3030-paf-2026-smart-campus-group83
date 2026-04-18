@@ -27,6 +27,18 @@ public class AuthController {
         return ResponseEntity.ok(new AuthResponse(token));
     }
 
+    @PostMapping("/register")
+    public ResponseEntity<AuthResponse> registerLocal(@RequestBody @jakarta.validation.Valid com.smartcampus.dto.request.RegisterRequest request) {
+        String token = authService.registerLocal(request.getEmail(), request.getPassword(), request.getName(), request.getRole());
+        return ResponseEntity.status(org.springframework.http.HttpStatus.CREATED).body(new AuthResponse(token));
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> loginLocal(@RequestBody @jakarta.validation.Valid com.smartcampus.dto.request.LoginRequest request) {
+        String token = authService.loginLocal(request.getEmail(), request.getPassword());
+        return ResponseEntity.ok(new AuthResponse(token));
+    }
+
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<User> getCurrentUser(@RequestAttribute("userId") String userId) {
