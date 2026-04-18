@@ -22,10 +22,10 @@ const Sidebar = () => {
   const { user, logout } = useAuth();
 
   const navItems = [
-    { name: 'Dashboard', icon: LayoutDashboard, path: '/', roles: ['USER', 'ADMIN', 'TECHNICIAN'] },
-    { name: 'Facilities', icon: Building2, path: '/facilities', roles: ['USER', 'ADMIN', 'TECHNICIAN'] },
-    { name: 'Bookings', icon: CalendarCheck, path: '/bookings', roles: ['USER', 'ADMIN', 'TECHNICIAN'] },
-    { name: 'Maintenance', icon: Ticket, path: '/tickets', roles: ['USER', 'ADMIN', 'TECHNICIAN'] },
+    { name: 'Dashboard', icon: LayoutDashboard, path: '/', roles: ['LECTURER', 'ADMIN', 'TECHNICIAN'] },
+    { name: 'Facilities', icon: Building2, path: '/facilities', roles: ['LECTURER', 'ADMIN', 'TECHNICIAN'] },
+    { name: 'Bookings', icon: CalendarCheck, path: '/bookings', roles: ['LECTURER', 'ADMIN', 'TECHNICIAN'] },
+    { name: 'Maintenance', icon: Ticket, path: '/tickets', roles: ['LECTURER', 'ADMIN', 'TECHNICIAN'] },
   ];
 
   const adminItems = [

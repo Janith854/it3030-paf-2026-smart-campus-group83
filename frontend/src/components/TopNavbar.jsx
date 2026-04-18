@@ -1,11 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Bell, User, ChevronDown, Menu } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import NotificationPanel from './NotificationPanel';
+import api from '../utils/api';
 
 const TopNavbar = () => {
   const { user } = useAuth();
   const [showNotifications, setShowNotifications] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const fetchUnreadCount = async () => {
+    try {
+      const response = await api.get('/notifications/unread-count');
+      setUnreadCount(response.data.count);
+    } catch (error) {
+      console.error('Failed to fetch unread count', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUnreadCount();
+    const interval = setInterval(fetchUnreadCount, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <header className="fixed top-0 right-0 left-64 h-16 bg-white border-b border-slate-100 z-40 px-8 flex items-center justify-between shadow-sm">
@@ -27,7 +44,11 @@ const TopNavbar = () => {
           className="p-2 text-slate-500 hover:bg-slate-50 rounded-xl relative transition-colors"
         >
           <Bell size={20} />
-          <span className="absolute top-2 right-2.5 h-2 w-2 bg-red-500 rounded-full border-2 border-white"></span>
+          {unreadCount > 0 && (
+            <span className="absolute top-2 right-2 h-4 w-4 bg-indigo-600 text-[10px] font-black text-white flex items-center justify-center rounded-full border-2 border-white">
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
         </button>
 
         {/* Vertical Divider */}
@@ -35,18 +56,17 @@ const TopNavbar = () => {
 
         {/* User Dropdown */}
         <div className="flex items-center gap-3 pl-2 group cursor-pointer hover:bg-slate-50 p-1.5 rounded-xl transition-colors">
-          <div className="text-right hidden sm:block">
-            <p className="text-sm font-semibold text-slate-900 leading-none">{user?.name}</p>
-            <p className="text-xs text-slate-500 mt-1 capitalize">{user?.role?.toLowerCase()}</p>
+          <div className="text-right hidden sm:block font-medium">
+            <p className="text-sm font-bold text-slate-900 leading-none">{user?.name}</p>
+            <p className="text-[10px] font-black text-indigo-500 mt-1 uppercase tracking-widest leading-none">{user?.role}</p>
           </div>
-          <div className="h-9 w-9 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-xl flex items-center justify-center font-bold">
+          <div className="h-9 w-9 bg-slate-900 text-white rounded-xl flex items-center justify-center font-bold shadow-soft">
             {user?.name?.charAt(0)}
           </div>
-          <ChevronDown size={16} className="text-slate-400 group-hover:text-indigo-600 transition-colors" />
+          <ChevronDown size={14} className="text-slate-400 group-hover:text-indigo-600 transition-colors" />
         </div>
       </div>
 
-      {/* Notification Slide Panel placeholder - implemented separately */}
       <NotificationPanel isOpen={showNotifications} onClose={() => setShowNotifications(false)} />
     </header>
   );

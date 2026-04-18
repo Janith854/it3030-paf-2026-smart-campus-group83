@@ -18,7 +18,7 @@ const LoginPage = () => {
     setError('');
     setLoading(true);
     try {
-      await login(email, password, 'USER'); // Default role for manual login
+      await login(email, password, 'LECTURER'); // Default role for manual login
       navigate('/');
     } catch (err) {
       setError(err);

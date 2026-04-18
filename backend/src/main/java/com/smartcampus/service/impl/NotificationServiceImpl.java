@@ -71,4 +71,22 @@ public class NotificationServiceImpl implements NotificationService {
         unread.forEach(n -> n.setRead(true));
         notificationRepository.saveAll(unread);
     }
+
+    @Override
+    public void deleteNotification(String id, String userId) {
+        Notification n = notificationRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Notification not found: " + id));
+        if (!n.getUserId().equals(userId)) {
+            throw new ResourceNotFoundException("Not authorized to delete this notification");
+        }
+        notificationRepository.delete(n);
+    }
+
+    @Override
+    // Member 4: Broadcast system for campus-wide alerts.
+    public void broadcastNotification(String title, String message, Notification.NotificationType type) {
+        // Here we would ideally fetch all user IDs from a UserRepository
+        // For simplicity, we assume this is called by an admin flow
+        // For now, it will be blank or we can inject UserRepository
+    }
 }
