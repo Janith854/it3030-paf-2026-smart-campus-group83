@@ -19,7 +19,7 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        String roleName = (role != null) ? role.name() : User.Role.USER.name();
+        String roleName = (role != null) ? role.name() : User.Role.LECTURER.name();
         return List.of(new SimpleGrantedAuthority("ROLE_" + roleName));
     }
 

@@ -152,4 +152,17 @@ public class BookingServiceImpl implements BookingService {
         Booking saved = bookingRepository.save(booking);
         return BookingDTO.fromEntity(saved);
     }
+
+    @Override
+    public void deleteBooking(String id, String userId, boolean isAdmin) {
+        Booking booking = bookingRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Booking not found: " + id));
+        
+        // Only owner or admin can delete
+        if (!isAdmin && !booking.getUserId().equals(userId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not authorized to delete this booking");
+        }
+        
+        bookingRepository.delete(booking);
+    }
 }

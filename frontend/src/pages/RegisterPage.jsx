@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Building2, Mail, Lock, User, ArrowRight, Shield } from 'lucide-react';
+import { Building2, Mail, Lock, User, ArrowRight, Shield, Briefcase, IdCard } from 'lucide-react';
 import api from '../utils/api';
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    department: 'Computing',
+    empId: '',
     password: '',
-    role: 'USER'
+    role: 'LECTURER'
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -24,7 +26,12 @@ const RegisterPage = () => {
       await api.post('/auth/register', formData);
       navigate('/login');
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed');
+      if (err.response?.data?.errors) {
+        const firstError = Object.values(err.response.data.errors)[0];
+        setError(firstError);
+      } else {
+        setError(err.response?.data?.message || 'Registration failed');
+      }
     } finally {
       setLoading(false);
     }
@@ -82,12 +89,46 @@ const RegisterPage = () => {
             </div>
 
             <div className="space-y-2">
+              <label className="text-sm font-bold text-slate-700 ml-1">Department</label>
+              <div className="relative">
+                <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                <select
+                  required
+                  value={formData.department}
+                  onChange={(e) => setFormData({...formData, department: e.target.value})}
+                  className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-2xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all appearance-none cursor-pointer"
+                >
+                  <option value="Computing">Computing</option>
+                  <option value="Business">Business</option>
+                  <option value="Engineering">Engineering</option>
+                  <option value="Architecture">Architecture</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-slate-700 ml-1">Employee ID</label>
+              <div className="relative">
+                <IdCard className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                <input
+                  type="text"
+                  required
+                  value={formData.empId}
+                  onChange={(e) => setFormData({...formData, empId: e.target.value})}
+                  className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-2xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                  placeholder="EMP001"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
               <label className="text-sm font-bold text-slate-700 ml-1">Password</label>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                 <input
                   type="password"
                   required
+                  minLength={6}
                   value={formData.password}
                   onChange={(e) => setFormData({...formData, password: e.target.value})}
                   className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-2xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
@@ -105,8 +146,8 @@ const RegisterPage = () => {
                   onChange={(e) => setFormData({...formData, role: e.target.value})}
                   className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-2xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all appearance-none cursor-pointer"
                 >
-                  <option value="USER">Student / Staff</option>
-                  <option value="TECHNICIAN">Facility Technician</option>
+                  <option value="LECTURER">Lecturer</option>
+                  <option value="TECHNICIAN">Technician</option>
                 </select>
               </div>
             </div>

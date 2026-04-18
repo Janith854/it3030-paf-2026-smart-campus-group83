@@ -31,7 +31,7 @@ public class AuthServiceImpl implements AuthService {
         // Placeholder:
         User user = new User();
         user.setEmail("placeholder@example.com");
-        user.setRole(User.Role.USER);
+        user.setRole(User.Role.LECTURER);
         User saved = userRepository.save(user);
         return jwtUtil.generateToken(saved.getId(), saved.getEmail(), saved.getRole().name());
     }
@@ -79,7 +79,7 @@ public class AuthServiceImpl implements AuthService {
         else if (role == User.Role.TECHNICIAN) {
             user.setRole(User.Role.TECHNICIAN);
         } else {
-            user.setRole(User.Role.USER);
+            user.setRole(User.Role.LECTURER);
         }
 
         User saved = userRepository.save(user);

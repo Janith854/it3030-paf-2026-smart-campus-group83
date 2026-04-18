@@ -12,12 +12,16 @@ import {
   AlertCircle
 } from 'lucide-react';
 import api from '../utils/api';
+import BookingFormModal from '../components/BookingFormModal';
 
 const FacilitiesPage = () => {
   const [facilities, setFacilities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState('ALL');
+  const [capacityFilter, setCapacityFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('ALL');
+  const [selectedFacility, setSelectedFacility] = useState(null);
 
   useEffect(() => {
     fetchFacilities();
@@ -46,7 +50,14 @@ const FacilitiesPage = () => {
     const matchesSearch = f.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           f.location.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = activeFilter === 'ALL' || f.type === activeFilter;
-    return matchesSearch && matchesCategory;
+    const matchesStatus = statusFilter === 'ALL' || f.status === statusFilter;
+    
+    let matchesCapacity = true;
+    if (capacityFilter === 'small') matchesCapacity = f.capacity <= 20;
+    else if (capacityFilter === 'medium') matchesCapacity = f.capacity > 20 && f.capacity <= 100;
+    else if (capacityFilter === 'large') matchesCapacity = f.capacity > 100;
+
+    return matchesSearch && matchesCategory && matchesStatus && matchesCapacity;
   });
 
   const categories = [
@@ -98,15 +109,38 @@ const FacilitiesPage = () => {
           ))}
         </div>
         
-        <div className="relative w-full md:w-80">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-          <input 
-            type="text" 
-            placeholder="Search by name or location..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-transparent rounded-2xl text-sm focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition-all"
-          />
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          <select 
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="w-full md:w-auto px-4 py-3 bg-slate-50 border border-transparent rounded-2xl text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition-all appearance-none"
+          >
+            <option value="ALL">All Statuses</option>
+            <option value="ACTIVE">Active Only</option>
+            <option value="MAINTENANCE">Maintenance</option>
+          </select>
+
+          <select 
+            value={capacityFilter}
+            onChange={(e) => setCapacityFilter(e.target.value)}
+            className="w-full md:w-auto px-4 py-3 bg-slate-50 border border-transparent rounded-2xl text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition-all appearance-none"
+          >
+            <option value="">Any Capacity</option>
+            <option value="small">Small (&le;20)</option>
+            <option value="medium">Medium (21-100)</option>
+            <option value="large">Large (&gt;100)</option>
+          </select>
+
+          <div className="relative w-full md:w-64">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+            <input 
+              type="text" 
+              placeholder="Search by name..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-transparent rounded-2xl text-sm focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition-all"
+            />
+          </div>
         </div>
       </div>
 
@@ -155,7 +189,9 @@ const FacilitiesPage = () => {
                   </div>
                 </div>
 
-                <button className={`w-full py-4 rounded-2xl font-bold transition-all shadow-md
+                <button 
+                  onClick={() => facility.status === 'ACTIVE' && setSelectedFacility(facility)}
+                  className={`w-full py-4 rounded-2xl font-bold transition-all shadow-md
                   ${facility.status === 'ACTIVE' 
                     ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-indigo-500/10' 
                     : 'bg-slate-100 text-slate-400 cursor-not-allowed'}`}>
@@ -176,6 +212,16 @@ const FacilitiesPage = () => {
           <p className="text-slate-500 mt-2 max-w-xs mx-auto font-medium">Try adjusting your search filters or browse other categories.</p>
         </div>
       )}
+
+      {/* Booking Form Modal */}
+      <AnimatePresence>
+        {selectedFacility && (
+          <BookingFormModal 
+            facility={selectedFacility} 
+            onClose={() => setSelectedFacility(null)} 
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

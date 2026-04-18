@@ -66,4 +66,13 @@ public class BookingController {
                                             @AuthenticationPrincipal UserPrincipal user) {
         return ResponseEntity.ok(bookingService.cancelBooking(id, user.getId()));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable String id,
+                                      @AuthenticationPrincipal UserPrincipal user) {
+        boolean isAdmin = user.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        bookingService.deleteBooking(id, user.getId(), isAdmin);
+        return ResponseEntity.noContent().build();
+    }
 }
