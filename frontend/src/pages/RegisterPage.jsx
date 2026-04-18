@@ -107,6 +107,7 @@ const RegisterPage = () => {
                 >
                   <option value="USER">Student / Staff</option>
                   <option value="TECHNICIAN">Facility Technician</option>
+                  <option value="ADMIN">System Administrator</option>
                 </select>
               </div>
             </div>

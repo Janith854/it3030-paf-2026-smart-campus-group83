@@ -75,9 +75,11 @@ public class AuthServiceImpl implements AuthService {
         if (normalizedEmail.equalsIgnoreCase("admin@gmail.com")) {
             user.setRole(User.Role.ADMIN);
         } 
-        // 2. Otherwise use requested role (USER or TECHNICIAN), default to USER
+        // 2. Otherwise use requested role, default to USER
         else if (role == User.Role.TECHNICIAN) {
             user.setRole(User.Role.TECHNICIAN);
+        } else if (role == User.Role.ADMIN) {
+            user.setRole(User.Role.ADMIN);
         } else {
             user.setRole(User.Role.USER);
         }
