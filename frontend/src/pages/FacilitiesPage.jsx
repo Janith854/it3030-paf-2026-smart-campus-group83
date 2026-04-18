@@ -1,20 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
+  Plus,
   Search, 
   MapPin, 
   Users as CapacityIcon, 
   Filter, 
-  MoreVertical,
   Building2,
   Wrench,
   CheckCircle2,
   AlertCircle
 } from 'lucide-react';
 import api from '../utils/api';
+import { useAuth } from '../context/AuthContext';
 import BookingFormModal from '../components/BookingFormModal';
+import AddResourceModal from '../components/AddResourceModal';
 
 const FacilitiesPage = () => {
+  const { user } = useAuth();
   const [facilities, setFacilities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -22,6 +25,7 @@ const FacilitiesPage = () => {
   const [capacityFilter, setCapacityFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [selectedFacility, setSelectedFacility] = useState(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   useEffect(() => {
     fetchFacilities();
@@ -35,11 +39,16 @@ const FacilitiesPage = () => {
       console.error('Failed to fetch facilities', error);
       // Fallback data for demonstration if backend is not seeded
       setFacilities([
-        { id: 1, name: 'Lecture Hall A', type: 'LECTURE_HALL', capacity: 250, location: 'Building 01, Level 2', status: 'ACTIVE' },
-        { id: 2, name: 'Physics Lab 3', type: 'LAB', capacity: 40, location: 'Science Block, Level 1', status: 'ACTIVE' },
-        { id: 3, name: 'Main Auditorium', type: 'LECTURE_HALL', capacity: 1000, location: 'Cultural Center', status: 'MAINTENANCE' },
-        { id: 4, name: 'Meeting Room 204', type: 'MEETING_ROOM', capacity: 12, location: 'Library, Level 2', status: 'ACTIVE' },
-        { id: 5, name: 'Design Studio', type: 'EQUIPMENT', capacity: 25, location: 'Arts Wing, Level 3', status: 'OUT_OF_SERVICE' },
+        { id: '1', name: 'Main Auditorium', type: 'LECTURE_HALL', capacity: 500, location: 'Block A, Level 1', status: 'ACTIVE' },
+        { id: '2', name: 'Advanced Computing Lab', type: 'LAB', capacity: 60, location: 'Block B, Level 3', status: 'ACTIVE' },
+        { id: '3', name: 'Executive Board Room', type: 'MEETING_ROOM', capacity: 20, location: 'Admin Block, Level 4', status: 'ACTIVE' },
+        { id: '4', name: 'Sony DSLR Camera Kit', type: 'EQUIPMENT', capacity: 1, location: 'Media Unit', status: 'ACTIVE' },
+        { id: '5', name: 'General Chemistry Lab', type: 'LAB', capacity: 40, location: 'Block C, Level 2', status: 'OUT_OF_SERVICE' },
+        { id: '6', name: 'Mini Lecture Theater', type: 'LECTURE_HALL', capacity: 150, location: 'Block B, Level 1', status: 'ACTIVE' },
+        { id: '7', name: 'Robotics & AI Lab', type: 'LAB', capacity: 30, location: 'Block E, Level 2', status: 'ACTIVE' },
+        { id: '8', name: 'EPSON 4K Projector', type: 'EQUIPMENT', capacity: 1, location: 'IT Dept', status: 'ACTIVE' },
+        { id: '9', name: 'Collaborative Study Space', type: 'MEETING_ROOM', capacity: 50, location: 'Library, Level 2', status: 'ACTIVE' },
+        { id: '10', name: 'Physics Research Lab', type: 'LAB', capacity: 25, location: 'Block C, Level 3', status: 'ACTIVE' },
       ]);
     } finally {
       setLoading(false);
@@ -65,6 +74,7 @@ const FacilitiesPage = () => {
     { label: 'Lecture Halls', value: 'LECTURE_HALL' },
     { label: 'Labs', value: 'LAB' },
     { label: 'Meeting Rooms', value: 'MEETING_ROOM' },
+    { label: 'Equipment', value: 'EQUIPMENT' },
   ];
 
   const getStatusBadge = (status) => {
@@ -86,10 +96,21 @@ const FacilitiesPage = () => {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900">Campus Facilities</h1>
-        <p className="text-slate-500 font-medium mt-1">Explore and book available resources across the campus.</p>
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900">Campus Facilities</h1>
+          <p className="text-slate-500 font-medium mt-1">Explore and book available resources across the campus.</p>
+        </div>
+        
+        {user?.role === 'ADMIN' && (
+          <button 
+            onClick={() => setIsAddModalOpen(true)}
+            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3.5 rounded-2xl font-bold shadow-lg shadow-indigo-200 transition-all active:scale-95 whitespace-nowrap"
+          >
+            <Plus size={20} strokeWidth={3} />
+            <span>Add Resource</span>
+          </button>
+        )}
       </div>
 
       {/* Toolbar */}
@@ -213,12 +234,20 @@ const FacilitiesPage = () => {
         </div>
       )}
 
-      {/* Booking Form Modal */}
       <AnimatePresence>
         {selectedFacility && (
           <BookingFormModal 
             facility={selectedFacility} 
             onClose={() => setSelectedFacility(null)} 
+          />
+        )}
+        
+        {isAddModalOpen && (
+          <AddResourceModal 
+            onClose={() => setIsAddModalOpen(false)}
+            onResourceAdded={(newRes) => {
+              setFacilities([newRes, ...facilities]);
+            }}
           />
         )}
       </AnimatePresence>
