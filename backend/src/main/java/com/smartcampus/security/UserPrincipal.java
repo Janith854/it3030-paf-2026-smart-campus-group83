@@ -19,8 +19,7 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        String roleName = (role != null) ? role.name() : User.Role.LECTURER.name();
-        return List.of(new SimpleGrantedAuthority("ROLE_" + roleName));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
     @Override public String getPassword() { return null; }

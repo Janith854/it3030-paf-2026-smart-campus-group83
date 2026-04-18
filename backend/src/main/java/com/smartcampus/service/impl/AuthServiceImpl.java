@@ -1,19 +1,25 @@
 package com.smartcampus.service.impl;
 
 import com.smartcampus.dto.response.AuthResponse;
+import com.smartcampus.exception.ResourceNotFoundException;
 import com.smartcampus.model.User;
 import com.smartcampus.repository.UserRepository;
 import com.smartcampus.security.JwtUtil;
 import com.smartcampus.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
+import java.util.List;
+import java.util.Map;
 
 /**
- * TODO Member 4: Complete Google token verification
- * Branch: feature/auth
+ * Module E — Authentication
+ * Member 4: feature/auth
  */
 @Service
 @RequiredArgsConstructor
@@ -25,21 +31,43 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public String loginWithGoogle(String googleToken) {
-        // TODO: verify googleToken with Google API
-        // TODO: extract email, name, picture, googleId from Google payload
-        // TODO: find or create user in DB
-        // Placeholder:
-        User user = new User();
-        user.setEmail("placeholder@example.com");
-        user.setRole(User.Role.LECTURER);
-        User saved = userRepository.save(user);
-        return jwtUtil.generateToken(saved.getId(), saved.getEmail(), saved.getRole().name());
+        if (googleToken == null || googleToken.isBlank()) {
+            throw new RuntimeException("Invalid Google token");
+        }
+
+        Map<String, Object> payload = fetchGoogleTokenInfo(googleToken);
+        String email = (String) payload.get("email");
+        String name = (String) payload.get("name");
+        String picture = (String) payload.get("picture");
+        String googleId = (String) payload.get("sub");
+
+        if (email == null || googleId == null) {
+            throw new RuntimeException("Invalid Google token");
+        }
+
+        User user = userRepository.findByEmail(email)
+                .map(existing -> {
+                    existing.setName(name);
+                    existing.setPicture(picture);
+                    return userRepository.save(existing);
+                })
+                .orElseGet(() -> {
+                    User created = new User();
+                    created.setEmail(email);
+                    created.setName(name);
+                    created.setPicture(picture);
+                    created.setGoogleId(googleId);
+                    created.setRole(User.Role.USER);
+                    return userRepository.save(created);
+                });
+
+        return jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole().name());
     }
 
     @Override
     public User getCurrentUser(String userId) {
         return userRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + userId));
     }
 
     @Override
@@ -50,8 +78,13 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    @Override
     public AuthResponse register(String name, String email, String department, String empId,
-                                         String password, User.Role role) {
+            String password, User.Role role) {
         String normalizedEmail = email == null ? null : email.trim().toLowerCase();
         if (normalizedEmail == null || normalizedEmail.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is required");
@@ -74,12 +107,10 @@ public class AuthServiceImpl implements AuthService {
         // 1. Special case: admin@gmail.com -> ADMIN
         if (normalizedEmail.equalsIgnoreCase("admin@gmail.com")) {
             user.setRole(User.Role.ADMIN);
-        } 
-        // 2. Otherwise use requested role, default to USER
+        }
+        // 2. Otherwise use requested role (USER or TECHNICIAN), default to USER
         else if (role == User.Role.TECHNICIAN) {
             user.setRole(User.Role.TECHNICIAN);
-        } else if (role == User.Role.ADMIN) {
-            user.setRole(User.Role.ADMIN);
         } else {
             user.setRole(User.Role.LECTURER);
         }
@@ -99,7 +130,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         User user = userRepository.findByEmail(normalizedEmail)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials"));
 
         if (user.getPassword() == null || !passwordEncoder.matches(password, user.getPassword())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
@@ -109,17 +140,32 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private AuthResponse buildAuthResponse(User user, boolean includeToken) {
-        String token = includeToken ? jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole().name()) : null;
-        
+        String token = includeToken ? jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole().name())
+                : null;
+
         return AuthResponse.builder()
-            .token(token)
-            .user(AuthResponse.UserResponse.builder()
-                .id(user.getId())
-                .name(user.getName())
-                .email(user.getEmail())
-                .role(user.getRole().name())
-                .department(user.getDepartment())
-                .build())
-            .build();
+                .token(token)
+                .user(AuthResponse.UserResponse.builder()
+                        .id(user.getId())
+                        .name(user.getName())
+                        .email(user.getEmail())
+                        .role(user.getRole().name())
+                        .department(user.getDepartment())
+                        .build())
+                .build();
+    }
+
+    private Map<String, Object> fetchGoogleTokenInfo(String googleToken) {
+        String url = "https://oauth2.googleapis.com/tokeninfo?id_token={token}";
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class, googleToken);
+            if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
+                throw new RuntimeException("Invalid Google token");
+            }
+            return response.getBody();
+        } catch (RestClientException ex) {
+            throw new RuntimeException("Invalid Google token");
+        }
     }
 }

@@ -1,16 +1,16 @@
 package com.smartcampus.service;
 
-import com.smartcampus.dto.BookingDTO;
+import com.smartcampus.model.Booking;
 import java.util.List;
 
 /** Member 2 implements this */
 public interface BookingService {
-    BookingDTO createBooking(BookingDTO bookingDto, String userId);
-    BookingDTO getBookingById(String id);
-    List<BookingDTO> getMyBookings(String userId);
-    List<BookingDTO> getAllBookings(String status);
-    BookingDTO approveBooking(String id, String adminId);
-    BookingDTO rejectBooking(String id, String reason, String adminId);
-    BookingDTO cancelBooking(String id, String userId);
-    void deleteBooking(String id, String userId, boolean isAdmin);
+    Booking createBooking(Booking booking, String userId);
+    Booking getBookingById(String id);
+    List<Booking> getMyBookings(String userId);
+    List<Booking> getAllBookings(String status);
+    Booking approveBooking(String id, String adminId);
+    Booking rejectBooking(String id, String reason, String adminId);
+    Booking cancelBooking(String id, String userId);
+    void deleteBooking(String id, String userId);
 }
