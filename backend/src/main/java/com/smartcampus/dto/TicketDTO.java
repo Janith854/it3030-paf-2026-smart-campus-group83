@@ -8,10 +8,12 @@ import java.util.List;
 @Data
 public class TicketDTO {
     private String id;
+    private String resourceId;
     private String description;
     private Ticket.Priority priority;
     private String category;
     private String location;
+    private String preferredContact;
     private Ticket.TicketStatus status;
     private String reportedByUserId;
     private String assignedTechnicianId;
@@ -32,10 +34,12 @@ public class TicketDTO {
     public static TicketDTO fromEntity(Ticket entity) {
         TicketDTO dto = new TicketDTO();
         dto.setId(entity.getId());
+        dto.setResourceId(entity.getResourceId());
         dto.setDescription(entity.getDescription());
         dto.setPriority(entity.getPriority());
         dto.setCategory(entity.getCategory());
         dto.setLocation(entity.getLocation());
+        dto.setPreferredContact(entity.getPreferredContact());
         dto.setStatus(entity.getStatus());
         dto.setReportedByUserId(entity.getReportedByUserId());
         dto.setAssignedTechnicianId(entity.getAssignedTechnicianId());
@@ -60,10 +64,12 @@ public class TicketDTO {
     public Ticket toEntity() {
         Ticket entity = new Ticket();
         entity.setId(this.id);
+        entity.setResourceId(this.resourceId);
         entity.setDescription(this.description);
         entity.setPriority(this.priority);
         entity.setCategory(this.category);
         entity.setLocation(this.location);
+        entity.setPreferredContact(this.preferredContact);
         entity.setStatus(this.status);
         entity.setReportedByUserId(this.reportedByUserId);
         entity.setAssignedTechnicianId(this.assignedTechnicianId);

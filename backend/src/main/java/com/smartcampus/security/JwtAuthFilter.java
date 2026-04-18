@@ -26,15 +26,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
-            
-            // Allow mock token for development purposes
-            if ("mock-jwt-token".equals(token)) {
-                UserPrincipal principal = new UserPrincipal("mock-admin-id", "admin@smartcampus.com", User.Role.ADMIN);
-                UsernamePasswordAuthenticationToken auth =
-                    new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
-                SecurityContextHolder.getContext().setAuthentication(auth);
-                request.setAttribute("userId", "mock-admin-id");
-            } else if (jwtUtil.isTokenValid(token)) {
+            if (jwtUtil.isTokenValid(token)) {
                 Claims claims = jwtUtil.extractClaims(token);
                 String userId = claims.getSubject();
                 String role = claims.get("role", String.class);

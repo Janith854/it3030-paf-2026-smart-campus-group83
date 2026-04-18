@@ -17,7 +17,7 @@ public class JwtUtil {
     @Value("${jwt.expiration}")
     private long expiration;
 
-    private SecretKey getKey() {
+    private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
@@ -28,12 +28,12 @@ public class JwtUtil {
             .claim("role", role)
             .issuedAt(new Date())
             .expiration(new Date(System.currentTimeMillis() + expiration))
-            .signWith(getKey())
+            .signWith(getSigningKey())
             .compact();
     }
 
     public Claims extractClaims(String token) {
-        return Jwts.parser().verifyWith(getKey()).build()
+        return Jwts.parser().verifyWith(getSigningKey()).build()
             .parseSignedClaims(token).getPayload();
     }
 

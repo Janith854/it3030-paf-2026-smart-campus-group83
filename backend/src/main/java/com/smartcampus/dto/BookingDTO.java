@@ -28,10 +28,14 @@ public class BookingDTO {
     @NotNull(message = "End time is required")
     private LocalTime endTime;
 
+    @NotBlank(message = "Purpose is required")
     private String purpose;
+
+    private Integer expectedAttendees;
     private Booking.BookingStatus status;
     private LocalDateTime createdAt;
     private String rejectionReason;
+    private String approvedByAdminId;
 
     public static BookingDTO fromEntity(Booking entity) {
         BookingDTO dto = new BookingDTO();
@@ -42,9 +46,11 @@ public class BookingDTO {
         dto.setStartTime(entity.getStartTime());
         dto.setEndTime(entity.getEndTime());
         dto.setPurpose(entity.getPurpose());
+        dto.setExpectedAttendees(entity.getExpectedAttendees());
         dto.setStatus(entity.getStatus());
         dto.setCreatedAt(entity.getCreatedAt());
         dto.setRejectionReason(entity.getRejectionReason());
+        dto.setApprovedByAdminId(entity.getApprovedByAdminId());
         return dto;
     }
 
@@ -57,9 +63,11 @@ public class BookingDTO {
         entity.setStartTime(this.startTime);
         entity.setEndTime(this.endTime);
         entity.setPurpose(this.purpose);
+        entity.setExpectedAttendees(this.expectedAttendees);
         entity.setStatus(this.status);
         entity.setCreatedAt(this.createdAt);
         entity.setRejectionReason(this.rejectionReason);
+        entity.setApprovedByAdminId(this.approvedByAdminId);
         return entity;
     }
 }

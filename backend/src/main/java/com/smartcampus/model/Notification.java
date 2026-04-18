@@ -1,29 +1,21 @@
 package com.smartcampus.model;
 
-import lombok.Data;
-import org.springframework.data.annotation.*;
-import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
-
-/**
- * Module D — Notifications
- * Owner: Member 4 (feature/auth)
- */
+import lombok.Data;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 @Data
 @Document(collection = "notifications")
 public class Notification {
-    @Id
-    private String id;
-
+    @Id private String id;
     private String userId;
     private String title;
     private String message;
     private NotificationType type;
-    private String referenceId;   // bookingId or ticketId
+    private String referenceId;
     private boolean read = false;
-
-    @CreatedDate
-    private LocalDateTime createdAt;
+    @CreatedDate private LocalDateTime createdAt;
 
     public enum NotificationType {
         BOOKING_APPROVED, BOOKING_REJECTED, BOOKING_CANCELLED,
