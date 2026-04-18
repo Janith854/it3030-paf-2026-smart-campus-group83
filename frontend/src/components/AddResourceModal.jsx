@@ -47,7 +47,17 @@ const AddResourceModal = ({ onClose, onResourceAdded }) => {
         onClose();
       }, 1500);
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to create resource. Please check the details and try again.");
+      if (err.response) {
+        if (err.response.status === 403) {
+          setError("Access Denied: You do not have permission to add resources. Please ensure you are logged in as an ADMIN.");
+        } else {
+          setError(err.response.data?.message || `Server Error (${err.response.status}): Failed to create resource.`);
+        }
+      } else if (err.request) {
+        setError("Network Error: Could not reach the server. Please check your connection.");
+      } else {
+        setError("An unexpected error occurred. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
