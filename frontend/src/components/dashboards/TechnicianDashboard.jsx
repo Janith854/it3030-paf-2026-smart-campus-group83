@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { ticketsApi } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import { Wrench, Clock, CheckCircle, Activity, ArrowRight } from 'lucide-react';
 
-export default function TechnicianDashboard() {
-  const { user } = useOutletContext();
-
+export default function TechnicianDashboard({ user }) {
   const [stats, setStats] = useState({ assigned: 0, open: 0, inProgress: 0, resolved: 0 });
   const [assignedTickets, setAssignedTickets] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,9 +15,9 @@ export default function TechnicianDashboard() {
       try {
         const allTickets = await ticketsApi.getAll().catch(() => []);
         const ticketsArray = Array.isArray(allTickets) ? allTickets : [];
-        
+
         const myAssigned = ticketsArray.filter(t => t.assignedTechnicianId === user.id);
-        
+
         setStats({
           assigned: myAssigned.length,
           open: myAssigned.filter(t => t.status === 'OPEN').length,
@@ -70,6 +69,28 @@ export default function TechnicianDashboard() {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem' }}>
+        {/* Critical Priority Alerts - Viva Requirement */}
+        {assignedTickets.some(t => t.priority === 'CRITICAL' || t.priority === 'HIGH') && (
+          <div className="card" style={{ background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+            <h2 style={{ fontSize: '1.1rem', color: '#ef4444', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Activity size={18} />
+              URGENT Priority Alerts
+            </h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem' }}>
+              {assignedTickets.filter(t => t.priority === 'CRITICAL' || t.priority === 'HIGH').map(t => (
+                <div key={`urgent-${t.id}`} style={{ padding: '1rem', background: 'rgba(239, 68, 68, 0.1)', borderRadius: '8px', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                    <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#f8fafc' }}>{t.category}</div>
+                    <span className="badge badge--critical">URGENT</span>
+                  </div>
+                  <div style={{ fontSize: '0.8rem', color: '#fca5a5', marginBottom: '0.75rem' }}>{t.description}</div>
+                  <button className="btn-dashboard btn-dashboard--primary btn-dashboard--sm" style={{ backgroundColor: '#ef4444' }} onClick={() => navigate('/technician/tickets')}>Work on Info</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Active Assigned Tickets Widget */}
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
@@ -77,7 +98,7 @@ export default function TechnicianDashboard() {
               <Wrench size={18} color="#3b82f6" />
               My Active Assigned Tickets
             </h2>
-            <button 
+            <button
               className="btn-dashboard btn-dashboard--secondary btn-dashboard--sm"
               onClick={() => navigate('/technician/tickets')}
             >
@@ -85,9 +106,9 @@ export default function TechnicianDashboard() {
             </button>
           </div>
           {loading ? (
-             <div style={{ color: '#64748b', fontSize: '0.9rem' }}>Loading...</div>
+            <div style={{ color: '#64748b', fontSize: '0.9rem' }}>Loading...</div>
           ) : assignedTickets.length === 0 ? (
-             <div style={{ color: '#64748b', fontSize: '0.9rem' }}>No active tickets assigned to you at the moment.</div>
+            <div style={{ color: '#64748b', fontSize: '0.9rem' }}>No active tickets assigned to you at the moment.</div>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem' }}>
               {assignedTickets.map(t => (
@@ -98,8 +119,8 @@ export default function TechnicianDashboard() {
                   </div>
                   <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.75rem', height: '40px', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.description}</div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                     <span className={`badge badge--${t.status?.toLowerCase()}`}>{t.status?.replace(/_/g, ' ')}</span>
-                     <button className="btn-dashboard btn-dashboard--primary btn-dashboard--sm" onClick={() => navigate('/dashboard/tickets')}>Work on Info</button>
+                    <span className={`badge badge--${t.status?.toLowerCase()}`}>{t.status?.replace(/_/g, ' ')}</span>
+                    <button className="btn-dashboard btn-dashboard--primary btn-dashboard--sm" onClick={() => navigate('/technician/tickets')}>Work on Info</button>
                   </div>
                 </div>
               ))}

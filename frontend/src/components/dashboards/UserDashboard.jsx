@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { bookingsApi, ticketsApi, notificationsApi } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import { CalendarDays, Wrench, Bell, Plus, Activity } from 'lucide-react';
 
-export default function UserDashboard() {
-  const { user } = useOutletContext();
-
+export default function UserDashboard({ user }) {
   const [stats, setStats] = useState({ bookings: 0, tickets: 0, unread: 0 });
   const [recentBookings, setRecentBookings] = useState([]);
   const [recentTickets, setRecentTickets] = useState([]);
@@ -21,17 +20,17 @@ export default function UserDashboard() {
           ticketsApi.getMy().catch(() => []),
           notificationsApi.getAll().catch(() => []),
         ]);
-        
+
         const bArray = Array.isArray(bookings) ? bookings : [];
         const tArray = Array.isArray(tickets) ? tickets : [];
         const nArray = Array.isArray(notifs) ? notifs : [];
-        
-        setStats({ 
-          bookings: bArray.length, 
-          tickets: tArray.length, 
+
+        setStats({
+          bookings: bArray.length,
+          tickets: tArray.length,
           unread: nArray.filter(n => !n.isRead).length
         });
-        
+
         setRecentBookings(bArray.slice(-4).reverse());
         setRecentTickets(tArray.slice(-3).reverse());
         setRecentNotifications(nArray.slice(0, 5)); // Latest 5 notifications
@@ -81,15 +80,15 @@ export default function UserDashboard() {
             Quick Actions
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            <button 
-              className="btn-dashboard btn-dashboard--primary" 
+            <button
+              className="btn-dashboard btn-dashboard--primary"
               style={{ justifyContent: 'center', width: '100%', padding: '0.8rem' }}
               onClick={() => navigate('/lecturer/bookings', { state: { openForm: true } })}
             >
               <Plus size={18} /> New Booking
             </button>
-            <button 
-              className="btn-dashboard btn-dashboard--secondary" 
+            <button
+              className="btn-dashboard btn-dashboard--secondary"
               style={{ justifyContent: 'center', width: '100%', padding: '0.8rem' }}
               onClick={() => navigate('/lecturer/tickets', { state: { openForm: true } })}
             >
@@ -104,16 +103,16 @@ export default function UserDashboard() {
             Recent Activity
           </h2>
           {loading ? (
-             <div style={{ color: '#64748b', fontSize: '0.9rem' }}>Loading recent activity...</div>
+            <div style={{ color: '#64748b', fontSize: '0.9rem' }}>Loading recent activity...</div>
           ) : recentBookings.length === 0 && recentTickets.length === 0 ? (
-             <div style={{ color: '#64748b', fontSize: '0.9rem' }}>No recent activity to show.</div>
+            <div style={{ color: '#64748b', fontSize: '0.9rem' }}>No recent activity to show.</div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxHeight: '400px', overflowY: 'auto' }}>
               {recentNotifications.map(n => (
                 <div key={`n-${n.id}`} style={{ padding: '0.75rem', background: n.isRead ? 'rgba(255,255,255,0.01)' : 'rgba(99, 102, 241, 0.08)', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderLeft: n.isRead ? 'none' : '3px solid #6366f1' }}>
                   <div style={{ display: 'flex', gap: '0.75rem' }}>
                     <div style={{ marginTop: '0.2rem' }}>
-                       <Bell size={14} color={n.isRead ? '#64748b' : '#6366f1'} />
+                      <Bell size={14} color={n.isRead ? '#64748b' : '#6366f1'} />
                     </div>
                     <div>
                       <div style={{ fontSize: '0.85rem', fontWeight: n.isRead ? 500 : 700, color: n.isRead ? '#cbd5e1' : '#f8fafc' }}>{n.title}</div>
@@ -134,7 +133,7 @@ export default function UserDashboard() {
               ))}
               {recentTickets.map(t => (
                 <div key={`t-${t.id}`} style={{ padding: '0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                   <div>
+                  <div>
                     <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>Ticket - {t.category}</div>
                     <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Priority: {t.priority}</div>
                   </div>

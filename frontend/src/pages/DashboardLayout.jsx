@@ -52,28 +52,28 @@ export default function DashboardLayout() {
   };
 
   let navItems = [
-    { to: correctBasePath,              icon: LayoutDashboard, label: 'Dashboard',     end: true },
+    { to: correctBasePath, icon: LayoutDashboard, label: 'Dashboard', end: true },
   ];
 
   if (isAdmin) {
     navItems.push(
-      { to: `${correctBasePath}/bookings`,     icon: CalendarDays,    label: 'Bookings' },
-      { to: `${correctBasePath}/resources`,    icon: Building2,       label: 'Resources' },
-      { to: `${correctBasePath}/tickets`,      icon: Wrench,          label: 'Tickets' },
-      { to: `${correctBasePath}/notifications`,icon: Bell,            label: 'Notifications' },
-      { to: `${correctBasePath}/users`,        icon: Users,           label: 'Users & Roles' }
+      { to: `${correctBasePath}/bookings`, icon: CalendarDays, label: 'Bookings' },
+      { to: `${correctBasePath}/resources`, icon: Building2, label: 'Resources' },
+      { to: `${correctBasePath}/tickets`, icon: Wrench, label: 'Tickets' },
+      { to: `${correctBasePath}/notifications`, icon: Bell, label: 'Notifications' },
+      { to: `${correctBasePath}/users`, icon: Users, label: 'Users & Roles' }
     );
   } else if (isTechnician) {
     navItems.push(
-      { to: `${correctBasePath}/tickets`,      icon: Wrench,          label: 'Tickets' },
-      { to: `${correctBasePath}/notifications`,icon: Bell,            label: 'Notifications' }
+      { to: `${correctBasePath}/tickets`, icon: Wrench, label: 'Tickets' },
+      { to: `${correctBasePath}/notifications`, icon: Bell, label: 'Notifications' }
     );
   } else {
     // Regular User / Lecturer
     navItems.push(
-      { to: `${correctBasePath}/bookings`,     icon: CalendarDays,    label: 'Bookings' },
-      { to: `${correctBasePath}/tickets`,      icon: Wrench,          label: 'Tickets' },
-      { to: `${correctBasePath}/notifications`,icon: Bell,            label: 'Notifications' }
+      { to: `${correctBasePath}/bookings`, icon: CalendarDays, label: 'Bookings' },
+      { to: `${correctBasePath}/tickets`, icon: Wrench, label: 'Tickets' },
+      { to: `${correctBasePath}/notifications`, icon: Bell, label: 'Notifications' }
     );
   }
 
@@ -121,7 +121,7 @@ export default function DashboardLayout() {
         <div style={{ display: 'flex', justifyContent: 'flex-end', paddingBottom: '1rem' }}>
           <NotificationBell />
         </div>
-        <Outlet context={{ user }} />
+        <Outlet />
       </main>
     </div>
   );

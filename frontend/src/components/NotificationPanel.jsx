@@ -82,7 +82,7 @@ export default function NotificationPanel({ onClose }) {
           topNotifications.map(n => (
             <div 
               key={n.id} 
-              className={`notif-panel-item ${!n.read ? 'unread' : ''}`}
+              className={`notif-panel-item ${!n.read ? 'unread' : ''} ${n.type === 'URGENT_PRIORITY_ALERT' ? 'urgent' : ''}`}
               onClick={() => handleNotificationClick(n)}
             >
               <div className="notif-item-title">{n.title}</div>

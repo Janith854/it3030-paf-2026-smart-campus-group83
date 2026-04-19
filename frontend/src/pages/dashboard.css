@@ -152,6 +152,21 @@
   min-height: 100vh;
 }
 
+.dashboard__top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.dashboard__top-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
 .dashboard__header {
   margin-bottom: 2rem;
 }
@@ -578,6 +593,26 @@
 
 .notif-item--unread {
   border-left: 3px solid #3b82f6;
+}
+
+.notif-item--urgent {
+  background: rgba(239, 68, 68, 0.08) !important;
+  border-left: 4px solid #ef4444 !important;
+}
+
+.notif-item--urgent .notif-item__title {
+  color: #fca5a5 !important;
+  font-weight: 800;
+}
+
+/* Panel specific urgent alerts */
+.notif-panel-item.urgent {
+  background: rgba(239, 68, 68, 0.1) !important;
+  border-left: 3px solid #ef4444;
+}
+
+.notif-panel-item.urgent .notif-item-title {
+  color: #fca5a5 !important;
 }
 
 .notif-item__body {
