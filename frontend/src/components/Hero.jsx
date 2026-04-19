@@ -126,7 +126,7 @@ export default function Hero() {
             {/* Main */}
             <div className="hero__db-main">
               <div className="hero__db-header">
-                <span>Welcome back, Admin 👋</span>
+                <span>Welcome to Smart Campus Hub 👋</span>
                 <div className="hero__db-notif-badge">3</div>
               </div>
               <div className="hero__db-cards">

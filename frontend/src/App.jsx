@@ -58,6 +58,7 @@ function App() {
             <Route path="/lecturer" element={<DashboardLayout />}>
               <Route index element={<UserDashboard />} />
               <Route path="bookings" element={<BookingsPage />} />
+              <Route path="resources" element={<ResourcesPage />} />
               <Route path="tickets" element={<TicketsPage />} />
               <Route path="notifications" element={<NotificationsPage />} />
             </Route>

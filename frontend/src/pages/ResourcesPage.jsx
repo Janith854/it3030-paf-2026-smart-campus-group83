@@ -19,15 +19,8 @@ export default function ResourcesPage() {
     name: '', type: 'LECTURE_HALL', capacity: '', location: '', description: '',
   });
 
-  if (!isAdmin) {
-    return (
-      <div className="empty-state" style={{ marginTop: '3rem' }}>
-        <div className="empty-state__icon"><Building2 size={48} /></div>
-        <div className="empty-state__title">Access Denied</div>
-        <p>Only administrators can access the Resources module.</p>
-      </div>
-    );
-  }
+  // Removed strict isAdmin check here to allow Lecturers/Users to view resources.
+  // Management actions remain guarded by isAdmin throughout the component.
 
   const load = async () => {
     setLoading(true);

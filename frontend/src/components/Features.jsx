@@ -65,7 +65,7 @@ const item = {
 
 export default function Features() {
   return (
-    <section className="section section-dark features" id="features">
+    <section className="section section-dark features" id="services">
       <div className="container">
         <motion.div
           className="section-header"

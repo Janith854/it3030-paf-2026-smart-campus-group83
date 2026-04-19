@@ -194,6 +194,28 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
+    public Ticket updateComment(String ticketId, String commentId, String userId, String content) {
+        Ticket ticket = ticketRepository.findById(ticketId)
+            .orElseThrow(() -> new ResourceNotFoundException("Ticket not found: " + ticketId));
+
+        if (ticket.getComments() == null) {
+            throw new ResourceNotFoundException("Comment not found: " + commentId);
+        }
+
+        Ticket.Comment comment = ticket.getComments().stream()
+            .filter(c -> c.getId().equals(commentId))
+            .findFirst()
+            .orElseThrow(() -> new ResourceNotFoundException("Comment not found: " + commentId));
+
+        if (!comment.getUserId().equals(userId)) {
+            throw new AccessDeniedException("You can only edit your own comments");
+        }
+
+        comment.setContent(content);
+        return ticketRepository.save(ticket);
+    }
+
+    @Override
     public Ticket deleteComment(String ticketId, String commentId, String userId) {
         Ticket ticket = ticketRepository.findById(ticketId)
             .orElseThrow(() -> new ResourceNotFoundException("Ticket not found: " + ticketId));

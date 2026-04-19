@@ -112,6 +112,7 @@ export const ticketsApi = {
   },
   assign: (id, technicianId) => req('PATCH', `/tickets/${id}/assign?technicianId=${technicianId}`),
   addComment: (id, content) => req('POST', `/tickets/${id}/comments?content=${encodeURIComponent(content)}`),
+  editComment: (ticketId, commentId, content) => req('PATCH', `/tickets/${ticketId}/comments/${commentId}?content=${encodeURIComponent(content)}`),
   deleteComment: (ticketId, commentId) => req('DELETE', `/tickets/${ticketId}/comments/${commentId}`),
 };
 

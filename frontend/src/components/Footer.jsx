@@ -9,9 +9,9 @@ const GithubIcon = () => (
 import './Footer.css';
 
 const links = {
-  Platform: ['Features', 'Resources', 'Booking', 'Tickets', 'Dashboard'],
+  Platform: ['Home', 'About Us', 'Services', 'Contact'],
   Modules: ['Resource Management', 'Booking Workflow', 'Incident Tickets', 'Notifications', 'Role-Based Access'],
-  Team: ['About Us', 'GitHub', 'Contact', 'Documentation'],
+  Support: ['Help Center', 'Safety & Security', 'Feedback', 'Documentation'],
 };
 
 const teamMembers = [

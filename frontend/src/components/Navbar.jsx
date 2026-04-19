@@ -5,10 +5,10 @@ import { useAuth } from '../context/AuthContext';
 import './Navbar.css';
 
 const navLinks = [
-  { label: 'Features', href: '#features' },
-  { label: 'Resources', href: '#resources' },
-  { label: 'Booking', href: '#booking' },
-  { label: 'Tickets', href: '#maintenance' },
+  { label: 'Home', href: '#home' },
+  { label: 'About', href: '#about' },
+  { label: 'Services', href: '#services' },
+  { label: 'Contact', href: '#contact' },
 ];
 
 export default function Navbar() {

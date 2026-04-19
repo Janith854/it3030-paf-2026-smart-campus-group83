@@ -1,37 +1,28 @@
 import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
-import Problem from '../components/Problem';
-import Solution from '../components/Solution';
-import Features from '../components/Features';
-import ResourceShowcase from '../components/ResourceShowcase';
-import BookingWorkflow from '../components/BookingWorkflow';
-import Maintenance from '../components/Maintenance';
-import Roles from '../components/Roles';
-import DashboardPreview from '../components/DashboardPreview';
-import NotificationsSection from '../components/Notifications';
-import Benefits from '../components/Benefits';
-import CTA from '../components/CTA';
+import About from '../components/About';
+import Services from '../components/Services';
+import Contact from '../components/Contact';
 import Footer from '../components/Footer';
 
 export default function LandingPage() {
   return (
-    <>
+    <div className="bg-[#060C1A]">
       <Navbar />
       <main>
+        {/* SECTION 1: HOME */}
         <Hero />
-        <Problem />
-        <Solution />
-        <Features />
-        <ResourceShowcase />
-        <BookingWorkflow />
-        <Maintenance />
-        <Roles />
-        <DashboardPreview />
-        <NotificationsSection />
-        <Benefits />
-        <CTA />
+        
+        {/* SECTION 2: ABOUT (id="about") */}
+        <About />
+        
+        {/* SECTION 3: SERVICES (id="services") */}
+        <Services />
+        
+        {/* SECTION 4: CONTACT (id="contact") */}
+        <Contact />
       </main>
       <Footer />
-    </>
+    </div>
   );
 }

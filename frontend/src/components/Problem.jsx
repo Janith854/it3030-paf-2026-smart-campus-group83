@@ -42,7 +42,7 @@ const item = {
 
 export default function Problem() {
   return (
-    <section className="section section-dark problem" id="problem">
+    <section className="section section-dark problem" id="about">
       <div className="container">
         <motion.div
           className="section-header"
