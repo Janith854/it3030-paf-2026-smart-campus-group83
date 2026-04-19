@@ -104,6 +104,14 @@ public class AuthServiceImpl implements AuthService {
         return userRepository.findAll();
     }
 
+    @Override
+    public void deleteUser(String userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new ResourceNotFoundException("User not found: " + userId);
+        }
+        userRepository.deleteById(userId);
+    }
+
     private Map<String, Object> fetchGoogleTokenInfo(String googleToken) {
         String url = "https://oauth2.googleapis.com/tokeninfo?id_token={token}";
         RestTemplate restTemplate = new RestTemplate();

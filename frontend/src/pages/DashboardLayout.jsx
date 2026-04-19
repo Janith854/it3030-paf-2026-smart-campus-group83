@@ -4,6 +4,7 @@ import {
   Zap, LayoutDashboard, CalendarDays, Building2,
   Wrench, Bell, Users, LogOut,
 } from 'lucide-react';
+import NotificationBell from '../components/NotificationBell';
 import './dashboard.css';
 
 export default function DashboardLayout() {
@@ -117,6 +118,9 @@ export default function DashboardLayout() {
 
       {/* Main */}
       <main className="dashboard__main">
+        <div style={{ display: 'flex', justifyContent: 'flex-end', paddingBottom: '1rem' }}>
+          <NotificationBell />
+        </div>
         <Outlet />
       </main>
     </div>

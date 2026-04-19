@@ -1,35 +1,33 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { notificationsApi } from '../services/api';
 import { Bell, Check, CheckCheck, Trash2 } from 'lucide-react';
+import { useNotifications } from '../context/NotificationContext';
 
 export default function NotificationsPage() {
-  const [notifications, setNotifications] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { notifications, unreadCount, refresh } = useNotifications();
   const [error, setError] = useState('');
 
-  const load = async () => {
-    setLoading(true);
-    try {
-      const data = await notificationsApi.getAll();
-      setNotifications(Array.isArray(data) ? data : []);
-    } catch (e) { setError(e.message); }
-    setLoading(false);
-  };
-
-  useEffect(() => { load(); }, []);
-
   const markRead = async (id) => {
-    try { await notificationsApi.markAsRead(id); load(); }
+    try { 
+      await notificationsApi.markAsRead(id); 
+      refresh(); 
+    }
     catch (e) { setError(e.message); }
   };
 
   const markAllRead = async () => {
-    try { await notificationsApi.markAllAsRead(); load(); }
+    try { 
+      await notificationsApi.markAllAsRead(); 
+      refresh(); 
+    }
     catch (e) { setError(e.message); }
   };
 
   const handleDelete = async (id) => {
-    try { await notificationsApi.delete(id); load(); }
+    try { 
+      await notificationsApi.delete(id); 
+      refresh(); 
+    }
     catch (e) { setError(e.message); }
   };
 
@@ -38,13 +36,12 @@ export default function NotificationsPage() {
     const d = new Date(date);
     const diff = Date.now() - d.getTime();
     const mins = Math.floor(diff / 60000);
+    if (mins < 1) return 'Just now';
     if (mins < 60) return `${mins}m ago`;
     const hrs = Math.floor(mins / 60);
     if (hrs < 24) return `${hrs}h ago`;
     return `${Math.floor(hrs / 24)}d ago`;
   };
-
-  const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
     <>
@@ -66,13 +63,11 @@ export default function NotificationsPage() {
       )}
 
       <div className="card" style={{ padding: 0 }}>
-        {loading ? (
-          <div className="empty-state">Loading...</div>
-        ) : notifications.length === 0 ? (
+        {notifications.length === 0 ? (
           <div className="empty-state">
             <div className="empty-state__icon"><Bell size={48} /></div>
-            <div className="empty-state__title">No notifications</div>
-            <p>You'll see updates about bookings, tickets, and more here.</p>
+            <div className="empty-state__title">You're all caught up!</div>
+            <p>You have no new notifications.</p>
           </div>
         ) : (
           notifications.map(n => (

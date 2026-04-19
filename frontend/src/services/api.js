@@ -52,6 +52,7 @@ export const usersApi = {
   getByRole: (role) => req('GET', `/users/role/${role}`),
   getTechnicians: () => req('GET', '/users/technicians'),
   updateRole: (userId, role) => req('PATCH', `/users/${userId}/role?role=${role}`),
+  delete: (userId) => req('DELETE', `/users/${userId}`),
 };
 
 // ── Resources ─────────────────────────────────────────────────────────────────

@@ -48,4 +48,11 @@ public class UserController {
     public ResponseEntity<User> updateUserRole(@PathVariable String id, @RequestParam User.Role role) {
         return ResponseEntity.ok(authService.updateRole(id, role));
     }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteUser(@PathVariable String id) {
+        authService.deleteUser(id);
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { usersApi } from '../services/api';
-import { Users, Shield } from 'lucide-react';
+import { Users, Shield, Trash2 } from 'lucide-react';
 
 const ROLES = ['USER', 'ADMIN', 'TECHNICIAN'];
 
@@ -26,6 +26,14 @@ export default function AdminPage() {
     if (!confirm(`Change this user's role to ${newRole}?`)) return;
     try {
       await usersApi.updateRole(userId, newRole);
+      load();
+    } catch (e) { setError(e.message); }
+  };
+
+  const handleDelete = async (userId) => {
+    if (!confirm('Are you sure you want to delete this user? This cannot be undone.')) return;
+    try {
+      await usersApi.delete(userId);
       load();
     } catch (e) { setError(e.message); }
   };
@@ -92,14 +100,24 @@ export default function AdminPage() {
                     <td style={{ fontSize: '0.8rem', color: '#64748b' }}>{u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—'}</td>
                     <td>
                       {u.id !== user.id ? (
-                        <select
-                          className="form-select"
-                          style={{ padding: '0.35rem', fontSize: '0.75rem', width: 'auto' }}
-                          value={u.role}
-                          onChange={e => handleRoleChange(u.id, e.target.value)}
-                        >
-                          {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
-                        </select>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <select
+                            className="form-select"
+                            style={{ padding: '0.35rem', fontSize: '0.75rem', width: 'auto' }}
+                            value={u.role}
+                            onChange={e => handleRoleChange(u.id, e.target.value)}
+                          >
+                            {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+                          </select>
+                          <button
+                            className="btn-dashboard btn-dashboard--danger"
+                            style={{ padding: '0.35rem 0.5rem', borderRadius: '6px' }}
+                            onClick={() => handleDelete(u.id)}
+                            title="Delete User"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
                       ) : (
                         <span style={{ color: '#475569', fontSize: '0.8rem' }}>You</span>
                       )}
