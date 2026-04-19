@@ -1,0 +1,214 @@
+.dashboard-mockup {
+  background: #111827;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.15), 0 0 40px rgba(59, 130, 246, 0.06);
+}
+
+.dashboard-mockup__topbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 20px;
+  background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.dashboard-mockup__dots {
+  display: flex;
+  gap: 6px;
+}
+.dashboard-mockup__dots span {
+  width: 10px; height: 10px; border-radius: 50%;
+}
+.dashboard-mockup__dots span:nth-child(1) { background: #EF4444; }
+.dashboard-mockup__dots span:nth-child(2) { background: #F59E0B; }
+.dashboard-mockup__dots span:nth-child(3) { background: #10B981; }
+
+.dashboard-mockup__title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.5);
+  flex: 1;
+}
+
+.dashboard-mockup__date {
+  font-size: 12px;
+  color: rgba(255,255,255,0.3);
+  font-weight: 500;
+}
+
+.dashboard-mockup__stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  padding: 24px;
+}
+
+.dashboard-mockup__stat-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+  padding: 18px;
+}
+
+.dashboard-mockup__stat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.dashboard-mockup__stat-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dashboard-mockup__stat-change {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  color: #10B981;
+  font-weight: 600;
+}
+
+.dashboard-mockup__stat-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: white;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.dashboard-mockup__stat-label {
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+  font-weight: 500;
+}
+
+/* Chart */
+.dashboard-mockup__chart-section {
+  padding: 0 24px 20px;
+}
+
+.dashboard-mockup__chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.dashboard-mockup__chart-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.6);
+}
+
+.dashboard-mockup__chart-legend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+}
+
+.dashboard-mockup__legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.dashboard-mockup__chart {
+  height: 100px;
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  background: rgba(255,255,255,0.02);
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.04);
+  padding: 12px;
+}
+
+.dashboard-mockup__chart-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.dashboard-mockup__bar {
+  width: 100%;
+  background: linear-gradient(to top, #1D4ED8, #60A5FA);
+  border-radius: 4px 4px 2px 2px;
+  min-height: 6px;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.dashboard-mockup__bar:hover { opacity: 1; }
+
+.dashboard-mockup__bar-label {
+  font-size: 9px;
+  color: rgba(255,255,255,0.25);
+}
+
+/* Table */
+.dashboard-mockup__table {
+  padding: 0 24px 24px;
+}
+
+.dashboard-mockup__table-header {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.dashboard-mockup__table-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.dashboard-mockup__table-row:last-child { border-bottom: none; }
+
+.dashboard-mockup__table-resource {
+  flex: 2;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.75);
+}
+
+.dashboard-mockup__table-user {
+  flex: 2;
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+}
+
+.dashboard-mockup__table-time {
+  flex: 1.5;
+  font-size: 12px;
+  color: rgba(255,255,255,0.35);
+}
+
+@media (max-width: 768px) {
+  .dashboard-mockup__stats { grid-template-columns: repeat(2, 1fr); }
+  .dashboard-mockup__table-user,
+  .dashboard-mockup__table-time { display: none; }
+}

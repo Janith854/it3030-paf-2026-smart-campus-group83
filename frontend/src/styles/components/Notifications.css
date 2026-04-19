@@ -1,0 +1,128 @@
+.notifications__layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+
+.notifications__features {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.notifications__feature-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+  color: rgba(255,255,255,0.65);
+}
+
+.notifications__feature-icon {
+  width: 36px;
+  height: 36px;
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #60A5FA;
+  flex-shrink: 0;
+}
+
+.notifications__feed {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.notifications__feed-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 20px;
+  background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.7);
+}
+
+.notifications__feed-count {
+  margin-left: auto;
+  background: #3B82F6;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 100px;
+}
+
+.notifications__list {
+  padding: 8px;
+}
+
+.notifications__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 12px;
+  border-radius: 12px;
+  transition: background 0.2s;
+  position: relative;
+}
+
+.notifications__item:hover {
+  background: rgba(255,255,255,0.03);
+}
+
+.notifications__item-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.notifications__item-body {
+  flex: 1;
+}
+
+.notifications__item-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 3px;
+}
+
+.notifications__item-text {
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+  line-height: 1.5;
+  margin-bottom: 5px;
+}
+
+.notifications__item-time {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.25);
+}
+
+.notifications__item-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+@media (max-width: 900px) {
+  .notifications__layout { grid-template-columns: 1fr; gap: 40px; }
+}
