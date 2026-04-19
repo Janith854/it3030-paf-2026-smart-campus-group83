@@ -45,98 +45,36 @@ export default function About() {
           </motion.p>
         </div>
 
-        {/* Narrative Section: The Transformation */}
-        <div className="grid lg:grid-cols-12 gap-12 items-center mb-32">
-          <motion.div 
-            className="lg:col-span-5 space-y-8"
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-          >
-            <div className="p-1 rounded-2xl bg-linear-to-br from-slate-800 to-slate-900 border border-slate-700/50">
-              <div className="p-8 bg-[#0a0f1d] rounded-xl">
-                <h3 className="text-2xl font-bold mb-6 flex items-center gap-3 text-amber-500">
-                  <AlertTriangle className="w-6 h-6" /> Legacy Chaos
-                </h3>
-                <div className="space-y-6">
-                  {[
-                    { title: "Manual Scheduling", desc: "WhatsApp threads and messy spreadsheets leading to double bookings." },
-                    { title: "Ghost Assets", desc: "No central database for equipment, making resource discovery impossible." },
-                    { title: "Siloed Reporting", desc: "Maintenance requests lost in email chains with no accountability." }
-                  ].map((item, i) => (
-                    <div key={i} className="flex gap-4 group">
-                      <div className="w-1 h-full bg-slate-800 group-hover:bg-amber-500/50 transition-colors" />
-                      <div>
-                        <h4 className="font-bold text-slate-200 group-hover:text-amber-500 transition-colors">{item.title}</h4>
-                        <p className="text-sm text-slate-500">{item.desc}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </motion.div>
 
-          <div className="lg:col-span-2 flex items-center justify-center">
-            <div className="w-16 h-16 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-              <Rocket className="w-8 h-8 text-blue-500 animate-bounce" />
-            </div>
-          </div>
-
-          <motion.div 
-            className="lg:col-span-5 space-y-8"
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-          >
-            <div className="p-1 rounded-2xl bg-linear-to-br from-blue-500/50 to-indigo-500/50 border border-blue-400/30">
-              <div className="p-8 bg-[#0a0f1d] rounded-xl">
-                <h3 className="text-2xl font-bold mb-6 flex items-center gap-3 text-blue-400">
-                  <CheckCircle2 className="w-6 h-6" /> Our Intelligence
-                </h3>
-                <div className="space-y-6">
-                  {[
-                    { title: "Automated Workflows", desc: "Rule-based approval systems that eliminate human error instantly." },
-                    { title: "Unified Catalog", desc: "A single source of truth for every square inch of campus property." },
-                    { title: "Real-time Audits", desc: "Transparent tracking from issue reporting to technician sign-off." }
-                  ].map((item, i) => (
-                    <div key={i} className="flex gap-4 group">
-                      <div className="w-1 h-full bg-slate-800 group-hover:bg-blue-500 transition-colors" />
-                      <div>
-                        <h4 className="font-bold text-slate-200 group-hover:text-blue-400 transition-colors">{item.title}</h4>
-                        <p className="text-sm text-slate-400/70">{item.desc}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
 
         {/* Bento Grid: Mission Pillars */}
-        <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-6 h-auto md:h-[600px]">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-[minmax(200px,auto)] text-left">
           {/* Main Feature - Transparency */}
           <motion.div 
-            className="md:col-span-2 md:row-span-2 p-10 rounded-[2.5rem] bg-linear-to-br from-blue-600/20 to-indigo-600/10 border border-blue-500/20 hover:border-blue-500/40 transition-all flex flex-col justify-end group"
+            className="md:col-span-2 lg:row-span-2 p-10 rounded-3xl bg-gradient-to-br from-blue-600/20 to-indigo-600/10 border border-blue-500/20 hover:border-blue-500/40 transition-all flex flex-col justify-between group relative overflow-hidden"
             whileHover={{ y: -5 }}
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
           >
+            {/* Background Glow */}
+            <div className="absolute top-[-20%] right-[-10%] w-[50%] h-[50%] bg-blue-500/20 blur-[80px] rounded-full pointer-events-none group-hover:bg-blue-500/30 transition-colors" />
+            
             <div className="w-16 h-16 rounded-2xl bg-blue-500 text-white flex items-center justify-center mb-8 shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform">
               <Globe className="w-10 h-10" />
             </div>
-            <h3 className="text-3xl font-black mb-4 group-hover:text-blue-400 transition-colors">Radical Transparency</h3>
-            <p className="text-slate-400 text-lg leading-relaxed">
-              We break down institutional silos by providing a shared digital twin of campus operations, 
-              visible to students, staff, and administrators alike.
-            </p>
+            <div>
+              <h3 className="text-3xl font-black mb-4 group-hover:text-blue-400 transition-colors relative z-10">Radical Transparency</h3>
+              <p className="text-slate-400 text-lg leading-relaxed relative z-10">
+                We break down institutional silos by providing a shared digital twin of campus operations, 
+                visible to students, staff, and administrators alike.
+              </p>
+            </div>
           </motion.div>
 
           {/* Efficiency Card */}
           <motion.div 
-            className="md:col-span-2 md:row-span-1 p-8 rounded-[2.5rem] bg-slate-900/40 border border-slate-800 hover:border-slate-700 transition-all flex items-center gap-8 group"
+            className="md:col-span-2 p-8 rounded-3xl bg-slate-900/50 border border-slate-800 hover:border-slate-700 transition-all flex flex-col sm:flex-row items-start sm:items-center gap-6 group"
             whileHover={{ y: -5 }}
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
@@ -147,37 +85,45 @@ export default function About() {
               <Zap className="w-8 h-8" />
             </div>
             <div>
-              <h3 className="text-xl font-bold mb-2">Automated Efficiency</h3>
-              <p className="text-slate-500 text-sm">Reducing manual overhead by 85% through smart routing.</p>
+              <h3 className="text-xl font-bold mb-2 text-slate-100">Automated Efficiency</h3>
+              <p className="text-slate-400 text-sm leading-relaxed">Reducing manual overhead by 85% through smart, automated rule-based routing.</p>
             </div>
           </motion.div>
 
           {/* Reliability Card */}
           <motion.div 
-            className="p-8 rounded-[2.5rem] bg-slate-900/40 border border-slate-800 hover:border-slate-700 transition-all group lg:col-span-1"
+            className="p-8 rounded-3xl bg-slate-900/50 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between group"
             whileHover={{ y: -5 }}
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
           >
-            <Cpu className="w-10 h-10 text-emerald-400 mb-6 group-hover:scale-110 transition-transform" />
-            <h3 className="text-lg font-bold mb-2">Resilient Systems</h3>
-            <p className="text-slate-500 text-xs leading-relaxed">99.9% uptime for campus asset availability tracking.</p>
+            <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+              <Cpu className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold mb-2 text-slate-100">Resilient Systems</h3>
+              <p className="text-slate-400 text-sm leading-relaxed">99.9% uptime for continuous campus asset tracking.</p>
+            </div>
           </motion.div>
 
           {/* Security Card */}
           <motion.div 
-            className="p-8 rounded-[2.5rem] bg-slate-900/40 border border-slate-800 hover:border-slate-700 transition-all group lg:col-span-1"
+            className="p-8 rounded-3xl bg-slate-900/50 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between group"
             whileHover={{ y: -5 }}
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 0.3 }}
           >
-            <ShieldCheck className="w-10 h-10 text-blue-400 mb-6 group-hover:scale-110 transition-transform" />
-            <h3 className="text-lg font-bold mb-2">Enterprise Trust</h3>
-            <p className="text-slate-500 text-xs leading-relaxed">RBAC protocols ensuring data sovereignty at every level.</p>
+            <div className="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+              <ShieldCheck className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold mb-2 text-slate-100">Enterprise Trust</h3>
+              <p className="text-slate-400 text-sm leading-relaxed">RBAC protocols ensuring robust data sovereignty.</p>
+            </div>
           </motion.div>
         </div>
       </div>
