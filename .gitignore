@@ -20,6 +20,8 @@ dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
 .mvn/wrapper/maven-wrapper.jar
+# Maven wrapper binaries downloaded at runtime – not source code
+backend/.maven/
 
 # Gradle
 build/
