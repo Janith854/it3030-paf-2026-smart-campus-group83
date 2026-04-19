@@ -5,7 +5,7 @@ import {
   Wrench, Bell, Users, LogOut,
 } from 'lucide-react';
 import NotificationBell from '../components/NotificationBell';
-import '../styles/pages/dashboard.css';
+import './dashboard.css';
 
 export default function DashboardLayout() {
   const { user, loading, logout } = useAuth();
