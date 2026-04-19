@@ -392,6 +392,20 @@
 .form-select {
   appearance: none;
   cursor: pointer;
+  /* Solid dark bg so the native dropdown inherits it instead of going white */
+  background-color: #1a1a2e;
+}
+
+/* Make the native dropdown options readable in dark theme */
+.form-select option {
+  background-color: #1a1a2e;
+  color: #e2e8f0;
+}
+
+.form-select option:checked,
+.form-select option:hover {
+  background-color: #3b82f6;
+  color: #fff;
 }
 
 .form-actions {
@@ -399,6 +413,46 @@
   gap: 0.75rem;
   margin-top: 1.5rem;
   justify-content: flex-end;
+}
+
+/* ── Validation helpers ────────────────────────────────────────────────────── */
+.form-input--error {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+}
+
+.form-field-error {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.78rem;
+  color: #f87171;
+  font-weight: 500;
+  animation: fadeSlideIn 0.18s ease;
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Character counter shown inside the Purpose label */
+.form-char-count {
+  float: right;
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: #475569;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* "(optional)" suffix in labels */
+.form-label-optional {
+  margin-left: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: #475569;
+  text-transform: none;
+  letter-spacing: 0;
 }
 
 /* ── Empty State ──────────────────────────────────────────────────────────── */
