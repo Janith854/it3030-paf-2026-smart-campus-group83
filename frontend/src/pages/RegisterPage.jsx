@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Zap, ArrowLeft, UserPlus } from 'lucide-react';
+import { authApi } from '../services/api';
 import './dashboard.css';
 
 export default function RegisterPage() {
@@ -29,18 +30,8 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/v1/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
+      const data = await authApi.register(formData);
 
-      if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        throw new Error(data?.message || 'Registration failed');
-      }
-
-      const data = await res.json();
       localStorage.setItem('token', data.token);
       localStorage.removeItem('testRoleOverride');
       

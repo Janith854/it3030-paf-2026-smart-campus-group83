@@ -42,9 +42,12 @@ export const testApi = {
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 export const authApi = {
+  login: (credentials) => req('POST', '/auth/login', credentials),
+  register: (userData) => req('POST', '/auth/register', userData),
   loginWithGoogle: (googleToken) => req('POST', '/auth/google', { googleToken }),
   getCurrentUser: () => req('GET', '/auth/me'),
 };
+
 
 // ── Users ─────────────────────────────────────────────────────────────────────
 export const usersApi = {

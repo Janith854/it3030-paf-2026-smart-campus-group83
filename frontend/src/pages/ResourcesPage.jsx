@@ -1,22 +1,33 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { resourcesApi } from '../services/api';
-import { Plus, X, Building2, MapPin, Users, Tag } from 'lucide-react';
+import { Plus, X, Building2, MapPin, Users, Tag, Clock, Eye } from 'lucide-react';
 
 const TYPES = ['LECTURE_HALL', 'LAB', 'MEETING_ROOM', 'EQUIPMENT'];
 const STATUSES = ['ACTIVE', 'OUT_OF_SERVICE', 'MAINTENANCE'];
 
 export default function ResourcesPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const isAdmin = user?.role === 'ADMIN';
+
+  // Determine current base path for navigation
+  let basePath = '/lecturer';
+  if (user?.role === 'ADMIN') basePath = '/admin';
+  else if (user?.role === 'TECHNICIAN') basePath = '/technician';
   const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(null);
   const [filterType, setFilterType] = useState('');
+  const [filterLocation, setFilterLocation] = useState('');
+  const [filterCapacity, setFilterCapacity] = useState('');
   const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
+  const [formErrors, setFormErrors] = useState({});
   const [formData, setFormData] = useState({
-    name: '', type: 'LECTURE_HALL', capacity: '', location: '', description: '',
+    name: '', type: 'LECTURE_HALL', capacity: '', location: '', description: '', availabilityWindow: '',
   });
 
   // Removed strict isAdmin check here to allow Lecturers/Users to view resources.
@@ -25,28 +36,92 @@ export default function ResourcesPage() {
   const load = async () => {
     setLoading(true);
     try {
-      const data = await resourcesApi.getAll(filterType ? { type: filterType } : {});
+      const params = {};
+      if (filterType) params.type = filterType;
+      if (filterLocation) params.location = filterLocation;
+      if (filterCapacity) params.minCapacity = filterCapacity;
+      const data = await resourcesApi.getAll(params);
       setResources(Array.isArray(data) ? data : []);
     } catch (e) { setError(e.message); }
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, [filterType]);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      load();
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [filterType, filterLocation, filterCapacity]);
 
   const openCreate = () => {
     setEditing(null);
-    setFormData({ name: '', type: 'LECTURE_HALL', capacity: '', location: '', description: '' });
+    setFormErrors({});
+    setFormData({ name: '', type: 'LECTURE_HALL', capacity: '', location: '', description: '', availabilityWindow: '' });
     setShowForm(true);
   };
 
   const openEdit = (r) => {
     setEditing(r);
-    setFormData({ name: r.name, type: r.type, capacity: r.capacity || '', location: r.location, description: r.description || '' });
+    setFormErrors({});
+    setFormData({ name: r.name, type: r.type, capacity: r.capacity || '', location: r.location, description: r.description || '', availabilityWindow: r.availabilityWindow || '' });
     setShowForm(true);
   };
 
+  const validateForm = () => {
+    const errors = {};
+
+    // Name: required, 3–100 chars
+    const name = formData.name.trim();
+    if (!name) {
+      errors.name = 'Name is required.';
+    } else if (name.length < 3 || name.length > 100) {
+      errors.name = 'Name must be between 3 and 100 characters.';
+    }
+
+    // Type: required (always has a value from the select, but guard just in case)
+    if (!formData.type) {
+      errors.type = 'Type is required.';
+    }
+
+    // Location: required, 2–100 chars, letters and spaces only
+    const location = formData.location.trim();
+    if (!location) {
+      errors.location = 'Location is required.';
+    } else if (location.length < 2 || location.length > 100) {
+      errors.location = 'Location must be between 2 and 100 characters.';
+    } else if (!/^[A-Za-z\s]+$/.test(location)) {
+      errors.location = 'Location can only contain letters and spaces.';
+    }
+
+    // Capacity: optional, but must be a positive whole number if provided
+    if (formData.capacity !== '' && formData.capacity !== null) {
+      const cap = Number(formData.capacity);
+      if (!Number.isInteger(cap) || cap <= 0) {
+        errors.capacity = 'Capacity must be a positive whole number.';
+      }
+    }
+
+    // Availability Window: required
+    if (!formData.availabilityWindow.trim()) {
+      errors.availabilityWindow = 'Availability Window is required.';
+    }
+
+    // Description: optional, max 500 chars
+    if (formData.description.length > 500) {
+      errors.description = 'Description must not exceed 500 characters.';
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  // Helper: clear a single field's error on change
+  const clearError = (field) =>
+    setFormErrors(prev => ({ ...prev, [field]: '' }));
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) return;
     setError('');
     try {
       const payload = { ...formData, capacity: formData.capacity ? parseInt(formData.capacity) : null };
@@ -54,6 +129,7 @@ export default function ResourcesPage() {
         await resourcesApi.update(editing.id, payload);
       } else {
         await resourcesApi.create(payload);
+        setSuccessMsg('Resource added successfully');
       }
       setShowForm(false);
       load();
@@ -73,6 +149,29 @@ export default function ResourcesPage() {
 
   return (
     <>
+      {/* Success Dialog (browser-style) */}
+      {successMsg && (
+        <div className="browser-dialog-overlay">
+          <div className="browser-dialog" role="alertdialog" aria-modal="true">
+            <div className="browser-dialog__header">
+              <span className="browser-dialog__site">{window.location.host} says</span>
+            </div>
+            <div className="browser-dialog__body">
+              <p className="browser-dialog__msg">{successMsg}</p>
+            </div>
+            <div className="browser-dialog__footer">
+              <button
+                className="browser-dialog__btn browser-dialog__btn--ok"
+                onClick={() => setSuccessMsg('')}
+                autoFocus
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="dashboard__header">
         <h1 className="dashboard__title">Resources</h1>
         <p className="dashboard__subtitle">Campus rooms, labs, and equipment</p>
@@ -80,23 +179,55 @@ export default function ResourcesPage() {
 
       {error && <div className="login-card__error" style={{ marginBottom: '1rem' }}>{error}</div>}
 
-      <div className="action-bar">
-        <div className="filter-group">
-          {['', ...TYPES].map(t => (
-            <button
-              key={t}
-              className={`btn-dashboard btn-dashboard--sm ${filterType === t ? 'btn-dashboard--primary' : 'btn-dashboard--secondary'}`}
-              onClick={() => setFilterType(t)}
-            >
-              {t ? t.replace(/_/g, ' ') : 'All'}
+      <div className="action-bar" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'stretch' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+          <div className="filter-group" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+            {['', ...TYPES].map(t => (
+              <button
+                key={t}
+                className={`btn-dashboard btn-dashboard--sm ${filterType === t ? 'btn-dashboard--primary' : 'btn-dashboard--secondary'}`}
+                onClick={() => setFilterType(t)}
+              >
+                {t ? t.replace(/_/g, ' ') : 'All Types'}
+              </button>
+            ))}
+          </div>
+          {isAdmin && (
+            <button className="btn-dashboard btn-dashboard--primary" onClick={openCreate} id="new-resource-btn" style={{ whiteSpace: 'nowrap', height: 'fit-content' }}>
+              <Plus size={16} /> Add Resource
             </button>
-          ))}
+          )}
         </div>
-        {isAdmin && (
-          <button className="btn-dashboard btn-dashboard--primary" onClick={openCreate} id="new-resource-btn">
-            <Plus size={16} /> Add Resource
-          </button>
-        )}
+        
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+          <div className="search-input-wrapper" style={{ flex: '1', minWidth: '200px' }}>
+            <div style={{ position: 'relative' }}>
+              <MapPin size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
+              <input 
+                type="text" 
+                placeholder="Search by location..." 
+                className="form-input" 
+                style={{ paddingLeft: '32px' }}
+                value={filterLocation}
+                onChange={e => setFilterLocation(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="search-input-wrapper" style={{ width: '200px' }}>
+            <div style={{ position: 'relative' }}>
+              <Users size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
+              <input 
+                type="number" 
+                placeholder="Min capacity..." 
+                className="form-input" 
+                style={{ paddingLeft: '32px' }}
+                value={filterCapacity}
+                onChange={e => setFilterCapacity(e.target.value)}
+                min="1"
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
       {loading ? (
@@ -119,21 +250,30 @@ export default function ResourcesPage() {
               <div className="resource-card__detail"><Tag size={14} /> {r.type?.replace(/_/g, ' ')}</div>
               <div className="resource-card__detail"><MapPin size={14} /> {r.location}</div>
               {r.capacity && <div className="resource-card__detail"><Users size={14} /> Capacity: {r.capacity}</div>}
+              {r.availabilityWindow && <div className="resource-card__detail"><Clock size={14} /> {r.availabilityWindow}</div>}
               {r.description && <div className="resource-card__detail" style={{ color: '#64748b', marginTop: '0.5rem' }}>{r.description}</div>}
-              {isAdmin && (
-                <div className="resource-card__actions">
-                  <button className="btn-dashboard btn-dashboard--secondary btn-dashboard--sm" onClick={() => openEdit(r)}>Edit</button>
-                  <select
-                    className="form-select"
-                    style={{ padding: '0.35rem', fontSize: '0.75rem', width: 'auto' }}
-                    value={r.status}
-                    onChange={e => handleStatusChange(r.id, e.target.value)}
-                  >
-                    {STATUSES.map(s => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
-                  </select>
-                  <button className="btn-dashboard btn-dashboard--danger btn-dashboard--sm" onClick={() => handleDelete(r.id)}>Delete</button>
-                </div>
-              )}
+              <div className="resource-card__actions">
+                <button
+                  className="btn-dashboard btn-dashboard--primary btn-dashboard--sm"
+                  onClick={() => navigate(`${basePath}/resources/${r.id}`)}
+                >
+                  <Eye size={14} /> Details
+                </button>
+                {isAdmin && (
+                  <>
+                    <button className="btn-dashboard btn-dashboard--secondary btn-dashboard--sm" onClick={() => openEdit(r)}>Edit</button>
+                    <select
+                      className="form-select"
+                      style={{ padding: '0.35rem', fontSize: '0.75rem', width: 'auto' }}
+                      value={r.status}
+                      onChange={e => handleStatusChange(r.id, e.target.value)}
+                    >
+                      {STATUSES.map(s => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
+                    </select>
+                    <button className="btn-dashboard btn-dashboard--danger btn-dashboard--sm" onClick={() => handleDelete(r.id)}>Delete</button>
+                  </>
+                )}
+              </div>
             </div>
           ))}
         </div>
@@ -147,29 +287,94 @@ export default function ResourcesPage() {
               <h2 className="modal__title">{editing ? 'Edit Resource' : 'Add Resource'}</h2>
               <button className="sidebar__logout" onClick={() => setShowForm(false)}><X size={18} /></button>
             </div>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} noValidate>
+              {/* Name */}
               <div className="form-group">
-                <label>Name</label>
-                <input type="text" className="form-input" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} required />
+                <label>Name <span style={{ color: '#ef4444' }}>*</span></label>
+                <input
+                  type="text"
+                  className={`form-input${formErrors.name ? ' form-input--error' : ''}`}
+                  placeholder="e.g. Engineering Lab A"
+                  value={formData.name}
+                  onChange={e => { setFormData({ ...formData, name: e.target.value }); clearError('name'); }}
+                />
+                {formErrors.name && <span className="form-error-msg">{formErrors.name}</span>}
               </div>
+
+              {/* Type */}
               <div className="form-group">
-                <label>Type</label>
-                <select className="form-select" value={formData.type} onChange={e => setFormData({ ...formData, type: e.target.value })} required>
+                <label>Type <span style={{ color: '#ef4444' }}>*</span></label>
+                <select
+                  className={`form-select${formErrors.type ? ' form-input--error' : ''}`}
+                  value={formData.type}
+                  onChange={e => { setFormData({ ...formData, type: e.target.value }); clearError('type'); }}
+                >
                   {TYPES.map(t => <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>)}
                 </select>
+                {formErrors.type && <span className="form-error-msg">{formErrors.type}</span>}
               </div>
+
+              {/* Location */}
               <div className="form-group">
-                <label>Location</label>
-                <input type="text" className="form-input" value={formData.location} onChange={e => setFormData({ ...formData, location: e.target.value })} required />
+                <label>Location <span style={{ color: '#ef4444' }}>*</span></label>
+                <input
+                  type="text"
+                  className={`form-input${formErrors.location ? ' form-input--error' : ''}`}
+                  placeholder="e.g. Block B"
+                  value={formData.location}
+                  onChange={e => { setFormData({ ...formData, location: e.target.value }); clearError('location'); }}
+                />
+                {formErrors.location && <span className="form-error-msg">{formErrors.location}</span>}
               </div>
+
+              {/* Capacity */}
               <div className="form-group">
-                <label>Capacity (optional)</label>
-                <input type="number" className="form-input" value={formData.capacity} onChange={e => setFormData({ ...formData, capacity: e.target.value })} />
+                <label>Capacity <span style={{ color: '#64748b', fontWeight: 400 }}>(optional)</span></label>
+                <input
+                  type="number"
+                  min="1"
+                  className={`form-input${formErrors.capacity ? ' form-input--error' : ''}`}
+                  placeholder="e.g. 30"
+                  value={formData.capacity}
+                  onChange={e => { setFormData({ ...formData, capacity: e.target.value }); clearError('capacity'); }}
+                />
+                {formErrors.capacity && <span className="form-error-msg">{formErrors.capacity}</span>}
               </div>
+
+              {/* Availability Window */}
               <div className="form-group">
-                <label>Description (optional)</label>
-                <textarea className="form-textarea" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} />
+                <label>Availability Window <span style={{ color: '#ef4444' }}>*</span></label>
+                <input
+                  id="availability-window-input"
+                  type="text"
+                  className={`form-input${formErrors.availabilityWindow ? ' form-input--error' : ''}`}
+                  placeholder="e.g. Mon-Fri 8:00 AM - 5:00 PM"
+                  value={formData.availabilityWindow}
+                  onChange={e => { setFormData({ ...formData, availabilityWindow: e.target.value }); clearError('availabilityWindow'); }}
+                />
+                {formErrors.availabilityWindow && <span className="form-error-msg">{formErrors.availabilityWindow}</span>}
               </div>
+
+              {/* Description */}
+              <div className="form-group">
+                <label>
+                  Description{' '}
+                  <span style={{ color: '#64748b', fontWeight: 400 }}>(optional)</span>
+                  {formData.description.length > 0 && (
+                    <span style={{ float: 'right', color: formData.description.length > 500 ? '#ef4444' : '#64748b' }}>
+                      {formData.description.length}/500
+                    </span>
+                  )}
+                </label>
+                <textarea
+                  className={`form-textarea${formErrors.description ? ' form-input--error' : ''}`}
+                  placeholder="Brief description of this resource…"
+                  value={formData.description}
+                  onChange={e => { setFormData({ ...formData, description: e.target.value }); clearError('description'); }}
+                />
+                {formErrors.description && <span className="form-error-msg">{formErrors.description}</span>}
+              </div>
+
               <div className="form-actions">
                 <button type="button" className="btn-dashboard btn-dashboard--secondary" onClick={() => setShowForm(false)}>Cancel</button>
                 <button type="submit" className="btn-dashboard btn-dashboard--primary">{editing ? 'Update' : 'Create'}</button>

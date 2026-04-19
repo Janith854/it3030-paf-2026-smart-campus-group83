@@ -1,6 +1,7 @@
-import './index.css';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+import { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
+
 import { NotificationProvider } from './context/NotificationContext';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
@@ -13,9 +14,31 @@ import TechnicianDashboard from './components/dashboards/TechnicianDashboard';
 // Pages
 import BookingsPage from './pages/BookingsPage';
 import ResourcesPage from './pages/ResourcesPage';
+import ResourceDetailsPage from './pages/ResourceDetailsPage';
 import TicketsPage from './pages/TicketsPage';
 import NotificationsPage from './pages/NotificationsPage';
 import AdminPage from './pages/AdminPage';
+const DashboardRedirect = () => {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading) {
+      if (!user) {
+        navigate('/login', { replace: true });
+      } else if (user.role === 'ADMIN') {
+        navigate('/admin', { replace: true });
+      } else if (user.role === 'TECHNICIAN') {
+        navigate('/technician', { replace: true });
+      } else {
+        navigate('/lecturer', { replace: true });
+      }
+    }
+  }, [user, loading, navigate]);
+
+  return <div style={{ padding: '2rem', color: '#64748b' }}>Loading your workspace...</div>;
+};
+
 
 function App() {
   return (
@@ -28,14 +51,16 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
 
-            {/* Legacy Redirect */}
-            <Route path="/dashboard" element={<Navigate to="/" replace />} />
+            {/* Dashboard Routing */}
+            <Route path="/dashboard" element={<DashboardRedirect />} />
+
 
             {/* Lecturer (User) Space */}
             <Route path="/lecturer" element={<DashboardLayout />}>
               <Route index element={<UserDashboard />} />
               <Route path="bookings" element={<BookingsPage />} />
               <Route path="resources" element={<ResourcesPage />} />
+              <Route path="resources/:id" element={<ResourceDetailsPage />} />
               <Route path="tickets" element={<TicketsPage />} />
               <Route path="notifications" element={<NotificationsPage />} />
             </Route>
@@ -45,6 +70,7 @@ function App() {
               <Route index element={<AdminDashboard />} />
               <Route path="bookings" element={<BookingsPage />} />
               <Route path="resources" element={<ResourcesPage />} />
+              <Route path="resources/:id" element={<ResourceDetailsPage />} />
               <Route path="tickets" element={<TicketsPage />} />
               <Route path="notifications" element={<NotificationsPage />} />
               <Route path="users" element={<AdminPage />} />

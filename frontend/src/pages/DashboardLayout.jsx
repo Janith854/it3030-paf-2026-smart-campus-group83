@@ -52,29 +52,28 @@ export default function DashboardLayout() {
   };
 
   let navItems = [
-    { to: correctBasePath,              icon: LayoutDashboard, label: 'Dashboard',     end: true },
+    { to: correctBasePath, icon: LayoutDashboard, label: 'Dashboard', end: true },
   ];
 
   if (isAdmin) {
     navItems.push(
-      { to: `${correctBasePath}/bookings`,     icon: CalendarDays,    label: 'Bookings' },
-      { to: `${correctBasePath}/resources`,    icon: Building2,       label: 'Resources' },
-      { to: `${correctBasePath}/tickets`,      icon: Wrench,          label: 'Tickets' },
-      { to: `${correctBasePath}/notifications`,icon: Bell,            label: 'Notifications' },
-      { to: `${correctBasePath}/users`,        icon: Users,           label: 'Users & Roles' }
+      { to: `${correctBasePath}/bookings`, icon: CalendarDays, label: 'Bookings' },
+      { to: `${correctBasePath}/resources`, icon: Building2, label: 'Resources' },
+      { to: `${correctBasePath}/tickets`, icon: Wrench, label: 'Tickets' },
+      { to: `${correctBasePath}/notifications`, icon: Bell, label: 'Notifications' },
+      { to: `${correctBasePath}/users`, icon: Users, label: 'Users & Roles' }
     );
   } else if (isTechnician) {
     navItems.push(
-      { to: `${correctBasePath}/tickets`,      icon: Wrench,          label: 'Tickets' },
-      { to: `${correctBasePath}/notifications`,icon: Bell,            label: 'Notifications' }
+      { to: `${correctBasePath}/tickets`, icon: Wrench, label: 'Tickets' },
+      { to: `${correctBasePath}/notifications`, icon: Bell, label: 'Notifications' }
     );
   } else {
     // Regular User / Lecturer
     navItems.push(
-      { to: `${correctBasePath}/bookings`,     icon: CalendarDays,    label: 'Bookings' },
-      { to: `${correctBasePath}/resources`,    icon: Building2,       label: 'Resources' },
-      { to: `${correctBasePath}/tickets`,      icon: Wrench,          label: 'Tickets' },
-      { to: `${correctBasePath}/notifications`,icon: Bell,            label: 'Notifications' }
+      { to: `${correctBasePath}/bookings`, icon: CalendarDays, label: 'Bookings' },
+      { to: `${correctBasePath}/tickets`, icon: Wrench, label: 'Tickets' },
+      { to: `${correctBasePath}/notifications`, icon: Bell, label: 'Notifications' }
     );
   }
 
@@ -119,15 +118,9 @@ export default function DashboardLayout() {
 
       {/* Main */}
       <main className="dashboard__main">
-        {/* Top Header Bar */}
-        <header className="dashboard__top-bar">
-          <div className="dashboard__top-bar-left">
-            {/* Page title space - titles are usually in the sub-pages, but we can have common items here */}
-          </div>
-          <div className="dashboard__top-bar-right">
-            <NotificationBell />
-          </div>
-        </header>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', paddingBottom: '1rem' }}>
+          <NotificationBell />
+        </div>
         <Outlet />
       </main>
     </div>

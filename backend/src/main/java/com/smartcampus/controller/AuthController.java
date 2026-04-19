@@ -1,9 +1,12 @@
 package com.smartcampus.controller;
 
 import com.smartcampus.dto.request.GoogleLoginRequest;
+import com.smartcampus.dto.request.LoginRequest;
+import com.smartcampus.dto.request.RegisterRequest;
 import com.smartcampus.dto.response.AuthResponse;
 import com.smartcampus.model.User;
 import com.smartcampus.service.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,20 +27,37 @@ public class AuthController {
     @PostMapping("/google")
     public ResponseEntity<AuthResponse> googleLogin(@RequestBody GoogleLoginRequest request) {
         String token = authService.loginWithGoogle(request.getGoogleToken());
-        return ResponseEntity.ok(new AuthResponse(token));
+        AuthResponse response = new AuthResponse();
+        response.setToken(token);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> registerLocal(@RequestBody @jakarta.validation.Valid com.smartcampus.dto.request.RegisterRequest request) {
-        String token = authService.registerLocal(request.getEmail(), request.getPassword(), request.getName(), request.getRole());
-        return ResponseEntity.status(org.springframework.http.HttpStatus.CREATED).body(new AuthResponse(token));
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
+        String token = authService.registerLocal(
+            request.getEmail(),
+            request.getPassword(),
+            request.getName(),
+            request.getRole()
+        );
+        AuthResponse response = AuthResponse.builder()
+                .token(token)
+                .build();
+        return ResponseEntity.status(org.springframework.http.HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> loginLocal(@RequestBody @jakarta.validation.Valid com.smartcampus.dto.request.LoginRequest request) {
-        String token = authService.loginLocal(request.getEmail(), request.getPassword());
-        return ResponseEntity.ok(new AuthResponse(token));
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+        String token = authService.loginLocal(
+            request.getEmail(),
+            request.getPassword()
+        );
+        AuthResponse response = AuthResponse.builder()
+                .token(token)
+                .build();
+        return ResponseEntity.ok(response);
     }
+
 
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")

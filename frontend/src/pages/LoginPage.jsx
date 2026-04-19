@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Zap, ArrowLeft, Code2 } from 'lucide-react';
+import { authApi } from '../services/api';
 import './dashboard.css';
 
 export default function LoginPage() {
@@ -55,23 +56,16 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
     try {
-      const res = await fetch(`/api/v1/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: e.target.email.value, password: e.target.password.value })
+      const data = await authApi.login({ 
+        email: e.target.email.value, 
+        password: e.target.password.value 
       });
       
-      if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        throw new Error(data?.message || 'Login failed');
-      }
-      
-      const data = await res.json();
       localStorage.setItem('token', data.token);
       localStorage.removeItem('testRoleOverride'); // Clean up old hacks
       
       // We must decode JWT, fetch user profile, or simply redirect to home to let AuthContext route us
-      window.location.href = '/';
+      window.location.href = '/dashboard';
     } catch (e) {
       setError(e.message);
     }

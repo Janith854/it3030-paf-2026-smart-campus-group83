@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import { bookingsApi, ticketsApi, resourcesApi, usersApi, notificationsApi } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { Users, Clock, Wrench, Building2, Activity, ArrowRight } from 'lucide-react';
 
-export default function AdminDashboard() {
-  const { user } = useAuth();
+export default function AdminDashboard({ user }) {
   const [stats, setStats] = useState({ totalUsers: 0, pendingBookings: 0, openTickets: 0, activeResources: 0, unread: 0 });
   const [recentPendingBookings, setRecentPendingBookings] = useState([]);
   const [recentOpenTickets, setRecentOpenTickets] = useState([]);
@@ -23,7 +22,7 @@ export default function AdminDashboard() {
           resourcesApi.getAll().catch(() => []),
           notificationsApi.getAll().catch(() => []),
         ]);
-        
+
         const uArray = Array.isArray(usersData) ? usersData : [];
         const bArray = Array.isArray(bookings) ? bookings : [];
         const tArray = Array.isArray(tickets) ? tickets : [];
@@ -90,7 +89,7 @@ export default function AdminDashboard() {
               <Clock size={18} color="#f59e0b" />
               Pending Bookings
             </h2>
-            <button 
+            <button
               className="btn-dashboard btn-dashboard--secondary btn-dashboard--sm"
               onClick={() => navigate('/admin/bookings')}
             >
@@ -98,9 +97,9 @@ export default function AdminDashboard() {
             </button>
           </div>
           {loading ? (
-             <div style={{ color: '#64748b', fontSize: '0.9rem' }}>Loading...</div>
+            <div style={{ color: '#64748b', fontSize: '0.9rem' }}>Loading...</div>
           ) : recentPendingBookings.length === 0 ? (
-             <div style={{ color: '#64748b', fontSize: '0.9rem' }}>No pending bookings.</div>
+            <div style={{ color: '#64748b', fontSize: '0.9rem' }}>No pending bookings.</div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxHeight: '250px', overflowY: 'auto' }}>
               {recentPendingBookings.map(b => (
@@ -110,7 +109,7 @@ export default function AdminDashboard() {
                   </div>
                   <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Date: {b.bookingDate} {b.startTime} - {b.endTime}</div>
                   <div style={{ marginTop: '0.5rem' }}>
-                     <button className="btn-dashboard btn-dashboard--primary btn-dashboard--sm" onClick={() => navigate('/admin/bookings')}>Review</button>
+                    <button className="btn-dashboard btn-dashboard--primary btn-dashboard--sm" onClick={() => navigate('/admin/bookings')}>Review</button>
                   </div>
                 </div>
               ))}
@@ -125,7 +124,7 @@ export default function AdminDashboard() {
               <Wrench size={18} color="#ef4444" />
               Recent Open Tickets
             </h2>
-            <button 
+            <button
               className="btn-dashboard btn-dashboard--secondary btn-dashboard--sm"
               onClick={() => navigate('/admin/tickets')}
             >
@@ -133,9 +132,9 @@ export default function AdminDashboard() {
             </button>
           </div>
           {loading ? (
-             <div style={{ color: '#64748b', fontSize: '0.9rem' }}>Loading...</div>
+            <div style={{ color: '#64748b', fontSize: '0.9rem' }}>Loading...</div>
           ) : recentOpenTickets.length === 0 ? (
-             <div style={{ color: '#64748b', fontSize: '0.9rem' }}>No open tickets.</div>
+            <div style={{ color: '#64748b', fontSize: '0.9rem' }}>No open tickets.</div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxHeight: '250px', overflowY: 'auto' }}>
               {recentOpenTickets.map(t => (
@@ -146,7 +145,7 @@ export default function AdminDashboard() {
                   </div>
                   <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.5rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.description}</div>
                   <div>
-                     <button className="btn-dashboard btn-dashboard--primary btn-dashboard--sm" onClick={() => navigate('/admin/tickets')}>Assign</button>
+                    <button className="btn-dashboard btn-dashboard--primary btn-dashboard--sm" onClick={() => navigate('/admin/tickets')}>Assign</button>
                   </div>
                 </div>
               ))}
@@ -161,7 +160,7 @@ export default function AdminDashboard() {
               <Activity size={18} color="#6366f1" />
               Recent System Alerts
             </h2>
-            <button 
+            <button
               className="btn-dashboard btn-dashboard--secondary btn-dashboard--sm"
               onClick={() => navigate('/admin/notifications')}
             >
@@ -169,9 +168,9 @@ export default function AdminDashboard() {
             </button>
           </div>
           {loading ? (
-             <div style={{ color: '#64748b', fontSize: '0.9rem' }}>Loading...</div>
+            <div style={{ color: '#64748b', fontSize: '0.9rem' }}>Loading...</div>
           ) : recentNotifications.length === 0 ? (
-             <div style={{ color: '#64748b', fontSize: '0.9rem' }}>No recent alerts.</div>
+            <div style={{ color: '#64748b', fontSize: '0.9rem' }}>No recent alerts.</div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxHeight: '250px', overflowY: 'auto' }}>
               {recentNotifications.map(n => (
