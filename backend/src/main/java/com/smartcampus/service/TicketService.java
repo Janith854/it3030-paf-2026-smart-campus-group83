@@ -13,5 +13,6 @@ public interface TicketService {
     Ticket updateTicketStatus(String id, Ticket.TicketStatus status, String notes);
     Ticket assignTechnician(String id, String technicianId);
     Ticket addComment(String id, String userId, String content);
+    Ticket updateComment(String ticketId, String commentId, String userId, String content);
     Ticket deleteComment(String ticketId, String commentId, String userId);
 }

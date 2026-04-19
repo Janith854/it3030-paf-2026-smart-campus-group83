@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useLocation } from 'react-router-dom';
 import { ticketsApi, usersApi } from '../services/api';
-import { Plus, X, Wrench, MessageSquare, UserPlus } from 'lucide-react';
+import { Plus, X, Wrench, MessageSquare, UserPlus, Pencil } from 'lucide-react';
 
 const PRIORITIES = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
 const TICKET_STATUSES = ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED', 'REJECTED'];
@@ -103,6 +103,17 @@ export default function TicketsPage() {
       await ticketsApi.addComment(selectedTicket.id, comment);
       setComment('');
       // Refresh the selected ticket
+      const updated = await ticketsApi.getById(selectedTicket.id);
+      setSelectedTicket(updated);
+      load();
+    } catch (e) { setError(e.message); }
+  };
+
+  const handleEditComment = async (commentId, oldContent) => {
+    const newContent = prompt('Edit your comment:', oldContent);
+    if (!newContent || newContent === oldContent) return;
+    try {
+      await ticketsApi.editComment(selectedTicket.id, commentId, newContent);
       const updated = await ticketsApi.getById(selectedTicket.id);
       setSelectedTicket(updated);
       load();
@@ -316,13 +327,22 @@ export default function TicketsPage() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                       <div style={{ color: '#94a3b8', flex: 1 }}>{c.content}</div>
                       {c.userId === user.id && (
-                        <button 
-                          onClick={() => handleDeleteComment(c.id)}
-                          style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '0.2rem' }}
-                          title="Delete My Comment"
-                        >
-                          <X size={12} />
-                        </button>
+                        <div style={{ display: 'flex', gap: '0.2rem' }}>
+                          <button 
+                            onClick={() => handleEditComment(c.id, c.content)}
+                            style={{ background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer', padding: '0.2rem' }}
+                            title="Edit My Comment"
+                          >
+                            <Pencil size={12} />
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteComment(c.id)}
+                            style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '0.2rem' }}
+                            title="Delete My Comment"
+                          >
+                            <X size={12} />
+                          </button>
+                        </div>
                       )}
                     </div>
                     <div style={{ color: '#475569', fontSize: '0.72rem', marginTop: '0.25rem' }}>{c.createdAt && new Date(c.createdAt).toLocaleString()}</div>

@@ -74,6 +74,14 @@ public class TicketController {
             .body(ticketService.addComment(id, user.getId(), content));
     }
 
+    @PatchMapping("/{ticketId}/comments/{commentId}")
+    public ResponseEntity<Ticket> updateComment(@PathVariable String ticketId,
+                                                  @PathVariable String commentId,
+                                                  @RequestParam String content,
+                                                  @AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ticketService.updateComment(ticketId, commentId, user.getId(), content));
+    }
+
     @DeleteMapping("/{ticketId}/comments/{commentId}")
     public ResponseEntity<Ticket> deleteComment(@PathVariable String ticketId,
                                                   @PathVariable String commentId,
