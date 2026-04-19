@@ -118,9 +118,15 @@ export default function DashboardLayout() {
 
       {/* Main */}
       <main className="dashboard__main">
-        <div style={{ display: 'flex', justifyContent: 'flex-end', paddingBottom: '1rem' }}>
-          <NotificationBell />
-        </div>
+        {/* Top Header Bar */}
+        <header className="dashboard__top-bar">
+          <div className="dashboard__top-bar-left">
+            {/* Page title space - titles are usually in the sub-pages, but we can have common items here */}
+          </div>
+          <div className="dashboard__top-bar-right">
+            <NotificationBell />
+          </div>
+        </header>
         <Outlet />
       </main>
     </div>

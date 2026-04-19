@@ -71,7 +71,7 @@ export default function NotificationsPage() {
           </div>
         ) : (
           notifications.map(n => (
-            <div key={n.id} className={`notif-item ${!n.read ? 'notif-item--unread' : ''}`}>
+            <div key={n.id} className={`notif-item ${!n.read ? 'notif-item--unread' : ''} ${n.type === 'URGENT_PRIORITY_ALERT' ? 'notif-item--urgent' : ''}`}>
               <div className="notif-item__body">
                 <div className="notif-item__title">{n.title}</div>
                 <div className="notif-item__message">{n.message}</div>

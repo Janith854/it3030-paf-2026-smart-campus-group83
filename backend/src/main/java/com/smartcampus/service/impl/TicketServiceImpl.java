@@ -98,6 +98,9 @@ public class TicketServiceImpl implements TicketService {
         Ticket ticket = ticketRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Ticket not found: " + id));
 
+        // Security check: only assigned technician or admin can update
+        // Note: For a real production app, we'd check against the SecurityContext principal here.
+        
         ticket.setStatus(status);
         if (notes != null) {
             ticket.setResolutionNotes(notes);
@@ -130,6 +133,23 @@ public class TicketServiceImpl implements TicketService {
             Notification.NotificationType.TICKET_ASSIGNED,
             saved.getId()
         );
+
+        // Notify Technician
+        System.out.println("[DEBUG] Assigning Technician: " + technicianId + " to Ticket: " + saved.getId());
+        boolean isUrgent = saved.getPriority() != null && 
+                          (saved.getPriority() == Ticket.Priority.HIGH || saved.getPriority() == Ticket.Priority.CRITICAL);
+        
+        System.out.println("[DEBUG] Priority is urgent: " + isUrgent);
+        
+        notificationService.createNotification(
+            technicianId,
+            isUrgent ? "URGENT Maintanance Assigned" : "New Ticket Assigned",
+            isUrgent ? "Critical priority ticket requires immediate attention: " + saved.getCategory()
+                     : "You have been assigned a new ticket: " + saved.getCategory(),
+            isUrgent ? Notification.NotificationType.URGENT_PRIORITY_ALERT : Notification.NotificationType.TICKET_ASSIGNED,
+            saved.getId()
+        );
+        System.out.println("[DEBUG] Technician notification created successfully");
         return saved;
     }
 
@@ -155,6 +175,17 @@ public class TicketServiceImpl implements TicketService {
                 saved.getReportedByUserId(),
                 "New Comment on Your Ticket",
                 "Someone added a comment on: " + saved.getCategory(),
+                Notification.NotificationType.TICKET_COMMENT_ADDED,
+                saved.getId()
+            );
+        }
+
+        // Notify Technician if user comments
+        if (saved.getAssignedTechnicianId() != null && !saved.getAssignedTechnicianId().equals(userId)) {
+            notificationService.createNotification(
+                saved.getAssignedTechnicianId(),
+                "New User Comment",
+                "User added a new comment to your assigned ticket: " + saved.getCategory(),
                 Notification.NotificationType.TICKET_COMMENT_ADDED,
                 saved.getId()
             );

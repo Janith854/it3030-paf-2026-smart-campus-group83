@@ -22,6 +22,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public Notification createNotification(String userId, String title, String message,
                                            Notification.NotificationType type, String referenceId) {
+        System.out.println("[DEBUG] Creating notification for user: " + userId + " - Title: " + title);
         Notification n = new Notification();
         n.setUserId(userId);
         n.setTitle(title);
@@ -29,7 +30,9 @@ public class NotificationServiceImpl implements NotificationService {
         n.setType(type);
         n.setReferenceId(referenceId);
         n.setCreatedAt(java.time.LocalDateTime.now());
-        return notificationRepository.save(n);
+        Notification saved = notificationRepository.save(n);
+        System.out.println("[DEBUG] Notification saved with ID: " + saved.getId());
+        return saved;
     }
 
     @Override

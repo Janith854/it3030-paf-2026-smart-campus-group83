@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { bookingsApi, ticketsApi, resourcesApi, usersApi, notificationsApi } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import { Users, Clock, Wrench, Building2, Activity, ArrowRight } from 'lucide-react';
 
-export default function AdminDashboard({ user }) {
+export default function AdminDashboard() {
+  const { user } = useAuth();
   const [stats, setStats] = useState({ totalUsers: 0, pendingBookings: 0, openTickets: 0, activeResources: 0, unread: 0 });
   const [recentPendingBookings, setRecentPendingBookings] = useState([]);
   const [recentOpenTickets, setRecentOpenTickets] = useState([]);

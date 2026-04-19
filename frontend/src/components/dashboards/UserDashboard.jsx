@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { bookingsApi, ticketsApi, notificationsApi } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import { CalendarDays, Wrench, Bell, Plus, Activity } from 'lucide-react';
 
-export default function UserDashboard({ user }) {
+export default function UserDashboard() {
+  const { user } = useAuth();
   const [stats, setStats] = useState({ bookings: 0, tickets: 0, unread: 0 });
   const [recentBookings, setRecentBookings] = useState([]);
   const [recentTickets, setRecentTickets] = useState([]);

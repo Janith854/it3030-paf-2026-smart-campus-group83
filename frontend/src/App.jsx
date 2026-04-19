@@ -32,7 +32,7 @@ function App() {
             <Route path="/dashboard" element={<Navigate to="/" replace />} />
 
             {/* Lecturer (User) Space */}
-            <Route path="/lecturer" element={<DashboardLayout testRole="USER" />}>
+            <Route path="/lecturer" element={<DashboardLayout />}>
               <Route index element={<UserDashboard />} />
               <Route path="bookings" element={<BookingsPage />} />
               <Route path="tickets" element={<TicketsPage />} />
@@ -40,7 +40,7 @@ function App() {
             </Route>
 
             {/* Admin Space */}
-            <Route path="/admin" element={<DashboardLayout testRole="ADMIN" />}>
+            <Route path="/admin" element={<DashboardLayout />}>
               <Route index element={<AdminDashboard />} />
               <Route path="bookings" element={<BookingsPage />} />
               <Route path="resources" element={<ResourcesPage />} />
@@ -50,7 +50,7 @@ function App() {
             </Route>
 
             {/* Technician Space */}
-            <Route path="/technician" element={<DashboardLayout testRole="TECHNICIAN" />}>
+            <Route path="/technician" element={<DashboardLayout />}>
               <Route index element={<TechnicianDashboard />} />
               <Route path="tickets" element={<TicketsPage />} />
               <Route path="notifications" element={<NotificationsPage />} />

@@ -75,7 +75,16 @@ export default function TicketsPage() {
   };
 
   const handleStatusUpdate = async (id, status) => {
-    const notes = prompt('Notes (optional):') || '';
+    let notes = '';
+    if (status === 'RESOLVED') {
+      notes = prompt('Please enter Resolution Notes (Required for Viva/Audit):') || '';
+      if (!notes) {
+        alert('Resolution notes are required to resolve a ticket.');
+        return;
+      }
+    } else {
+      notes = prompt('Status update notes (optional):') || '';
+    }
     try { await ticketsApi.updateStatus(id, status, notes); load(); }
     catch (e) { setError(e.message); }
   };
@@ -94,6 +103,16 @@ export default function TicketsPage() {
       await ticketsApi.addComment(selectedTicket.id, comment);
       setComment('');
       // Refresh the selected ticket
+      const updated = await ticketsApi.getById(selectedTicket.id);
+      setSelectedTicket(updated);
+      load();
+    } catch (e) { setError(e.message); }
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    if (!window.confirm('Are you sure you want to delete your comment?')) return;
+    try {
+      await ticketsApi.deleteComment(selectedTicket.id, commentId);
       const updated = await ticketsApi.getById(selectedTicket.id);
       setSelectedTicket(updated);
       load();
@@ -262,14 +281,51 @@ export default function TicketsPage() {
               {selectedTicket.location && <div style={{ color: '#64748b', fontSize: '0.82rem', marginTop: '0.25rem' }}>📍 {selectedTicket.location}</div>}
             </div>
 
+            {/* Detail Info */}
+            <div style={{ padding: '0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', marginBottom: '1rem', fontSize: '0.85rem' }}>
+              {selectedTicket.reportedByUserId && (
+                <div style={{ marginBottom: '0.5rem' }}>
+                  <span style={{ color: '#64748b' }}>Reported By ID:</span> {selectedTicket.reportedByUserId}
+                </div>
+              )}
+              {selectedTicket.rejectionReason && (
+                <div style={{ color: '#ef4444', marginBottom: '0.5rem' }}>
+                  <span style={{ fontWeight: 600 }}>Rejection Reason:</span> {selectedTicket.rejectionReason}
+                </div>
+              )}
+              {selectedTicket.resolutionNotes && (
+                <div style={{ color: '#10b981' }}>
+                  <span style={{ fontWeight: 600 }}>Resolution Notes:</span> {selectedTicket.resolutionNotes}
+                </div>
+              )}
+            </div>
+
             {/* Comments */}
             <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '1rem' }}>
               <div style={{ fontWeight: 600, marginBottom: '0.75rem', fontSize: '0.9rem' }}>Comments ({selectedTicket.comments?.length || 0})</div>
               {selectedTicket.comments?.length > 0 ? (
                 selectedTicket.comments.map((c, i) => (
-                  <div key={i} style={{ padding: '0.5rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', marginBottom: '0.5rem', fontSize: '0.82rem' }}>
-                    <div style={{ color: '#94a3b8' }}>{c.content}</div>
-                    <div style={{ color: '#475569', fontSize: '0.72rem', marginTop: '0.25rem' }}>{c.createdAt}</div>
+                  <div key={i} style={{ 
+                    padding: '0.5rem', 
+                    background: 'rgba(255,255,255,0.02)', 
+                    borderRadius: '8px', 
+                    marginBottom: '0.5rem', 
+                    fontSize: '0.82rem',
+                    position: 'relative'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <div style={{ color: '#94a3b8', flex: 1 }}>{c.content}</div>
+                      {c.userId === user.id && (
+                        <button 
+                          onClick={() => handleDeleteComment(c.id)}
+                          style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '0.2rem' }}
+                          title="Delete My Comment"
+                        >
+                          <X size={12} />
+                        </button>
+                      )}
+                    </div>
+                    <div style={{ color: '#475569', fontSize: '0.72rem', marginTop: '0.25rem' }}>{c.createdAt && new Date(c.createdAt).toLocaleString()}</div>
                   </div>
                 ))
               ) : (
