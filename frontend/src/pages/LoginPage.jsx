@@ -17,38 +17,45 @@ export default function LoginPage() {
     return null;
   }
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleCallback = async (response) => {
     setError('');
     setLoading(true);
     try {
-      if (window.google && window.google.accounts) {
-        window.google.accounts.id.initialize({
-          client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || '',
-          callback: async (response) => {
-            try {
-              const res = await fetch('/api/v1/auth/google', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ googleToken: response.credential }),
-              });
-              if (!res.ok) throw new Error('Login failed');
-              const data = await res.json();
-              localStorage.setItem('token', data.token);
-              window.location.href = '/dashboard';
-            } catch (e) {
-              setError(e.message);
-              setLoading(false);
-            }
-          },
-        });
-        window.google.accounts.id.prompt();
-      } else {
-        setError('Google Sign-In not loaded. Use Dev Login below to test.');
+      const res = await fetch('/api/v1/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ googleToken: response.credential }),
+      });
+      
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Google authentication failed');
       }
+      
+      const data = await res.json();
+      localStorage.setItem('token', data.token);
+      window.location.href = '/'; // Simple redirect to clear state and let App.jsx handle routing
     } catch (e) {
       setError(e.message);
+      setLoading(false);
     }
-    setLoading(false);
+  };
+
+  const handleGoogleLogin = () => {
+    if (window.google && window.google.accounts) {
+      window.google.accounts.id.initialize({
+        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || '',
+        callback: handleGoogleCallback,
+        auto_select: false,
+        cancel_on_tap_outside: true
+      });
+      window.google.accounts.id.prompt(); // Show One Tap if available
+      // Also trigger standard selection popup
+      // Note: We can't easily trigger the standard popup via JS without renderButton
+      // but we can at least ensure initialization happened.
+    } else {
+      setError('Google Sign-In script not loaded. Please refresh or try another method.');
+    }
   };
 
   const handleLocalLogin = async (e) => {
