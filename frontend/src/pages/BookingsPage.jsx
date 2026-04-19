@@ -238,7 +238,7 @@ function BookingModal({ resources, initialResourceId, onClose, onCreated }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Mark every field touched so all errors appear at once
+    // Mark every field touched so all errors appear
     setTouched({
       resourceId: true,
       bookingDate: true,
