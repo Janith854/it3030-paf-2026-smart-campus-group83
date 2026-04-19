@@ -15,6 +15,8 @@ public interface AuthService {
     User getCurrentUser(String userId);
 
     User updateRole(String userId, User.Role role);
+    
+    void deleteUser(String userId);
 
     List<User> getAllUsers();
 }

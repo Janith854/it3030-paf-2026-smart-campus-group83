@@ -106,6 +106,14 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    public void deleteUser(String userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new ResourceNotFoundException("User not found: " + userId);
+        }
+        userRepository.deleteById(userId);
+    }
+
+    @Override
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }

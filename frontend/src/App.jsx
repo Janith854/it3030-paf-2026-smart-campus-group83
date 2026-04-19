@@ -14,6 +14,7 @@ import TechnicianDashboard from './components/dashboards/TechnicianDashboard';
 // Pages
 import BookingsPage from './pages/BookingsPage';
 import ResourcesPage from './pages/ResourcesPage';
+import ResourceDetailsPage from './pages/ResourceDetailsPage';
 import TicketsPage from './pages/TicketsPage';
 import NotificationsPage from './pages/NotificationsPage';
 import AdminPage from './pages/AdminPage';
@@ -59,6 +60,7 @@ function App() {
               <Route index element={<UserDashboard />} />
               <Route path="bookings" element={<BookingsPage />} />
               <Route path="resources" element={<ResourcesPage />} />
+              <Route path="resources/:id" element={<ResourceDetailsPage />} />
               <Route path="tickets" element={<TicketsPage />} />
               <Route path="notifications" element={<NotificationsPage />} />
             </Route>
@@ -68,6 +70,7 @@ function App() {
               <Route index element={<AdminDashboard />} />
               <Route path="bookings" element={<BookingsPage />} />
               <Route path="resources" element={<ResourcesPage />} />
+              <Route path="resources/:id" element={<ResourceDetailsPage />} />
               <Route path="tickets" element={<TicketsPage />} />
               <Route path="notifications" element={<NotificationsPage />} />
               <Route path="users" element={<AdminPage />} />

@@ -43,7 +43,10 @@ public class TestController {
                 return userRepository.save(newUser);
             });
         String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole().name());
-        return ResponseEntity.ok(new AuthResponse(token));
+        AuthResponse response = AuthResponse.builder()
+                .token(token)
+                .build();
+        return ResponseEntity.ok(response);
     }
 
     // Member 4 (Auth/Roles): temporary role promotion for testing technician assignment.
