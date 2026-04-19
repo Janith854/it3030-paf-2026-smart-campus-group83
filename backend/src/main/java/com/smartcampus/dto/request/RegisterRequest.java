@@ -16,12 +16,6 @@ public class RegisterRequest {
     private String email;
 
     @NotBlank
-    private String department;
-
-    @NotBlank
-    private String empId;
-
-    @NotBlank
     @Size(min = 6)
     private String password;
 

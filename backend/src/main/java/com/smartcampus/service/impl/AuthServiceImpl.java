@@ -13,7 +13,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.Map;
 
@@ -65,6 +64,35 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    public String registerLocal(String email, String password, String name, User.Role role) {
+        if (userRepository.findByEmail(email).isPresent()) {
+            throw new RuntimeException("Email is already registered");
+        }
+
+        User user = new User();
+        user.setEmail(email);
+        user.setPassword(passwordEncoder.encode(password));
+        user.setName(name);
+        user.setRole(role != null ? role : User.Role.USER);
+
+        User saved = userRepository.save(user);
+        return jwtUtil.generateToken(saved.getId(), saved.getEmail(), saved.getRole().name());
+    }
+
+    @Override
+    public String loginLocal(String email, String password) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Invalid email or password"));
+
+        // If user logged in through Google previously, they might not have a password
+        if (user.getPassword() == null || !passwordEncoder.matches(password, user.getPassword())) {
+            throw new RuntimeException("Invalid email or password");
+        }
+
+        return jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole().name());
+    }
+
+    @Override
     public User getCurrentUser(String userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + userId));
@@ -80,79 +108,6 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public List<User> getAllUsers() {
         return userRepository.findAll();
-    }
-
-    @Override
-    public AuthResponse register(String name, String email, String department, String empId,
-            String password, User.Role role) {
-        String normalizedEmail = email == null ? null : email.trim().toLowerCase();
-        if (normalizedEmail == null || normalizedEmail.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is required");
-        }
-        if (password == null || password.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password is required");
-        }
-        if (userRepository.existsByEmail(normalizedEmail)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already registered");
-        }
-
-        User user = new User();
-        user.setName(name);
-        user.setEmail(normalizedEmail);
-        user.setDepartment(department);
-        user.setEmpId(empId);
-        user.setPassword(passwordEncoder.encode(password));
-
-        // ROLE LOGIC:
-        // 1. Special case: admin@gmail.com -> ADMIN
-        if (normalizedEmail.equalsIgnoreCase("admin@gmail.com")) {
-            user.setRole(User.Role.ADMIN);
-        }
-        // 2. Otherwise use requested role (USER or TECHNICIAN), default to USER
-        else if (role == User.Role.TECHNICIAN) {
-            user.setRole(User.Role.TECHNICIAN);
-        } else {
-            user.setRole(User.Role.LECTURER);
-        }
-
-        User saved = userRepository.save(user);
-        return buildAuthResponse(saved, true);
-    }
-
-    @Override
-    public AuthResponse login(String email, String password, User.Role role) {
-        String normalizedEmail = email == null ? null : email.trim().toLowerCase();
-        if (normalizedEmail == null || normalizedEmail.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is required");
-        }
-        if (password == null || password.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password is required");
-        }
-
-        User user = userRepository.findByEmail(normalizedEmail)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials"));
-
-        if (user.getPassword() == null || !passwordEncoder.matches(password, user.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
-        }
-
-        return buildAuthResponse(user, true);
-    }
-
-    private AuthResponse buildAuthResponse(User user, boolean includeToken) {
-        String token = includeToken ? jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole().name())
-                : null;
-
-        return AuthResponse.builder()
-                .token(token)
-                .user(AuthResponse.UserResponse.builder()
-                        .id(user.getId())
-                        .name(user.getName())
-                        .email(user.getEmail())
-                        .role(user.getRole().name())
-                        .department(user.getDepartment())
-                        .build())
-                .build();
     }
 
     private Map<String, Object> fetchGoogleTokenInfo(String googleToken) {

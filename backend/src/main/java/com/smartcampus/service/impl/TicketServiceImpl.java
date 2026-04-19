@@ -15,6 +15,8 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import com.smartcampus.model.User;
+import com.smartcampus.repository.UserRepository;
 
 /**
  * Module C — Maintenance & Incident Ticketing
@@ -27,6 +29,7 @@ public class TicketServiceImpl implements TicketService {
     private final TicketRepository ticketRepository;
     private final NotificationService notificationService;
     private final FileStorageService fileStorageService;
+    private final UserRepository userRepository;
 
     @Override
     public Ticket createTicket(Ticket ticket, String userId, List<MultipartFile> images) {
@@ -48,7 +51,20 @@ public class TicketServiceImpl implements TicketService {
             ticket.setImageAttachments(fileNames);
         }
 
-        return ticketRepository.save(ticket);
+        Ticket saved = ticketRepository.save(ticket);
+
+        List<User> admins = userRepository.findByRole(User.Role.ADMIN);
+        for (User admin : admins) {
+            notificationService.createNotification(
+                admin.getId(),
+                "New Incident Ticket",
+                "A new ticket categorized as " + saved.getCategory() + " has been raised.",
+                Notification.NotificationType.TICKET_CREATED,
+                saved.getId()
+            );
+        }
+
+        return saved;
     }
 
     @Override

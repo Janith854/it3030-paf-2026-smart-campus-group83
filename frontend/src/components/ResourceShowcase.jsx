@@ -1,89 +1,84 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { MapPin, Users, Wifi, Projector, BookOpen, Filter } from 'lucide-react';
+import { resourcesApi } from '../services/api';
 import './ResourceShowcase.css';
 
-const resources = [
-  {
-    name: 'Lecture Hall A',
-    type: 'Hall',
-    capacity: 200,
-    location: 'Building A, Block 1',
-    status: 'Available',
-    amenities: ['Projector', 'WiFi', 'AC'],
-    image: 'hall',
-    color: '#3B82F6',
-  },
-  {
-    name: 'Computer Lab 2',
-    type: 'Lab',
-    capacity: 50,
-    location: 'Building C, Floor 2',
-    status: 'Available',
-    amenities: ['Computers', 'WiFi', 'Whiteboard'],
-    image: 'lab',
-    color: '#10B981',
-  },
-  {
-    name: 'Seminar Room B',
-    type: 'Room',
-    capacity: 40,
-    location: 'Building B, Floor 1',
-    status: 'Booked',
-    amenities: ['Projector', 'WiFi', 'Video Conf'],
-    image: 'room',
-    color: '#6366F1',
-  },
-  {
-    name: 'Physics Lab',
-    type: 'Lab',
-    capacity: 30,
-    location: 'Science Block, Floor 3',
-    status: 'Available',
-    amenities: ['Equipment', 'Safety Kit', 'WiFi'],
-    image: 'lab2',
-    color: '#F59E0B',
-  },
-  {
-    name: 'Innovation Hub',
-    type: 'Hall',
-    capacity: 120,
-    location: 'Main Block, Ground Floor',
-    status: 'Available',
-    amenities: ['Stage', 'Sound System', 'AC'],
-    image: 'hub',
-    color: '#38BDF8',
-  },
-  {
-    name: 'Project Room C',
-    type: 'Room',
-    capacity: 15,
-    location: 'Library Building, Floor 2',
-    status: 'Maintenance',
-    amenities: ['Whiteboard', 'WiFi', 'TV'],
-    image: 'project',
-    color: '#EC4899',
-  },
-];
-
-const filters = ['All', 'Hall', 'Lab', 'Room'];
-const colorMap = { hall: '#3B82F6', lab: '#10B981', lab2: '#F59E0B', room: '#6366F1', hub: '#38BDF8', project: '#EC4899' };
-
 const gradients = {
-  hall: 'linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 50%, #2563eb 100%)',
-  lab: 'linear-gradient(135deg, #064e3b 0%, #059669 50%, #10b981 100%)',
-  room: 'linear-gradient(135deg, #312e81 0%, #4338ca 50%, #6366f1 100%)',
-  lab2: 'linear-gradient(135deg, #78350f 0%, #d97706 50%, #f59e0b 100%)',
-  hub: 'linear-gradient(135deg, #0c4a6e 0%, #0ea5e9 50%, #38bdf8 100%)',
-  project: 'linear-gradient(135deg, #831843 0%, #db2777 50%, #ec4899 100%)',
+  LECTURE_HALL: 'linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 50%, #2563eb 100%)',
+  LAB: 'linear-gradient(135deg, #064e3b 0%, #059669 50%, #10b981 100%)',
+  MEETING_ROOM: 'linear-gradient(135deg, #312e81 0%, #4338ca 50%, #6366f1 100%)',
+  EQUIPMENT: 'linear-gradient(135deg, #78350f 0%, #d97706 50%, #f59e0b 100%)',
+  DEFAULT: 'linear-gradient(135deg, #0c4a6e 0%, #0ea5e9 50%, #38bdf8 100%)',
 };
 
-export default function ResourceShowcase() {
-  const [activeFilter, setActiveFilter] = useState('All');
+const MAP_TYPE_LABEL = {
+  LECTURE_HALL: 'Hall',
+  LAB: 'Lab',
+  MEETING_ROOM: 'Room',
+  EQUIPMENT: 'Equip'
+};
 
-  const filtered = activeFilter === 'All'
+const filterTabs = [
+  { id: '', label: 'All' },
+  { id: 'LECTURE_HALL', label: 'Hall' },
+  { id: 'LAB', label: 'Lab' },
+  { id: 'MEETING_ROOM', label: 'Room' }
+];
+
+export default function ResourceShowcase() {
+  const [activeFilter, setActiveFilter] = useState('');
+  const [searchLocation, setSearchLocation] = useState('');
+  const [minCapacity, setMinCapacity] = useState('');
+  const [resources, setResources] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    let mounted = true;
+    const fetchResources = async () => {
+      try {
+        const data = await resourcesApi.getAll();
+        if (mounted) {
+          setResources(Array.isArray(data) ? data : []);
+        }
+      } catch (e) {
+        console.error('Failed to fetch resources:', e);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+    fetchResources();
+    return () => { mounted = false; };
+  }, []);
+
+  const handleBook = (id) => {
+    const token = localStorage.getItem('token');
+    const testRole = localStorage.getItem('testRoleOverride') || 'USER';
+    if (token) {
+      if (testRole === 'ADMIN') {
+        navigate('/admin/bookings', { state: { resourceId: id } });
+      } else {
+        navigate('/lecturer/bookings', { state: { resourceId: id } });
+      }
+    } else {
+      navigate('/login');
+    }
+  };
+
+  let filtered = !activeFilter
     ? resources
     : resources.filter(r => r.type === activeFilter);
+
+  if (searchLocation.trim()) {
+    filtered = filtered.filter(r => r.location?.toLowerCase().includes(searchLocation.toLowerCase()));
+  }
+  if (minCapacity) {
+    filtered = filtered.filter(r => r.capacity >= parseInt(minCapacity, 10));
+  }
+
+  // If we have fewer than 6, maybe we fallback or just show empty? Real data handles it.
 
   return (
     <section className="section section-surface resources" id="resources">
@@ -103,11 +98,11 @@ export default function ResourceShowcase() {
             Browse Available <span style={{ color: '#2563EB' }}>Campus Spaces</span>
           </h2>
           <p className="section-subtitle dark">
-            Explore lecture halls, computer labs, seminar rooms, and equipment available for booking.
+            Explore lecture halls, computer labs, seminar rooms, and equipment available for booking. {loading && "(Loading...)"}
           </p>
         </motion.div>
 
-        {/* Filters */}
+        {/* Filters and Search */}
         <motion.div
           className="resources__filters"
           initial={{ opacity: 0, y: 12 }}
@@ -115,74 +110,113 @@ export default function ResourceShowcase() {
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
           id="resources-filters"
+          style={{ flexWrap: 'wrap', gap: '1rem', justifyContent: 'center' }}
         >
-          <Filter size={16} className="resources__filter-icon" />
-          {filters.map(f => (
-            <button
-              key={f}
-              className={`resources__filter-btn ${activeFilter === f ? 'active' : ''}`}
-              onClick={() => setActiveFilter(f)}
-              id={`filter-${f.toLowerCase()}`}
-            >
-              {f}
-            </button>
-          ))}
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <Filter size={16} className="resources__filter-icon" />
+            {filterTabs.map(f => (
+              <button
+                key={f.id}
+                className={`resources__filter-btn ${activeFilter === f.id ? 'active' : ''}`}
+                onClick={() => setActiveFilter(f.id)}
+                id={`filter-${f.label.toLowerCase()}`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <input 
+              type="text" 
+              placeholder="Search location..." 
+              value={searchLocation} 
+              onChange={e => setSearchLocation(e.target.value)} 
+              style={{ padding: '0.5rem', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)', fontSize: '0.9rem', outline: 'none' }}
+            />
+            <input 
+              type="number" 
+              placeholder="Min seats" 
+              value={minCapacity} 
+              onChange={e => setMinCapacity(e.target.value)} 
+              style={{ padding: '0.5rem', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)', fontSize: '0.9rem', outline: 'none', width: '100px' }}
+            />
+          </div>
         </motion.div>
 
         {/* Cards Grid */}
         <div className="resources__grid">
-          {filtered.map((r, i) => (
-            <motion.div
-              key={r.name}
-              className="resource-card"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.08 }}
-              id={`resource-card-${i}`}
-            >
-              {/* Card Image Area */}
-              <div className="resource-card__image" style={{ background: gradients[r.image] }}>
-                <div className="resource-card__type-badge">{r.type}</div>
-                <div
-                  className={`resource-card__status ${
-                    r.status === 'Available' ? 'available' :
-                    r.status === 'Booked' ? 'booked' : 'maintenance'
-                  }`}
-                >
-                  <span className="resource-card__status-dot" />
-                  {r.status}
-                </div>
-                <div className="resource-card__capacity-overlay">
-                  <Users size={14} />
-                  <span>{r.capacity} seats</span>
-                </div>
-              </div>
+          {filtered.map((r, i) => {
+            const isAvailable = r.status === 'ACTIVE';
+            const displayStatus = isAvailable ? 'Available' : (r.status === 'MAINTENANCE' ? 'Maintenance' : 'Unavailable');
+            
+            // Dummy amenities based on type since backend just has description
+            const defaultAmenities = r.type === 'LAB' ? ['WiFi', 'Computers'] : ['WiFi', 'AC', 'Projector'];
 
-              {/* Card Body */}
-              <div className="resource-card__body">
-                <h3 className="resource-card__name">{r.name}</h3>
-                <div className="resource-card__location">
-                  <MapPin size={13} />
-                  <span>{r.location}</span>
+            return (
+              <motion.div
+                key={r.id}
+                className="resource-card"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.08 }}
+                id={`resource-card-${i}`}
+              >
+                {/* Card Image Area */}
+                <div className="resource-card__image" style={{ background: gradients[r.type] || gradients.DEFAULT }}>
+                  <div className="resource-card__type-badge">{MAP_TYPE_LABEL[r.type] || r.type}</div>
+                  <div
+                    className={`resource-card__status ${
+                      isAvailable ? 'available' :
+                      r.status === 'OUT_OF_SERVICE' ? 'booked' : 'maintenance'
+                    }`}
+                  >
+                    <span className="resource-card__status-dot" />
+                    {displayStatus}
+                  </div>
+                  {r.capacity && (
+                    <div className="resource-card__capacity-overlay">
+                      <Users size={14} />
+                      <span>{r.capacity} seats</span>
+                    </div>
+                  )}
                 </div>
-                <div className="resource-card__amenities">
-                  {r.amenities.map(a => (
-                    <span key={a} className="resource-card__amenity">{a}</span>
-                  ))}
+
+                {/* Card Body */}
+                <div className="resource-card__body">
+                  <h3 className="resource-card__name">{r.name}</h3>
+                  <div className="resource-card__location">
+                    <MapPin size={13} />
+                    <span>{r.location}</span>
+                  </div>
+                  <div className="resource-card__amenities">
+                    {defaultAmenities.map(a => (
+                      <span key={a} className="resource-card__amenity">{a}</span>
+                    ))}
+                  </div>
+                  {/* Additional info via description */}
+                  {r.description && <div style={{fontSize: '0.8rem', color: '#64748b', marginBottom: '10px'}}>{r.description.length > 50 ? r.description.substring(0, 50)+'...' : r.description}</div>}
+                  
+                  <button
+                    className={`resource-card__btn ${!isAvailable ? 'disabled' : ''}`}
+                    disabled={!isAvailable}
+                    id={`book-btn-${i}`}
+                    onClick={() => handleBook(r.id)}
+                  >
+                    <BookOpen size={15} />
+                    {displayStatus === 'Available' ? 'Book Now' : displayStatus === 'Unavailable' ? 'Unavailable' : 'Under Maintenance'}
+                  </button>
                 </div>
-                <button
-                  className={`resource-card__btn ${r.status !== 'Available' ? 'disabled' : ''}`}
-                  disabled={r.status !== 'Available'}
-                  id={`book-btn-${i}`}
-                >
-                  <BookOpen size={15} />
-                  {r.status === 'Available' ? 'Book Now' : r.status === 'Booked' ? 'Unavailable' : 'Under Maintenance'}
-                </button>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            );
+          })}
         </div>
+        {!loading && filtered.length === 0 && (
+          <div style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>
+            No resources found.
+          </div>
+        )}
       </div>
     </section>
   );

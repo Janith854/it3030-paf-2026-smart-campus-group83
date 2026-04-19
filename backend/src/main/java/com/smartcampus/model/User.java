@@ -11,17 +11,24 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Data
 @Document(collection = "users")
 public class User {
-    @Id private String id;
-    @Indexed(unique = true) private String email;
+    @Id
+    private String id;
+    @Indexed(unique = true)
+    private String email;
     private String name;
     private String password;
     private String department;
     private String empId;
     private String picture;
     private String googleId;
-    private Role role = Role.USER;
-    @CreatedDate private LocalDateTime createdAt;
-    @LastModifiedDate private LocalDateTime updatedAt;
 
-    public enum Role { USER, ADMIN, TECHNICIAN, LECTURER }
+    private Role role = Role.USER;
+    @CreatedDate
+    private LocalDateTime createdAt;
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
+
+    public enum Role {
+        USER, ADMIN, TECHNICIAN
+    }
 }

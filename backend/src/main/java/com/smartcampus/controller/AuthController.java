@@ -34,24 +34,30 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(authService.register(
-            request.getName(),
+        String token = authService.registerLocal(
             request.getEmail(),
-            request.getDepartment(),
-            request.getEmpId(),
             request.getPassword(),
+            request.getName(),
             request.getRole()
-        ));
+        );
+        AuthResponse response = AuthResponse.builder()
+                .token(token)
+                .build();
+        return ResponseEntity.status(org.springframework.http.HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
-        return ResponseEntity.ok(authService.login(
+        String token = authService.loginLocal(
             request.getEmail(),
-            request.getPassword(),
-            request.getRole()
-        ));
+            request.getPassword()
+        );
+        AuthResponse response = AuthResponse.builder()
+                .token(token)
+                .build();
+        return ResponseEntity.ok(response);
     }
+
 
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
