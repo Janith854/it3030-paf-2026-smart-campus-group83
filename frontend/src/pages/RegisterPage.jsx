@@ -8,6 +8,7 @@ export default function RegisterPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -41,13 +42,9 @@ export default function RegisterPage() {
         throw new Error(data?.message || 'Registration failed');
       }
 
-      const data = await res.json();
-      localStorage.setItem('token', data.token);
-      localStorage.removeItem('testRoleOverride');
-      
-      if (formData.role === 'ADMIN') window.location.href = '/admin';
-      else if (formData.role === 'TECHNICIAN') window.location.href = '/technician';
-      else window.location.href = '/lecturer';
+      // Registration successful — do NOT auto-login; redirect to sign-in
+      setSuccess(true);
+      setTimeout(() => navigate('/login'), 2500);
     } catch (e) {
       setError(e.message);
     }
@@ -70,6 +67,20 @@ export default function RegisterPage() {
         </p>
 
         {error && <div className="login-card__error">{error}</div>}
+
+        {success && (
+          <div style={{
+            background: 'rgba(16,185,129,0.12)',
+            border: '1px solid rgba(16,185,129,0.3)',
+            color: '#34d399',
+            padding: '0.75rem 1rem',
+            borderRadius: '8px',
+            fontSize: '0.875rem',
+            textAlign: 'center'
+          }}>
+            ✅ Account created! Redirecting to sign in...
+          </div>
+        )}
 
         <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1.5rem' }}>
           <div className="form-group" style={{ marginBottom: 0 }}>
