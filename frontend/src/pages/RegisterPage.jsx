@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Zap, ArrowLeft, UserPlus } from 'lucide-react';
+import { Zap, ArrowLeft, UserPlus, Eye, EyeOff } from 'lucide-react';
 import './dashboard.css';
 
 export default function RegisterPage() {
@@ -9,6 +9,7 @@ export default function RegisterPage() {
   const navigate = useNavigate();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -79,9 +80,32 @@ export default function RegisterPage() {
              <label>Email Address</label>
              <input type="email" required className="form-input" placeholder="name@campus.edu" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
           </div>
-          <div className="form-group" style={{ marginBottom: 0 }}>
+          <div className="form-group" style={{ marginBottom: 0, position: 'relative' }}>
              <label>Password</label>
-             <input type="password" required className="form-input" placeholder="Minimum 6 characters" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} minLength={6} />
+             <input
+               type={showPassword ? 'text' : 'password'}
+               required
+               className="form-input"
+               placeholder="Minimum 6 characters"
+               value={formData.password}
+               onChange={e => setFormData({...formData, password: e.target.value})}
+               minLength={6}
+               style={{ paddingRight: '2.8rem' }}
+             />
+             <button
+               type="button"
+               onClick={() => setShowPassword(v => !v)}
+               style={{
+                 position: 'absolute', right: '0.75rem', top: 'calc(50% + 10px)',
+                 transform: 'translateY(-50%)', background: 'none',
+                 border: 'none', cursor: 'pointer', color: '#64748b',
+                 display: 'flex', alignItems: 'center', padding: 0
+               }}
+               tabIndex={-1}
+               aria-label={showPassword ? 'Hide password' : 'Show password'}
+             >
+               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+             </button>
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
              <label>Account Type</label>
