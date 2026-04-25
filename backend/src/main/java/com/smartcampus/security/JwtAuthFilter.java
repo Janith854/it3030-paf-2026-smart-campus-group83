@@ -29,14 +29,22 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             if (jwtUtil.isTokenValid(token)) {
                 Claims claims = jwtUtil.extractClaims(token);
                 String userId = claims.getSubject();
-                String role = claims.get("role", String.class);
+                String roleStr = claims.get("role", String.class);
                 String email = claims.get("email", String.class);
 
-                UserPrincipal principal = new UserPrincipal(userId, email, User.Role.valueOf(role));
-                UsernamePasswordAuthenticationToken auth =
-                    new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
-                SecurityContextHolder.getContext().setAuthentication(auth);
-                request.setAttribute("userId", userId);
+                if (userId != null && roleStr != null) {
+                    try {
+                        User.Role role = User.Role.valueOf(roleStr);
+                        UserPrincipal principal = new UserPrincipal(userId, email, role);
+                        UsernamePasswordAuthenticationToken auth =
+                            new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
+                        SecurityContextHolder.getContext().setAuthentication(auth);
+                        request.setAttribute("userId", userId);
+                    } catch (IllegalArgumentException e) {
+                        // Log invalid role and continue without authentication
+                        logger.warn("Invalid role in JWT: " + roleStr);
+                    }
+                }
             }
         }
         chain.doFilter(request, response);
