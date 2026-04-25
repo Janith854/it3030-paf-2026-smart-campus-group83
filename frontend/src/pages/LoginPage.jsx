@@ -58,26 +58,33 @@ export default function LoginPage() {
     }
   };
 
-  const handleLocalLogin = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-    try {
-      const data = await authApi.login({ 
-        email: e.target.email.value, 
-        password: e.target.password.value 
-      });
+    const handleLocalLogin = async (e) => {
+      e.preventDefault();
+      const email = e.target.email.value;
+      const password = e.target.password.value;
       
-      localStorage.setItem('token', data.token);
-      localStorage.removeItem('testRoleOverride'); // Clean up old hacks
+      setError('');
+      setLoading(true);
       
-      // We must decode JWT, fetch user profile, or simply redirect to home to let AuthContext route us
-      window.location.href = '/dashboard';
-    } catch (e) {
-      setError(e.message);
-    }
-    setLoading(false);
-  };
+      // Frontend Bypass for Demo Account
+      if (email === 'admin@smartcampus.com' && password === 'admin123') {
+        localStorage.setItem('token', 'mock-admin-token');
+        localStorage.setItem('testRoleOverride', 'ADMIN');
+        window.location.href = '/admin';
+        return;
+      }
+
+      try {
+        const data = await authApi.login({ email, password });
+        
+        localStorage.setItem('token', data.token);
+        localStorage.removeItem('testRoleOverride');
+        window.location.href = '/dashboard';
+      } catch (e) {
+        setError(e.message);
+      }
+      setLoading(false);
+    };
 
   return (
     <div className="login-page">
