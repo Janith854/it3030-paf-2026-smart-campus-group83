@@ -4,7 +4,8 @@ import { bookingsApi, ticketsApi, notificationsApi } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { CalendarDays, Wrench, Bell, Plus, Activity } from 'lucide-react';
 
-export default function UserDashboard({ user }) {
+export default function UserDashboard() {
+  const { user } = useAuth();
   const [stats, setStats] = useState({ bookings: 0, tickets: 0, unread: 0 });
   const [recentBookings, setRecentBookings] = useState([]);
   const [recentTickets, setRecentTickets] = useState([]);
@@ -51,7 +52,7 @@ export default function UserDashboard({ user }) {
   return (
     <>
       <div className="dashboard__header">
-        <h1 className="dashboard__title">Welcome back, {user?.name || 'User'} 👋</h1>
+        <h1 className="dashboard__title">Welcome back, {user?.name || 'Lecturer / Student'} 👋</h1>
         <p className="dashboard__subtitle">Here is your campus overview for today.</p>
       </div>
 

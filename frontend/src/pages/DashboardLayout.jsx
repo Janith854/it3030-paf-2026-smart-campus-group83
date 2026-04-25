@@ -42,6 +42,10 @@ export default function DashboardLayout() {
     navigate(correctBasePath, { replace: true });
     return null;
   }
+  if (window.location.pathname.startsWith('/user-dashboard') && !isUser) {
+    navigate(correctBasePath, { replace: true });
+    return null;
+  }
 
   const initials = user.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase() : '?';
 

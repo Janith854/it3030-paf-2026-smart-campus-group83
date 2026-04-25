@@ -4,7 +4,8 @@ import { bookingsApi, ticketsApi, resourcesApi, usersApi, notificationsApi } fro
 import { useAuth } from '../../context/AuthContext';
 import { Users, Clock, Wrench, Building2, Activity, ArrowRight } from 'lucide-react';
 
-export default function AdminDashboard({ user }) {
+export default function AdminDashboard() {
+  const { user } = useAuth();
   const [stats, setStats] = useState({ totalUsers: 0, pendingBookings: 0, openTickets: 0, activeResources: 0, unread: 0 });
   const [recentPendingBookings, setRecentPendingBookings] = useState([]);
   const [recentOpenTickets, setRecentOpenTickets] = useState([]);
@@ -59,7 +60,7 @@ export default function AdminDashboard({ user }) {
   return (
     <>
       <div className="dashboard__header">
-        <h1 className="dashboard__title">Welcome back, {user?.name || 'Admin'} 👋</h1>
+        <h1 className="dashboard__title">Welcome back, {user?.name || 'Administrator'} 👋</h1>
         <p className="dashboard__subtitle">Here is your Admin overview for today.</p>
       </div>
 

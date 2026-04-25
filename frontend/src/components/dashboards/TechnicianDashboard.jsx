@@ -4,7 +4,8 @@ import { ticketsApi } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { Wrench, Clock, CheckCircle, Activity, ArrowRight } from 'lucide-react';
 
-export default function TechnicianDashboard({ user }) {
+export default function TechnicianDashboard() {
+  const { user } = useAuth();
   const [stats, setStats] = useState({ assigned: 0, open: 0, inProgress: 0, resolved: 0 });
   const [assignedTickets, setAssignedTickets] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -34,7 +35,7 @@ export default function TechnicianDashboard({ user }) {
       setLoading(false);
     }
     load();
-  }, [user.id]);
+  }, [user?.id]);
 
   const cards = [
     { label: 'Assigned to Me', value: stats.assigned, icon: Wrench, color: '#3b82f6' },
