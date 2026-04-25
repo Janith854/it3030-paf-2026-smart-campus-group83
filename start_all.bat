@@ -2,7 +2,7 @@
 cd /d "%~dp0"
 
 echo Starting Backend (Spring Boot)...
-start "" cmd /k "powershell -ExecutionPolicy Bypass -File auto_setup_maven.ps1"
+start "" cmd /k "powershell -ExecutionPolicy Bypass -File run_backend_with_env.ps1"
 
 echo Starting Frontend (Vite)...
 start "" cmd /k "cd frontend && npm run dev"
