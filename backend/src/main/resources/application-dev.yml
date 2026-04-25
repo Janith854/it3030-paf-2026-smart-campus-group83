@@ -1,7 +1,7 @@
 spring:
   data:
     mongodb:
-      uri: mongodb+srv://janithnirmal29_db_user:test2002@ac-gcjvq7i.5opuupr.mongodb.net/smartcampus?retryWrites=true&w=majority
+      uri: ${SPRING_DATA_MONGODB_URI}
   security:
     oauth2:
       client:
@@ -15,7 +15,7 @@ spring:
             
 
 jwt:
-  secret:  mySuperSecureJwtSecretKey1234567890
+  secret: ${JWT_SECRET}
   expiration: 86400000
 
 app:
