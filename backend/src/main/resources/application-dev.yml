@@ -1,7 +1,7 @@
 spring:
   data:
     mongodb:
-      uri: ${MONGODB_URI}
+      uri: ${MONGODB_URI:mongodb://janithnirmal29_db_user:mongo123@ac-gcjvq7i-shard-00-00.5opuupr.mongodb.net:27017,ac-gcjvq7i-shard-00-01.5opuupr.mongodb.net:27017,ac-gcjvq7i-shard-00-02.5opuupr.mongodb.net:27017/smartcampus?ssl=true&replicaSet=atlas-ixqqxm-shard-0&authSource=admin&appName=Cluster0}
   security:
     oauth2:
       client:
