@@ -12,9 +12,11 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  // If already logged in, redirect
+  // If already logged in, redirect to the correct role-based dashboard
   if (user) {
-    navigate('/dashboard', { replace: true });
+    if (user.role === 'ADMIN') navigate('/admin-dashboard', { replace: true });
+    else if (user.role === 'TECHNICIAN') navigate('/tech-dashboard', { replace: true });
+    else navigate('/user-dashboard', { replace: true });
     return null;
   }
 
@@ -35,7 +37,8 @@ export default function LoginPage() {
       
       const data = await res.json();
       localStorage.setItem('token', data.token);
-      window.location.href = '/'; // Simple redirect to clear state and let App.jsx handle routing
+      // Google login: role determined by /me endpoint in AuthContext on reload
+      window.location.href = '/dashboard';
     } catch (e) {
       setError(e.message);
       setLoading(false);
@@ -50,10 +53,7 @@ export default function LoginPage() {
         auto_select: false,
         cancel_on_tap_outside: true
       });
-      window.google.accounts.id.prompt(); // Show One Tap if available
-      // Also trigger standard selection popup
-      // Note: We can't easily trigger the standard popup via JS without renderButton
-      // but we can at least ensure initialization happened.
+      window.google.accounts.id.prompt();
     } else {
       setError('Google Sign-In script not loaded. Please refresh or try another method.');
     }
@@ -70,10 +70,17 @@ export default function LoginPage() {
       });
       
       localStorage.setItem('token', data.token);
-      localStorage.removeItem('testRoleOverride'); // Clean up old hacks
-      
-      // We must decode JWT, fetch user profile, or simply redirect to home to let AuthContext route us
-      window.location.href = '/dashboard';
+      localStorage.removeItem('testRoleOverride');
+
+      // Role-based redirect using role from login response
+      const role = data.user?.role;
+      if (role === 'ADMIN') {
+        window.location.href = '/admin-dashboard';
+      } else if (role === 'TECHNICIAN') {
+        window.location.href = '/tech-dashboard';
+      } else {
+        window.location.href = '/user-dashboard';
+      }
     } catch (e) {
       setError(e.message);
     }

@@ -27,11 +27,11 @@ const DashboardRedirect = () => {
       if (!user) {
         navigate('/login', { replace: true });
       } else if (user.role === 'ADMIN') {
-        navigate('/admin', { replace: true });
+        navigate('/admin-dashboard', { replace: true });
       } else if (user.role === 'TECHNICIAN') {
-        navigate('/technician', { replace: true });
+        navigate('/tech-dashboard', { replace: true });
       } else {
-        navigate('/lecturer', { replace: true });
+        navigate('/user-dashboard', { replace: true });
       }
     }
   }, [user, loading, navigate]);
@@ -51,12 +51,11 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
 
-            {/* Dashboard Routing */}
+            {/* Dashboard Routing — role-based redirect */}
             <Route path="/dashboard" element={<DashboardRedirect />} />
 
-
-            {/* Lecturer (User) Space */}
-            <Route path="/lecturer" element={<DashboardLayout />}>
+            {/* ── User (Lecturer/Student) Dashboard ─────────────────────── */}
+            <Route path="/user-dashboard" element={<DashboardLayout />}>
               <Route index element={<UserDashboard />} />
               <Route path="bookings" element={<BookingsPage />} />
               <Route path="resources" element={<ResourcesPage />} />
@@ -64,9 +63,11 @@ function App() {
               <Route path="tickets" element={<TicketsPage />} />
               <Route path="notifications" element={<NotificationsPage />} />
             </Route>
+            {/* Legacy alias */}
+            <Route path="/lecturer/*" element={<Navigate to="/user-dashboard" replace />} />
 
-            {/* Admin Space */}
-            <Route path="/admin" element={<DashboardLayout />}>
+            {/* ── Admin Dashboard ────────────────────────────────────────── */}
+            <Route path="/admin-dashboard" element={<DashboardLayout />}>
               <Route index element={<AdminDashboard />} />
               <Route path="bookings" element={<BookingsPage />} />
               <Route path="resources" element={<ResourcesPage />} />
@@ -75,13 +76,17 @@ function App() {
               <Route path="notifications" element={<NotificationsPage />} />
               <Route path="users" element={<AdminPage />} />
             </Route>
+            {/* Legacy alias */}
+            <Route path="/admin/*" element={<Navigate to="/admin-dashboard" replace />} />
 
-            {/* Technician Space */}
-            <Route path="/technician" element={<DashboardLayout />}>
+            {/* ── Technician Dashboard ───────────────────────────────────── */}
+            <Route path="/tech-dashboard" element={<DashboardLayout />}>
               <Route index element={<TechnicianDashboard />} />
               <Route path="tickets" element={<TicketsPage />} />
               <Route path="notifications" element={<NotificationsPage />} />
             </Route>
+            {/* Legacy alias */}
+            <Route path="/technician/*" element={<Navigate to="/tech-dashboard" replace />} />
           </Routes>
         </NotificationProvider>
       </AuthProvider>

@@ -56,7 +56,7 @@ export default function RegisterPage() {
 
         <h1 className="login-card__title">Create an Account</h1>
         <p className="login-card__subtitle">
-          Join the Smart Campus network as a Lecturer or Admin!
+          Join the Smart Campus network as a Lecturer/Student or Technician.
         </p>
 
         {error && <div className="login-card__error">{error}</div>}
@@ -115,7 +115,6 @@ export default function RegisterPage() {
              <label>Account Type</label>
              <select className="form-select" value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})}>
                 <option value="USER">Lecturer / Student</option>
-                <option value="ADMIN">System Administrator</option>
                 <option value="TECHNICIAN">Technician</option>
              </select>
           </div>
