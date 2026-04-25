@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Zap, ArrowLeft, Code2 } from 'lucide-react';
+import { Zap, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { authApi } from '../services/api';
 import './dashboard.css';
 
@@ -10,6 +10,7 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   // If already logged in, redirect
   if (user) {
@@ -100,8 +101,29 @@ export default function LoginPage() {
           <div className="form-group" style={{ marginBottom: 0 }}>
              <input type="email" name="email" required className="form-input" placeholder="Email Address" />
           </div>
-          <div className="form-group" style={{ marginBottom: 0 }}>
-             <input type="password" name="password" required className="form-input" placeholder="Password" />
+          <div className="form-group" style={{ marginBottom: 0, position: 'relative' }}>
+             <input
+               type={showPassword ? 'text' : 'password'}
+               name="password"
+               required
+               className="form-input"
+               placeholder="Password"
+               style={{ paddingRight: '2.8rem' }}
+             />
+             <button
+               type="button"
+               onClick={() => setShowPassword(v => !v)}
+               style={{
+                 position: 'absolute', right: '0.75rem', top: '50%',
+                 transform: 'translateY(-50%)', background: 'none',
+                 border: 'none', cursor: 'pointer', color: '#64748b',
+                 display: 'flex', alignItems: 'center', padding: 0
+               }}
+               tabIndex={-1}
+               aria-label={showPassword ? 'Hide password' : 'Show password'}
+             >
+               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+             </button>
           </div>
           <button
             type="submit"
