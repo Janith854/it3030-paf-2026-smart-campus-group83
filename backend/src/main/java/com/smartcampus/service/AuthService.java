@@ -8,14 +8,16 @@ import java.util.List;
 public interface AuthService {
     String loginWithGoogle(String googleToken);
 
-    String registerLocal(String email, String password, String name, User.Role role);
+    // Returns full AuthResponse with token + user (including role)
+    AuthResponse registerLocal(String email, String password, String name, User.Role role);
 
-    String loginLocal(String email, String password);
+    // Returns full AuthResponse with token + user (including role)
+    AuthResponse loginLocal(String email, String password);
 
     User getCurrentUser(String userId);
 
     User updateRole(String userId, User.Role role);
-    
+
     void deleteUser(String userId);
 
     List<User> getAllUsers();
