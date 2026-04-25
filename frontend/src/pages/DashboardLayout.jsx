@@ -29,17 +29,16 @@ export default function DashboardLayout() {
   const isUser = !isAdmin && !isTechnician;
 
   // Determine actual base path based on role
-  let correctBasePath = '/lecturer';
-  if (isAdmin) correctBasePath = '/admin';
-  else if (isTechnician) correctBasePath = '/technician';
+  let correctBasePath = '/user-dashboard';
+  if (isAdmin) correctBasePath = '/admin-dashboard';
+  else if (isTechnician) correctBasePath = '/tech-dashboard';
 
-  // Authorization check: if on a path not matching their role, redirect
-  // (We use a simple check based on URL, or we can just rely on the correct base path)
-  if (window.location.pathname.startsWith('/admin') && !isAdmin) {
+  // Authorization guard: prevent accessing a dashboard belonging to another role
+  if (window.location.pathname.startsWith('/admin-dashboard') && !isAdmin) {
     navigate(correctBasePath, { replace: true });
     return null;
   }
-  if (window.location.pathname.startsWith('/technician') && !isTechnician) {
+  if (window.location.pathname.startsWith('/tech-dashboard') && !isTechnician) {
     navigate(correctBasePath, { replace: true });
     return null;
   }
@@ -108,7 +107,11 @@ export default function DashboardLayout() {
           </div>
           <div className="sidebar__user-info">
             <div className="sidebar__user-name">{user.name || user.email}</div>
-            <div className="sidebar__user-role">{user.role}</div>
+            <div className="sidebar__user-role">
+              {isAdmin ? '🔑 Administrator'
+                : isTechnician ? '🔧 Technician'
+                : '🎓 Lecturer / Student'}
+            </div>
           </div>
           <button className="sidebar__logout" onClick={handleLogout} title="Logout">
             <LogOut size={16} />
