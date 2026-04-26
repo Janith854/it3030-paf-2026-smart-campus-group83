@@ -17,6 +17,7 @@ import ResourcesPage from './pages/ResourcesPage';
 import ResourceDetailsPage from './pages/ResourceDetailsPage';
 import TicketsPage from './pages/TicketsPage';
 import NotificationsPage from './pages/NotificationsPage';
+import NotificationPreferencesPage from './pages/NotificationPreferencesPage';
 import AdminPage from './pages/AdminPage';
 const DashboardRedirect = () => {
   const { user, loading } = useAuth();
@@ -62,6 +63,7 @@ function App() {
               <Route path="resources/:id" element={<ResourceDetailsPage />} />
               <Route path="tickets" element={<TicketsPage />} />
               <Route path="notifications" element={<NotificationsPage />} />
+              <Route path="preferences" element={<NotificationPreferencesPage />} />
             </Route>
             {/* Legacy alias */}
             <Route path="/lecturer/*" element={<Navigate to="/user-dashboard" replace />} />
@@ -75,6 +77,7 @@ function App() {
               <Route path="tickets" element={<TicketsPage />} />
               <Route path="notifications" element={<NotificationsPage />} />
               <Route path="users" element={<AdminPage />} />
+              <Route path="preferences" element={<NotificationPreferencesPage />} />
             </Route>
             {/* Legacy alias */}
             <Route path="/admin/*" element={<Navigate to="/admin-dashboard" replace />} />
@@ -84,6 +87,7 @@ function App() {
               <Route index element={<TechnicianDashboard />} />
               <Route path="tickets" element={<TicketsPage />} />
               <Route path="notifications" element={<NotificationsPage />} />
+              <Route path="preferences" element={<NotificationPreferencesPage />} />
             </Route>
             {/* Legacy alias */}
             <Route path="/technician/*" element={<Navigate to="/tech-dashboard" replace />} />

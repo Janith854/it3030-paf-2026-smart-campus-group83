@@ -2,7 +2,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
   Zap, LayoutDashboard, CalendarDays, Building2,
-  Wrench, Bell, Users, LogOut,
+  Wrench, Bell, Users, LogOut, Settings
 } from 'lucide-react';
 import NotificationBell from '../components/NotificationBell';
 import './dashboard.css';
@@ -102,6 +102,17 @@ export default function DashboardLayout() {
               {item.label}
             </NavLink>
           ))}
+        </nav>
+
+        <div className="sidebar-section-label" style={{ marginTop: '24px' }}>Account</div>
+        <nav>
+          <NavLink 
+            to={`${correctBasePath}/preferences`} 
+            className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+          >
+            <Settings size={16} />
+            Preferences
+          </NavLink>
         </nav>
 
         <div className="sidebar-user">
