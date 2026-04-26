@@ -614,7 +614,7 @@ input, select, textarea {
 .badge-resolved    { background: var(--badge-resolved-bg);  color: var(--badge-resolved-text); }
 .badge-closed      { background: var(--badge-closed-bg);    color: var(--badge-closed-text); }
 .badge-active      { background: var(--badge-active-bg);    color: var(--badge-active-text); }
-.badge-oos         { background: var(--badge-oos-bg);       color: var(--badge-oos-text); }
+.badge-out_of_service { background: var(--badge-oos-bg);       color: var(--badge-oos-text); }
 .badge-maintenance { background: var(--badge-maint-bg);     color: var(--badge-maint-text); }
 
 .badge-user        { background: #dbeafe; color: #1e40af; }
