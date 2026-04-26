@@ -1,134 +1,148 @@
-.about-section {
+.about {
     padding: 100px 0;
-    overflow: hidden;
+    background: var(--bg);
 }
 
-.about-section__grid {
+.about__grid {
     display: grid;
     grid-template-columns: 1.2fr 1fr;
     gap: 80px;
     align-items: center;
 }
 
-.about-section__mission-grid {
+.about__features {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: 32px;
     margin-top: 48px;
 }
 
-.mission-item {
+.about__feature-item {
     display: flex;
     gap: 16px;
 }
 
-.mission-item__icon {
-    width: 48px;
-    height: 48px;
+.about__feature-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--primary-wash);
+    color: var(--primary);
     border-radius: 12px;
-    background: rgba(37, 99, 235, 0.1);
-    color: #2563EB;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
 }
 
-.mission-item__title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #1E293B;
-    margin-bottom: 8px;
+.about__feature-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
 }
 
-.mission-item__desc {
-    font-size: 0.9rem;
-    color: #64748B;
+.about__feature-desc {
+    font-size: 0.85rem;
+    color: var(--text-muted);
     line-height: 1.5;
 }
 
-.about-section__visual {
+.about__visual {
     position: relative;
 }
 
-.about-section__image-wrapper {
+.about__image-container {
     position: relative;
-    border-radius: 24px;
-    overflow: visible;
+    padding: 20px;
 }
 
-.about-section__image {
+.about__image {
     width: 100%;
-    height: auto;
-    border-radius: 24px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    border-radius: 32px;
+    box-shadow: var(--shadow-xl);
+    border: 8px solid var(--surface);
 }
 
-.about-section__floating-card {
+.about__floating-badge {
     position: absolute;
-    bottom: -30px;
-    left: -30px;
-    background: #2563EB;
-    color: white;
-    padding: 20px 24px;
+    top: 40px;
+    left: -40px;
+    background: var(--surface);
+    padding: 16px 24px;
     border-radius: 16px;
+    box-shadow: var(--shadow-lg);
     display: flex;
     align-items: center;
     gap: 16px;
-    box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3);
-    animation: floating 3s ease-in-out infinite;
+    border: 1px solid var(--border);
+    animation: float 4s ease-in-out infinite;
 }
 
-.floating-card__icon {
-    background: rgba(255, 255, 255, 0.2);
+.floating-badge__icon {
     width: 40px;
     height: 40px;
-    border-radius: 10px;
+    background: var(--primary);
+    color: white;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.floating-card__text {
+.floating-badge__title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.floating-badge__subtitle {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.about__floating-stats {
+    position: absolute;
+    bottom: 40px;
+    right: -20px;
+    background: var(--surface);
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: var(--shadow-lg);
+    text-align: center;
+    border: 1px solid var(--border);
+    animation: float 5s ease-in-out infinite reverse;
+}
+
+.stats-circle {
+    width: 50px;
+    height: 50px;
+    border: 4px solid var(--primary);
+    border-radius: 50%;
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    color: var(--primary);
+    margin: 0 auto 8px;
 }
 
-.floating-card__text strong {
-    font-size: 1.1rem;
+.stats-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
 }
 
-.floating-card__text span {
-    font-size: 0.85rem;
-    opacity: 0.9;
-}
-
-@keyframes floating {
+@keyframes float {
     0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+    50% { transform: translateY(-15px); }
 }
 
 @media (max-width: 1024px) {
-    .about-section__grid {
+    .about__grid {
         grid-template-columns: 1fr;
         gap: 60px;
     }
-    
-    .about-section__visual {
-        order: -1;
-        max-width: 600px;
-        margin: 0 auto;
-    }
-}
-
-@media (max-width: 640px) {
-    .about-section__mission-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .about-section__floating-card {
-        left: 20px;
-        right: 20px;
-        bottom: -20px;
+    .about__floating-badge, .about__floating-stats {
+        display: none;
     }
 }
