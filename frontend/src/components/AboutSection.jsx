@@ -29,49 +29,26 @@ export default function AboutSection() {
   return (
     <section className="about" id="about">
       <div className="container about__inner">
-        <div className="about__grid">
-          <div className="about__content">
-            <div className="section-label">
-              <span className="section-badge-dot" />
-              Who We Are
-            </div>
-            <h2 className="section-title gradient">Revolutionizing Campus<br />Operations Together</h2>
-            <p className="section-subtitle">
-              Smart Campus Hub is more than just a booking system. It's a comprehensive digital ecosystem that bridges the gap between campus resources and the people who use them every day.
-            </p>
-
-            <div className="about__features">
-              {features.map((f, i) => (
-                <div className="about__feature-item" key={i}>
-                  <div className="about__feature-icon">{f.icon}</div>
-                  <div>
-                    <h4 className="about__feature-title">{f.title}</h4>
-                    <p className="about__feature-desc">{f.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+        <div className="about__content">
+          <div className="section-label">
+            <span className="section-badge-dot" />
+            Who We Are
           </div>
+          <h2 className="section-title gradient">Revolutionizing Campus<br />Operations Together</h2>
+          <p className="section-subtitle">
+            Smart Campus Hub is more than just a booking system. It's a comprehensive digital ecosystem that bridges the gap between campus resources and the people who use them every day. We simplify complex workflows so you can focus on what matters most: education and innovation.
+          </p>
 
-          <div className="about__visual">
-            <div className="about__image-container">
-              <img 
-                src="https://images.unsplash.com/photo-1541339907198-e08756ebafe3?auto=format&fit=crop&q=80&w=1000" 
-                alt="Modern University Building" 
-                className="about__image"
-              />
-              <div className="about__floating-badge">
-                <div className="floating-badge__icon"><Zap size={20} /></div>
+          <div className="about__features">
+            {features.map((f, i) => (
+              <div className="about__feature-item" key={i}>
+                <div className="about__feature-icon">{f.icon}</div>
                 <div>
-                  <div className="floating-badge__title">100% Digital</div>
-                  <div className="floating-badge__subtitle">Next-Gen Campus</div>
+                  <h4 className="about__feature-title">{f.title}</h4>
+                  <p className="about__feature-desc">{f.desc}</p>
                 </div>
               </div>
-              <div className="about__floating-stats">
-                <div className="stats-circle">98%</div>
-                <div className="stats-label">Efficiency Boost</div>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </div>
