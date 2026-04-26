@@ -9,11 +9,11 @@
 
 :root {
   /* Colors */
-  --primary: #3B82F6;
-  --primary-dark: #1D4ED8;
-  --primary-light: #60A5FA;
-  --accent: #38BDF8;
-  --accent-glow: rgba(56, 189, 248, 0.3);
+  --primary: #4CA799;
+  --primary-dark: #388A7D;
+  --primary-light: #82C7BB;
+  --accent: #5ED1C0;
+  --accent-glow: rgba(94, 209, 192, 0.3);
 
   --bg-hero: #060C1A;
   --bg-dark: #0D1425;
@@ -30,7 +30,7 @@
 
   --border-dark: rgba(255, 255, 255, 0.08);
   --border-light: rgba(0, 0, 0, 0.08);
-  --border-accent: rgba(59, 130, 246, 0.4);
+  --border-accent: rgba(76, 167, 153, 0.4);
 
   --success: #10B981;
   --warning: #F59E0B;
@@ -50,8 +50,8 @@
 
   /* Shadows */
   --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.12);
-  --shadow-glow: 0 0 40px rgba(59, 130, 246, 0.2);
-  --shadow-glow-accent: 0 0 60px rgba(56, 189, 248, 0.15);
+  --shadow-glow: 0 0 40px rgba(76, 167, 153, 0.2);
+  --shadow-glow-accent: 0 0 60px rgba(94, 209, 192, 0.15);
 }
 
 html {
@@ -99,8 +99,8 @@ body {
   align-items: center;
   gap: 8px;
   padding: 6px 16px;
-  background: rgba(59, 130, 246, 0.12);
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  background: rgba(76, 167, 153, 0.12);
+  border: 1px solid rgba(76, 167, 153, 0.3);
   border-radius: 100px;
   font-size: 13px;
   font-weight: 600;
@@ -111,13 +111,13 @@ body {
 }
 
 .section-label.dark {
-  background: rgba(59, 130, 246, 0.08);
-  border-color: rgba(59, 130, 246, 0.2);
+  background: rgba(76, 167, 153, 0.08);
+  border-color: rgba(76, 167, 153, 0.2);
 }
 
 .section-label.light {
-  background: rgba(59, 130, 246, 0.1);
-  border-color: rgba(59, 130, 246, 0.25);
+  background: rgba(76, 167, 153, 0.1);
+  border-color: rgba(76, 167, 153, 0.25);
   color: var(--primary-dark);
 }
 
@@ -144,7 +144,7 @@ body {
 }
 
 .section-title.gradient {
-  background: linear-gradient(135deg, #F9FAFB 30%, #60A5FA 100%);
+  background: linear-gradient(135deg, #F9FAFB 30%, #82C7BB 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -191,12 +191,12 @@ body {
 .btn-primary {
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
   color: white;
-  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 4px 20px rgba(76, 167, 153, 0.4);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.6);
+  box-shadow: 0 8px 32px rgba(76, 167, 153, 0.6);
 }
 
 .btn-secondary {
@@ -260,9 +260,9 @@ body {
 }
 
 .card-light:hover {
-  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.12);
+  box-shadow: 0 8px 32px rgba(76, 167, 153, 0.12);
   transform: translateY(-4px);
-  border-color: rgba(59, 130, 246, 0.3);
+  border-color: rgba(76, 167, 153, 0.3);
 }
 
 /* ===== GRID LAYOUTS ===== */
