@@ -152,7 +152,7 @@ export default function BookingsPage() {
                         {b.status === 'PENDING' && (
                           <button className="btn btn-outline btn-sm" onClick={() => handleCancel(b.id)}>Cancel</button>
                         )}
-                        <button className="btn btn-ghost btn-sm text-danger" style={{ border: 'none', padding: '4px' }} onClick={() => handleDelete(b.id)}>Delete</button>
+                        <button className="btn btn-outline-danger btn-sm" onClick={() => handleDelete(b.id)}><X size={14} /> Delete</button>
                       </div>
                     </td>
                   </tr>

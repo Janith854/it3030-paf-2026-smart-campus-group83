@@ -273,7 +273,7 @@ export default function ResourcesPage() {
                     >
                       {STATUSES.map(s => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
                     </select>
-                    <button className="btn btn-ghost btn-sm text-danger" style={{ border: 'none' }} onClick={() => handleDelete(r.id)}><X size={14} /> Delete</button>
+                    <button className="btn btn-outline-danger btn-sm" onClick={() => handleDelete(r.id)}><X size={14} /> Delete</button>
                   </>
                 )}
               </div>

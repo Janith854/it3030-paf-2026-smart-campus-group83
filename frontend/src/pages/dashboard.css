@@ -406,6 +406,15 @@ input, select, textarea {
   background: var(--bg);
 }
 
+.btn-outline-danger {
+  background: transparent;
+  border: 1px solid #dc2626;
+  color: #dc2626;
+}
+.btn-outline-danger:hover {
+  background: rgba(220, 38, 38, 0.05);
+}
+
 .btn-sm { padding: 5px 10px; font-size: 12px; }
 .btn-lg { padding: 11px 22px; font-size: 14px; }
 .btn-full { width: 100%; justify-content: center; }
