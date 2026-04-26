@@ -98,59 +98,7 @@ export default function Hero() {
           ))}
         </motion.div>
 
-        {/* Dashboard Preview */}
-        <motion.div
-          initial={{ opacity: 0, y: 60, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.9, delay: 0.6 }}
-          className="hero__dashboard"
-          id="hero-dashboard"
-        >
-          <div className="hero__dashboard-bar">
-            <div className="hero__dashboard-dots">
-              <span /><span /><span />
-            </div>
-            <span className="hero__dashboard-url">smartcampus.edu/dashboard</span>
-          </div>
-          <div className="hero__dashboard-body">
-            {/* Sidebar */}
-            <div className="hero__db-sidebar">
-              <div className="hero__db-sidebar-logo">
-                <Sparkles size={14} />
-                <span>SCHub</span>
-              </div>
-              {['Dashboard', 'Bookings', 'Tickets', 'Resources', 'Users'].map((item, i) => (
-                <div className={`hero__db-sidebar-item ${i === 0 ? 'active' : ''}`} key={item}>{item}</div>
-              ))}
-            </div>
-            {/* Main */}
-            <div className="hero__db-main">
-              <div className="hero__db-header">
-                <span>Welcome to Smart Campus Hub 👋</span>
-                <div className="hero__db-notif-badge">3</div>
-              </div>
-              <div className="hero__db-cards">
-                {[
-                  { label: 'Total Bookings', value: '128', color: '#3B82F6', change: '+12%' },
-                  { label: 'Active Tickets', value: '24', color: '#F59E0B', change: '+3' },
-                  { label: 'Resolved', value: '196', color: '#10B981', change: '98%' },
-                  { label: 'Resources', value: '42', color: '#6366F1', change: 'Active' },
-                ].map((c, i) => (
-                  <div className="hero__db-card" key={i} style={{ '--card-color': c.color }}>
-                    <div className="hero__db-card-label">{c.label}</div>
-                    <div className="hero__db-card-value">{c.value}</div>
-                    <div className="hero__db-card-change">{c.change}</div>
-                  </div>
-                ))}
-              </div>
-              <div className="hero__db-chart">
-                {[40, 65, 45, 80, 55, 90, 70, 85, 60, 95, 75, 88].map((h, i) => (
-                  <div className="hero__db-bar" key={i} style={{ height: `${h}%` }} />
-                ))}
-              </div>
-            </div>
-          </div>
-        </motion.div>
+
 
         {/* Scroll Hint */}
         <motion.div
