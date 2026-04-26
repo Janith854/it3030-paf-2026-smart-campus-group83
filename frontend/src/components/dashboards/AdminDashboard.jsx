@@ -59,58 +59,62 @@ export default function AdminDashboard() {
 
   return (
     <>
-      <div className="dashboard__header">
-        <h1 className="dashboard__title">Welcome back, {user?.name || 'Administrator'} 👋</h1>
-        <p className="dashboard__subtitle">Here is your Admin overview for today.</p>
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">Welcome back, {user?.name || 'Administrator'} 👋</h1>
+          <p className="page-subtitle">Here is your Admin overview for today.</p>
+        </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+      <div className="card-grid mb-3">
         {cards.map((c, i) => (
-          <div className="card" key={i} style={{ borderTop: `3px solid ${c.color}` }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="stat-card" key={i} style={{ borderTop: `3px solid ${c.color}` }}>
+            <div className="flex-between">
               <div>
-                <div style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '0.25rem' }}>{c.label}</div>
-                <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#f1f5f9' }}>
+                <div className="stat-label">{c.label}</div>
+                <div className="stat-value">
                   {loading ? '—' : c.value}
                 </div>
               </div>
-              <div style={{ padding: '0.6rem', borderRadius: '10px', background: `${c.color}15` }}>
-                <c.icon size={22} color={c.color} />
+              <div style={{ padding: '8px', borderRadius: '8px', background: `${c.color}15` }}>
+                <c.icon size={20} color={c.color} />
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
+      <div className="grid-3">
         {/* Pending Approvals Widget */}
         <div className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h2 style={{ fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Clock size={18} color="#f59e0b" />
+          <div className="card-header">
+            <h2 className="card-title flex-gap">
+              <Clock size={16} className="text-primary" />
               Pending Bookings
             </h2>
             <button
-              className="btn-dashboard btn-dashboard--secondary btn-dashboard--sm"
+              className="btn btn-ghost btn-sm"
               onClick={() => navigate('/admin/bookings')}
             >
-              View All <ArrowRight size={14} />
+              View All <ArrowRight size={12} />
             </button>
           </div>
           {loading ? (
-            <div style={{ color: '#64748b', fontSize: '0.9rem' }}>Loading...</div>
+            <div className="text-muted text-sm">Loading...</div>
           ) : recentPendingBookings.length === 0 ? (
-            <div style={{ color: '#64748b', fontSize: '0.9rem' }}>No pending bookings.</div>
+            <div className="empty-state">
+              <p className="empty-state-title">No pending bookings.</p>
+            </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxHeight: '250px', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {recentPendingBookings.map(b => (
-                <div key={`b-${b.id}`} style={{ padding: '0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: '8px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
-                    <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>{b.purpose}</div>
+                <div key={`b-${b.id}`} style={{ padding: '12px', background: 'var(--primary-wash)', borderRadius: 'var(--radius-md)' }}>
+                  <div className="flex-between mb-1">
+                    <div className="font-medium text-sm">{b.purpose}</div>
                   </div>
-                  <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Date: {b.bookingDate} {b.startTime} - {b.endTime}</div>
-                  <div style={{ marginTop: '0.5rem' }}>
-                    <button className="btn-dashboard btn-dashboard--primary btn-dashboard--sm" onClick={() => navigate('/admin/bookings')}>Review</button>
+                  <div className="text-sm text-muted">Date: {b.bookingDate} {b.startTime} - {b.endTime}</div>
+                  <div className="mt-2">
+                    <button className="btn btn-primary btn-sm" onClick={() => navigate('/admin/bookings')}>Review</button>
                   </div>
                 </div>
               ))}
@@ -120,33 +124,35 @@ export default function AdminDashboard() {
 
         {/* Open Tickets Widget */}
         <div className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h2 style={{ fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Wrench size={18} color="#ef4444" />
+          <div className="card-header">
+            <h2 className="card-title flex-gap">
+              <Wrench size={16} className="text-danger" />
               Recent Open Tickets
             </h2>
             <button
-              className="btn-dashboard btn-dashboard--secondary btn-dashboard--sm"
+              className="btn btn-ghost btn-sm"
               onClick={() => navigate('/admin/tickets')}
             >
-              View All <ArrowRight size={14} />
+              View All <ArrowRight size={12} />
             </button>
           </div>
           {loading ? (
-            <div style={{ color: '#64748b', fontSize: '0.9rem' }}>Loading...</div>
+            <div className="text-muted text-sm">Loading...</div>
           ) : recentOpenTickets.length === 0 ? (
-            <div style={{ color: '#64748b', fontSize: '0.9rem' }}>No open tickets.</div>
+            <div className="empty-state">
+              <p className="empty-state-title">No open tickets.</p>
+            </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxHeight: '250px', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {recentOpenTickets.map(t => (
-                <div key={`t-${t.id}`} style={{ padding: '0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: '8px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
-                    <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>{t.category}</div>
-                    <span className={`badge badge--${t.priority?.toLowerCase()}`}>{t.priority}</span>
+                <div key={`t-${t.id}`} className={`ticket-card priority-${t.priority?.toLowerCase() || 'medium'}`} style={{ padding: '12px', background: 'var(--primary-wash)', border: '1px solid var(--border)' }}>
+                  <div className="flex-between mb-1">
+                    <div className="font-medium text-sm">{t.category}</div>
+                    <span className={`badge badge-${t.priority?.toLowerCase() || 'pending'}`}>{t.priority}</span>
                   </div>
-                  <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.5rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.description}</div>
+                  <div className="text-sm text-muted mb-2" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.description}</div>
                   <div>
-                    <button className="btn-dashboard btn-dashboard--primary btn-dashboard--sm" onClick={() => navigate('/admin/tickets')}>Assign</button>
+                    <button className="btn btn-primary btn-sm" onClick={() => navigate('/admin/tickets')}>Assign</button>
                   </div>
                 </div>
               ))}
@@ -156,32 +162,32 @@ export default function AdminDashboard() {
 
         {/* System Notifications Widget */}
         <div className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h2 style={{ fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Activity size={18} color="#6366f1" />
+          <div className="card-header">
+            <h2 className="card-title flex-gap">
+              <Activity size={16} className="text-primary" />
               Recent System Alerts
             </h2>
             <button
-              className="btn-dashboard btn-dashboard--secondary btn-dashboard--sm"
+              className="btn btn-ghost btn-sm"
               onClick={() => navigate('/admin/notifications')}
             >
-              View All <ArrowRight size={14} />
+              View All <ArrowRight size={12} />
             </button>
           </div>
           {loading ? (
-            <div style={{ color: '#64748b', fontSize: '0.9rem' }}>Loading...</div>
+            <div className="text-muted text-sm">Loading...</div>
           ) : recentNotifications.length === 0 ? (
-            <div style={{ color: '#64748b', fontSize: '0.9rem' }}>No recent alerts.</div>
+            <div className="empty-state">
+              <p className="empty-state-title">No recent alerts.</p>
+            </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxHeight: '250px', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {recentNotifications.map(n => (
-                <div key={`n-${n.id}`} style={{ padding: '0.75rem', background: n.isRead ? 'rgba(255,255,255,0.01)' : 'rgba(99, 102, 241, 0.08)', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderLeft: n.isRead ? 'none' : '3px solid #6366f1' }}>
-                  <div style={{ display: 'flex', gap: '0.75rem' }}>
-                    <div>
-                      <div style={{ fontSize: '0.85rem', fontWeight: n.isRead ? 500 : 700, color: n.isRead ? '#cbd5e1' : '#f8fafc' }}>{n.title}</div>
-                      <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.1rem' }}>{n.message}</div>
-                      <div style={{ fontSize: '0.65rem', color: '#64748b', marginTop: '0.3rem' }}>{n.createdAt && new Date(n.createdAt).toLocaleString()}</div>
-                    </div>
+                <div key={`n-${n.id}`} className={n.isRead ? 'notification-item read' : 'notification-item unread'} style={{ padding: '12px', margin: 0 }}>
+                  <div>
+                    <div className={n.isRead ? 'font-medium text-sm' : 'font-bold text-sm'}>{n.title}</div>
+                    <div className="text-sm text-muted mt-1">{n.message}</div>
+                    <div style={{ fontSize: '10px', color: 'var(--text-hint)', marginTop: '4px' }}>{n.createdAt && new Date(n.createdAt).toLocaleString()}</div>
                   </div>
                 </div>
               ))}
