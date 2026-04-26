@@ -72,7 +72,7 @@ public class ResourceServiceImpl implements ResourceService {
         existing.setLocation(resource.getLocation());
         existing.setDescription(resource.getDescription());
         existing.setStatus(resource.getStatus());
-        existing.setAvailabilityWindows(resource.getAvailabilityWindows());
+        existing.setAvailabilityWindow(resource.getAvailabilityWindow());
 
         return resourceRepository.save(existing);
     }

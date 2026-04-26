@@ -63,7 +63,14 @@ export default function ResourcesPage() {
   const openEdit = (r) => {
     setEditing(r);
     setFormErrors({});
-    setFormData({ name: r.name, type: r.type, capacity: r.capacity || '', location: r.location, description: r.description || '', availabilityWindow: r.availabilityWindow || '' });
+    setFormData({ 
+      name: r.name, 
+      type: r.type, 
+      capacity: r.capacity || '', 
+      location: r.location, 
+      description: r.description || '', 
+      availabilityWindow: r.availabilityWindow || (Array.isArray(r.availabilityWindows) ? r.availabilityWindows[0] : (r.availabilityWindows || '')) 
+    });
     setShowForm(true);
   };
 
@@ -253,7 +260,12 @@ export default function ResourcesPage() {
               <div style={{ fontSize: '13px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}><Tag size={14} /> {r.type?.replace(/_/g, ' ')}</div>
               <div style={{ fontSize: '13px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}><MapPin size={14} /> {r.location}</div>
               {r.capacity && <div style={{ fontSize: '13px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}><Users size={14} /> Capacity: {r.capacity}</div>}
-              {r.availabilityWindow && <div style={{ fontSize: '13px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}><Clock size={14} /> {r.availabilityWindow}</div>}
+              {(r.availabilityWindow || (Array.isArray(r.availabilityWindows) && r.availabilityWindows[0]) || r.availabilityWindows) && (
+                <div style={{ fontSize: '13px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                  <Clock size={14} /> 
+                  {r.availabilityWindow || (Array.isArray(r.availabilityWindows) ? r.availabilityWindows[0] : r.availabilityWindows)}
+                </div>
+              )}
               {r.description && <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '8px' }}>{r.description}</div>}
               <div className="flex-gap" style={{ marginTop: '16px', flexWrap: 'wrap' }}>
                 <button
