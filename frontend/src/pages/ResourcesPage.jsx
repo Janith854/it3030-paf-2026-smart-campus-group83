@@ -271,12 +271,6 @@ export default function ResourcesPage() {
               )}
               {r.description && <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '8px' }}>{r.description}</div>}
               <div className="flex-gap" style={{ marginTop: '16px', flexWrap: 'wrap' }}>
-                <button
-                  className="btn btn-primary btn-sm"
-                  onClick={() => navigate(`${basePath}/resources/${r.id}`)}
-                >
-                  <Eye size={14} /> Details
-                </button>
                 {isAdmin && (
                   <>
                     <button className="btn btn-outline btn-sm" onClick={() => openEdit(r)}>Edit</button>
