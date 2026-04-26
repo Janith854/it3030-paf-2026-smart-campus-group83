@@ -12,7 +12,6 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [showDevTools, setShowDevTools] = useState(false);
 
   useEffect(() => {
     // Render official Google button on mount
@@ -171,33 +170,6 @@ export default function LoginPage() {
             <ArrowLeft size={16} />
             Back to Homepage
           </Link>
-
-          {/* Developer Testing Tools */}
-          <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px dashed #e2e8f0', textAlign: 'center' }}>
-            <button 
-              onClick={() => setShowDevTools(!showDevTools)}
-              style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '0.75rem', cursor: 'pointer', textDecoration: 'underline' }}
-            >
-              {showDevTools ? 'Hide' : 'Show'} Developer Testing Tools
-            </button>
-            
-            {showDevTools && (
-              <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <p style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '0.25rem' }}>Force login as role (Dev Mode):</p>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem' }}>
-                  <button onClick={() => setDevRole('ADMIN')} className="btn-dashboard btn-dashboard--secondary btn-dashboard--sm" style={{ padding: '0.5rem', fontSize: '0.7rem', color: '#334155', borderColor: '#cbd5e1', background: '#f8fafc' }}>
-                     <ShieldCheck size={12} /> Admin
-                  </button>
-                  <button onClick={() => setDevRole('TECHNICIAN')} className="btn-dashboard btn-dashboard--secondary btn-dashboard--sm" style={{ padding: '0.5rem', fontSize: '0.7rem', color: '#334155', borderColor: '#cbd5e1', background: '#f8fafc' }}>
-                     <Wrench size={12} /> Tech
-                  </button>
-                  <button onClick={() => setDevRole('USER')} className="btn-dashboard btn-dashboard--secondary btn-dashboard--sm" style={{ padding: '0.5rem', fontSize: '0.7rem', color: '#334155', borderColor: '#cbd5e1', background: '#f8fafc' }}>
-                     <User size={12} /> Lecturer
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
         </div>
       </div>
     </div>
