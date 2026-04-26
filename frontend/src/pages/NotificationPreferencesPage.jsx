@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Bell, Check, Loader2 } from 'lucide-react';
+import { Check, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { usersApi } from '../services/api';
 import './NotificationPreferencesPage.css';
 
 const PREFERENCE_OPTIONS = [
@@ -23,8 +23,8 @@ export default function NotificationPreferencesPage() {
   useEffect(() => {
     const fetchPrefs = async () => {
       try {
-        const res = await axios.get('/api/v1/users/me/preferences');
-        setPreferences(res.data);
+        const data = await usersApi.getPreferences();
+        setPreferences(data);
       } catch (err) {
         console.error('Failed to fetch preferences', err);
       } finally {
@@ -38,18 +38,19 @@ export default function NotificationPreferencesPage() {
     if (!preferences) return;
     
     const newPrefs = { ...preferences, [key]: !preferences[key] };
+    const oldPrefs = { ...preferences };
     setPreferences(newPrefs); // Optimistic update
     
     setSaving(true);
     setSaveSuccess(false);
     try {
-      await axios.put('/api/v1/users/me/preferences', newPrefs);
+      await usersApi.updatePreferences(newPrefs);
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
     } catch (err) {
       console.error('Failed to save preferences', err);
       // Revert on error
-      setPreferences(preferences);
+      setPreferences(oldPrefs);
     } finally {
       setSaving(false);
     }

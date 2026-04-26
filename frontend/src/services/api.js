@@ -56,6 +56,8 @@ export const usersApi = {
   getTechnicians: () => req('GET', '/users/technicians'),
   updateRole: (userId, role) => req('PATCH', `/users/${userId}/role?role=${role}`),
   delete: (userId) => req('DELETE', `/users/${userId}`),
+  getPreferences: () => req('GET', '/users/me/preferences'),
+  updatePreferences: (prefs) => req('PUT', '/users/me/preferences', prefs),
 };
 
 // ── Resources ─────────────────────────────────────────────────────────────────
