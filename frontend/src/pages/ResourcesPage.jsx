@@ -189,6 +189,25 @@ export default function ResourcesPage() {
         </div>
       </div>
 
+      {!isAdmin && (
+        <div className="card" style={{ marginBottom: '24px', backgroundColor: 'rgba(42, 157, 143, 0.04)', borderColor: 'rgba(42, 157, 143, 0.2)' }}>
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+            <div style={{ color: 'var(--primary)', marginTop: '2px' }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            </div>
+            <div>
+              <h3 style={{ marginBottom: '6px', color: 'var(--primary-dark)', fontSize: '14px', fontWeight: '600' }}>Guidelines for Resource Usage</h3>
+              <ul style={{ margin: '0', paddingLeft: '20px', color: 'var(--text-muted)', fontSize: '13px', lineHeight: '1.6' }}>
+                <li>Please book resources in advance through the Bookings dashboard; walk-ins are not permitted for reserved spaces.</li>
+                <li>Leave the room or equipment in a clean, orderly condition after use.</li>
+                <li>Return any borrowed equipment immediately following your scheduled time to avoid conflicts.</li>
+                <li>If you encounter damaged equipment or facilities, please report it immediately via the Tickets page.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+
       {error && <div className="alert-conflict" style={{ marginBottom: '1rem' }}>{error}</div>}
 
       <div className="filter-bar flex-between" style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'stretch', marginBottom: '20px' }}>
