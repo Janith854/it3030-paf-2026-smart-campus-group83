@@ -87,13 +87,13 @@ export default function UserDashboard() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <button
               className="btn btn-primary btn-full"
-              onClick={() => navigate('/lecturer/bookings', { state: { openForm: true } })}
+              onClick={() => navigate('/user-dashboard/bookings', { state: { openForm: true } })}
             >
               <Plus size={16} /> New Booking
             </button>
             <button
               className="btn btn-outline btn-full"
-              onClick={() => navigate('/lecturer/tickets', { state: { openForm: true } })}
+              onClick={() => navigate('/user-dashboard/tickets', { state: { openForm: true } })}
             >
               <Wrench size={16} /> Report an Incident
             </button>

@@ -94,7 +94,7 @@ export default function AdminDashboard() {
             </h2>
             <button
               className="btn btn-ghost btn-sm"
-              onClick={() => navigate('/admin/bookings')}
+              onClick={() => navigate('/admin-dashboard/bookings')}
             >
               View All <ArrowRight size={12} />
             </button>
@@ -114,7 +114,7 @@ export default function AdminDashboard() {
                   </div>
                   <div className="text-sm text-muted">Date: {b.bookingDate} {b.startTime} - {b.endTime}</div>
                   <div className="mt-2">
-                    <button className="btn btn-primary btn-sm" onClick={() => navigate('/admin/bookings')}>Review</button>
+                    <button className="btn btn-primary btn-sm" onClick={() => navigate('/admin-dashboard/bookings')}>Review</button>
                   </div>
                 </div>
               ))}
@@ -131,7 +131,7 @@ export default function AdminDashboard() {
             </h2>
             <button
               className="btn btn-ghost btn-sm"
-              onClick={() => navigate('/admin/tickets')}
+              onClick={() => navigate('/admin-dashboard/tickets')}
             >
               View All <ArrowRight size={12} />
             </button>
@@ -152,7 +152,7 @@ export default function AdminDashboard() {
                   </div>
                   <div className="text-sm text-muted mb-2" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.description}</div>
                   <div>
-                    <button className="btn btn-primary btn-sm" onClick={() => navigate('/admin/tickets')}>Assign</button>
+                    <button className="btn btn-primary btn-sm" onClick={() => navigate('/admin-dashboard/tickets')}>Assign</button>
                   </div>
                 </div>
               ))}
@@ -169,7 +169,7 @@ export default function AdminDashboard() {
             </h2>
             <button
               className="btn btn-ghost btn-sm"
-              onClick={() => navigate('/admin/notifications')}
+              onClick={() => navigate('/admin-dashboard/notifications')}
             >
               View All <ArrowRight size={12} />
             </button>

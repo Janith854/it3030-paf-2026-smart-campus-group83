@@ -87,7 +87,7 @@ export default function TechnicianDashboard() {
                     <span className="badge badge-rejected">URGENT</span>
                   </div>
                   <div className="text-sm text-danger mb-2">{t.description}</div>
-                  <button className="btn btn-danger btn-sm mt-1" onClick={() => navigate('/technician/tickets')}>Work on Info</button>
+                  <button className="btn btn-danger btn-sm mt-1" onClick={() => navigate('/tech-dashboard/tickets')}>Work on Info</button>
                 </div>
               ))}
             </div>
@@ -103,7 +103,7 @@ export default function TechnicianDashboard() {
             </h2>
             <button
               className="btn btn-ghost btn-sm"
-              onClick={() => navigate('/technician/tickets')}
+              onClick={() => navigate('/tech-dashboard/tickets')}
             >
               View All <ArrowRight size={12} />
             </button>
@@ -125,7 +125,7 @@ export default function TechnicianDashboard() {
                   <div className="text-sm text-muted mb-2" style={{ height: '40px', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.description}</div>
                   <div className="flex-between mt-2">
                     <span className={`badge badge-${t.status?.toLowerCase() || 'open'}`}>{t.status?.replace(/_/g, ' ')}</span>
-                    <button className="btn btn-primary btn-sm" onClick={() => navigate('/technician/tickets')}>Work on Info</button>
+                    <button className="btn btn-primary btn-sm" onClick={() => navigate('/tech-dashboard/tickets')}>Work on Info</button>
                   </div>
                 </div>
               ))}
