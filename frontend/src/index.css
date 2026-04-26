@@ -8,50 +8,95 @@
 }
 
 :root {
-  /* Colors */
-  --primary: #4CA799;
-  --primary-dark: #388A7D;
-  --primary-light: #82C7BB;
-  --accent: #5ED1C0;
-  --accent-glow: rgba(94, 209, 192, 0.3);
+  /* === PRIMARY BRAND COLORS === */
+  --primary:        #2A9D8F;   /* teal — buttons, active states, CTAs */
+  --primary-dark:   #21867A;   /* darker teal — hover state */
+  --primary-light:  #5DCAA5;   /* lighter teal — logo, highlights */
+  --primary-wash:   #f0faf8;   /* very light teal — page background */
 
-  --bg-hero: #060C1A;
-  --bg-dark: #0D1425;
-  --bg-card: #111827;
-  --bg-card-hover: #1A2540;
-  --bg-light: #F8FAFF;
-  --bg-surface: #F1F5FD;
+  /* === SIDEBAR & NAVBAR === */
+  --sidebar-bg:     #1a2e2b;   /* dark navy green — sidebar background */
+  --sidebar-text:   rgba(255,255,255,0.55);  /* inactive links */
+  --sidebar-active-bg:  #2A9D8F;             /* active link background */
+  --sidebar-active-text: #ffffff;            /* active link text */
+  --sidebar-section-text: rgba(255,255,255,0.3); /* section labels */
+  --sidebar-border: rgba(255,255,255,0.08);  /* divider lines */
+  --navbar-bg:      #1a2e2b;   /* same as sidebar */
 
-  --text-primary: #F9FAFB;
-  --text-secondary: #94A3B8;
-  --text-muted: #64748B;
-  --text-dark: #0F172A;
-  --text-dark-secondary: #374151;
+  /* === PAGE & SURFACE === */
+  --bg:             #f0faf8;   /* page background — light teal wash */
+  --surface:        #ffffff;   /* card / panel background */
+  --surface-hover:  #f9fffe;   /* card hover background */
+  --border:         #e5e7eb;   /* card borders */
+  --border-teal:    #d1fae5;   /* teal-tinted card borders */
 
-  --border-dark: rgba(255, 255, 255, 0.08);
-  --border-light: rgba(0, 0, 0, 0.08);
-  --border-accent: rgba(76, 167, 153, 0.4);
+  /* === TEXT === */
+  --text:           #111827;   /* primary text */
+  --text-muted:     #6b7280;   /* secondary text */
+  --text-hint:      #9ca3af;   /* placeholder / hint text */
+  --text-on-primary: #ffffff;  /* text on teal backgrounds */
+  --text-on-dark:   rgba(255,255,255,0.85); /* text on sidebar/navbar */
 
+  /* === STATUS BADGE COLORS === */
+  --badge-approved-bg:    #d1fae5;
+  --badge-approved-text:  #065f46;
+  --badge-pending-bg:     #fef3c7;
+  --badge-pending-text:   #92400e;
+  --badge-rejected-bg:    #fee2e2;
+  --badge-rejected-text:  #991b1b;
+  --badge-cancelled-bg:   #f3f4f6;
+  --badge-cancelled-text: #6b7280;
+  --badge-open-bg:        #dbeafe;
+  --badge-open-text:      #1e40af;
+  --badge-inprog-bg:      #fef3c7;
+  --badge-inprog-text:    #92400e;
+  --badge-resolved-bg:    #d1fae5;
+  --badge-resolved-text:  #065f46;
+  --badge-closed-bg:      #f3f4f6;
+  --badge-closed-text:    #6b7280;
+  --badge-active-bg:      #d1fae5;
+  --badge-active-text:    #065f46;
+  --badge-oos-bg:         #fee2e2;
+  --badge-oos-text:       #991b1b;
+  --badge-maint-bg:       #fef3c7;
+  --badge-maint-text:     #92400e;
+
+  /* === TICKET PRIORITY BORDERS === */
+  --priority-critical: #dc2626;
+  --priority-high:     #ea580c;
+  --priority-medium:   #d97706;
+  --priority-low:      #16a34a;
+
+  /* === LAYOUT === */
+  --sidebar-width:  220px;
+  --navbar-height:  60px;
+  --radius-sm:      6px;
+  --radius-md:      8px;
+  --radius-lg:      12px;
+  --radius-xl:      16px;
+  --shadow-card:    0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-nav:     0 1px 4px rgba(0,0,0,0.15);
+
+  /* Legacy variables for landing page temporarily */
+  --bg-hero: #ffffff;
+  --bg-dark: #f0faf8;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f9fffe;
+  --bg-light: #f8fafc;
+  --bg-surface: #ffffff;
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --border-dark: #e5e7eb;
+  --border-light: #e5e7eb;
+  --border-accent: #d1fae5;
   --success: #10B981;
   --warning: #F59E0B;
   --danger: #EF4444;
   --info: #6366F1;
-
-  /* Spacing */
   --section-py: 96px;
   --container-max: 1200px;
-  --border-radius: 16px;
-  --border-radius-sm: 10px;
-  --border-radius-lg: 24px;
-
-  /* Typography */
   --font-main: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
   --font-mono: 'Fira Code', 'Consolas', monospace;
-
-  /* Shadows */
-  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.12);
-  --shadow-glow: 0 0 40px rgba(76, 167, 153, 0.2);
-  --shadow-glow-accent: 0 0 60px rgba(94, 209, 192, 0.15);
 }
 
 html {
