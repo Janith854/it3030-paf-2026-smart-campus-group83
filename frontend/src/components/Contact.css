@@ -12,9 +12,9 @@
 }
 
 .contact__info-card {
-    background: rgba(30, 41, 59, 0.5);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
     padding: 40px;
     border-radius: 24px;
     height: 100%;
@@ -23,12 +23,12 @@
 .contact__info-title {
     font-size: 1.5rem;
     font-weight: 700;
-    color: white;
+    color: var(--text);
     margin-bottom: 12px;
 }
 
 .contact__info-desc {
-    color: #94A3B8;
+    color: var(--text-muted);
     margin-bottom: 40px;
     line-height: 1.6;
 }
@@ -49,8 +49,8 @@
 .contact__detail-icon {
     width: 44px;
     height: 44px;
-    background: rgba(37, 99, 235, 0.15);
-    color: #3B82F6;
+    background: var(--primary-wash);
+    color: var(--primary);
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -60,31 +60,32 @@
 
 .contact__detail-label {
     font-size: 0.85rem;
-    color: #64748B;
+    color: var(--text-hint);
     text-transform: uppercase;
     letter-spacing: 0.05em;
     margin-bottom: 4px;
 }
 
 .contact__detail-value {
-    color: #F1F5F9;
+    color: var(--text);
     font-weight: 500;
 }
 
 .social-badge {
     display: inline-block;
     padding: 8px 16px;
-    background: rgba(16, 185, 129, 0.1);
-    color: #10B981;
-    border: 1px solid rgba(16, 185, 129, 0.2);
+    background: var(--primary-wash);
+    color: var(--primary);
+    border: 1px solid rgba(42, 157, 143, 0.2);
     border-radius: 100px;
     font-size: 0.85rem;
     font-weight: 600;
 }
 
 .contact__form-wrapper {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
     padding: 40px;
     border-radius: 24px;
 }
@@ -110,16 +111,16 @@
 .form-group label {
     font-size: 0.9rem;
     font-weight: 500;
-    color: #CBD5E1;
+    color: var(--text-muted);
 }
 
 .form-group input, 
 .form-group textarea {
-    background: rgba(15, 23, 42, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--bg);
+    border: 1px solid var(--border);
     border-radius: 12px;
     padding: 12px 16px;
-    color: white;
+    color: var(--text);
     font-size: 1rem;
     transition: all 0.3s ease;
 }
@@ -127,9 +128,9 @@
 .form-group input:focus, 
 .form-group textarea:focus {
     outline: none;
-    border-color: #3B82F6;
-    background: rgba(15, 23, 42, 0.8);
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    border-color: var(--primary);
+    background: var(--surface);
+    box-shadow: 0 0 0 4px var(--primary-wash);
 }
 
 .contact__submit {

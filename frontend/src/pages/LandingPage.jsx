@@ -5,7 +5,7 @@ import Footer from '../components/Footer';
 
 export default function LandingPage() {
   return (
-    <div className="bg-[#060C1A]">
+    <div style={{ background: 'var(--bg)', minHeight: '100vh', color: 'var(--text)' }}>
       <Navbar />
       <main>
         {/* SECTION 1: HOME */}
