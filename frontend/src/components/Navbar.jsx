@@ -40,7 +40,7 @@ export default function Navbar() {
       <div className="container navbar__inner">
         {/* Logo */}
         <a href="#" className="navbar__logo" id="navbar-logo">
-          <img src="/logo.png" alt="SmartCampus Hub" className="navbar__logo-img" />
+          <img src="/logo.svg" alt="SmartCampus Hub" className="navbar__logo-img" />
         </a>
 
         {/* Desktop Links */}

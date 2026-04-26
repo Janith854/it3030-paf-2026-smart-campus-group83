@@ -86,7 +86,7 @@ export default function DashboardLayout() {
       {/* Sidebar */}
       <aside className="sidebar">
         <NavLink to="/" className="sidebar-logo">
-          <img src="/logo.png" alt="SmartCampus" className="sidebar-logo-img" />
+          <img src="/logo.svg" alt="SmartCampus" className="sidebar-logo-img" />
         </NavLink>
 
         <div className="sidebar-section-label" style={{ marginTop: '16px' }}>Main Menu</div>
