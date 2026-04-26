@@ -96,101 +96,108 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="login-page">
-      <div className="login-card">
-        <div className="login-card__logo">
-          <div className="login-card__logo-icon">
-            <Zap size={20} color="#fff" />
+    <div className="auth-split-page">
+      <div className="auth-left">
+        <div className="auth-left__content">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '3rem', fontSize: '1.2rem', fontWeight: 700 }}>
+            <Zap size={24} color="#fff" />
+            <span>SmartCampus Hub</span>
           </div>
-          <span>Smart<span style={{ color: '#3b82f6' }}>Campus</span> Hub</span>
+          <h1 className="auth-left__title">Welcome Back.</h1>
+          <p className="auth-left__subtitle">
+            Sign in to manage campus resources, bookings, and maintenance seamlessly.
+          </p>
+          <img src={authIllustration} alt="Smart Campus" className="auth-left__image" />
         </div>
-
-        <h1 className="login-card__title">Welcome Back</h1>
-        <p className="login-card__subtitle">
-          Sign in to manage campus resources, bookings, and maintenance
-        </p>
-
-        {error && <div className="login-card__error">{error}</div>}
-
-        <form onSubmit={handleLocalLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1.5rem', width: '100%' }}>
-          <div className="form-group" style={{ marginBottom: 0 }}>
-             <input type="email" name="email" required className="form-input" placeholder="Email Address" />
-          </div>
-          <div className="form-group" style={{ marginBottom: 0, position: 'relative' }}>
-             <input
-               type={showPassword ? 'text' : 'password'}
-               name="password"
-               required
-               className="form-input"
-               placeholder="Password"
-               style={{ paddingRight: '2.8rem' }}
-             />
-             <button
-               type="button"
-               onClick={() => setShowPassword(v => !v)}
-               style={{
-                 position: 'absolute', right: '0.75rem', top: '50%',
-                 transform: 'translateY(-50%)', background: 'none',
-                 border: 'none', cursor: 'pointer', color: '#64748b',
-                 display: 'flex', alignItems: 'center', padding: 0
-               }}
-               tabIndex={-1}
-               aria-label={showPassword ? 'Hide password' : 'Show password'}
-             >
-               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-             </button>
-          </div>
-          <button
-            type="submit"
-            className="btn-dashboard btn-dashboard--primary"
-            style={{ padding: '0.8rem', justifyContent: 'center', marginTop: '0.5rem' }}
-            disabled={loading}
-          >
-            {loading ? 'Authenticating...' : 'Sign In'}
-          </button>
-        </form>
-
-        <div className="login-card__divider" style={{ margin: '1.5rem 0' }}>or continue with</div>
-
-        <div 
-          id="google-signin-button" 
-          style={{ display: 'flex', justifyContent: 'center' }}
-        ></div>
-
-        <div style={{ textAlign: 'center', fontSize: '0.9rem', color: '#64748b', marginTop: '1.5rem' }}>
-          Don't have an account? <Link to="/register" style={{ color: '#3b82f6', textDecoration: 'none', fontWeight: 600 }}>Register here</Link>
-        </div>
-
-        <Link to="/" className="login-card__back" style={{ marginTop: '1.5rem' }}>
-          <ArrowLeft size={16} />
-          Back to Homepage
-        </Link>
-
-        {/* Developer Testing Tools */}
-        <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px dashed rgba(255,255,255,0.1)' }}>
-          <button 
-            onClick={() => setShowDevTools(!showDevTools)}
-            style={{ background: 'none', border: 'none', color: '#475569', fontSize: '0.75rem', cursor: 'pointer', textDecoration: 'underline' }}
-          >
-            {showDevTools ? 'Hide' : 'Show'} Developer Testing Tools
-          </button>
+      </div>
+      
+      <div className="auth-right">
+        <div className="auth-card">
+          <h2 className="auth-card__title">Sign In</h2>
+          <p className="auth-card__subtitle">Continue with Google or enter your details.</p>
           
-          {showDevTools && (
-            <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <p style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '0.25rem' }}>Force login as role (Dev Mode):</p>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem' }}>
-                <button onClick={() => setDevRole('ADMIN')} className="btn-dashboard btn-dashboard--secondary btn-dashboard--sm" style={{ padding: '0.5rem', fontSize: '0.7rem' }}>
-                   <ShieldCheck size={12} /> Admin
-                </button>
-                <button onClick={() => setDevRole('TECHNICIAN')} className="btn-dashboard btn-dashboard--secondary btn-dashboard--sm" style={{ padding: '0.5rem', fontSize: '0.7rem' }}>
-                   <Wrench size={12} /> Tech
-                </button>
-                <button onClick={() => setDevRole('USER')} className="btn-dashboard btn-dashboard--secondary btn-dashboard--sm" style={{ padding: '0.5rem', fontSize: '0.7rem' }}>
-                   <User size={12} /> Lecturer
-                </button>
-              </div>
+          {error && <div className="login-card__error">{error}</div>}
+
+          <div 
+            id="google-signin-button" 
+            style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}
+          ></div>
+
+          <div className="auth-divider">or</div>
+
+          <form onSubmit={handleLocalLogin}>
+            <label className="auth-form-label">Email Address</label>
+            <input type="email" name="email" required className="auth-form-input" placeholder="example@campus.edu" />
+            
+            <label className="auth-form-label">Password</label>
+            <div style={{ position: 'relative' }}>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                required
+                className="auth-form-input"
+                placeholder="••••••••"
+                style={{ paddingRight: '2.8rem' }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(v => !v)}
+                style={{
+                  position: 'absolute', right: '0.75rem', top: '0.85rem',
+                  background: 'none', border: 'none', cursor: 'pointer', color: '#64748b',
+                  display: 'flex', alignItems: 'center', padding: 0
+                }}
+                tabIndex={-1}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
-          )}
+
+            <button
+              type="submit"
+              className="auth-btn-primary"
+              disabled={loading}
+            >
+              {loading ? 'Authenticating...' : 'Login'}
+            </button>
+          </form>
+
+          <div style={{ textAlign: 'center', fontSize: '0.9rem', color: '#64748b', marginTop: '1.5rem' }}>
+            Don't have an account? <Link to="/register" style={{ color: '#4CA799', textDecoration: 'none', fontWeight: 600 }}>Sign up free</Link>
+          </div>
+
+          <Link to="/" className="login-card__back" style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'center' }}>
+            <ArrowLeft size={16} />
+            Back to Homepage
+          </Link>
+
+          {/* Developer Testing Tools */}
+          <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px dashed #e2e8f0', textAlign: 'center' }}>
+            <button 
+              onClick={() => setShowDevTools(!showDevTools)}
+              style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '0.75rem', cursor: 'pointer', textDecoration: 'underline' }}
+            >
+              {showDevTools ? 'Hide' : 'Show'} Developer Testing Tools
+            </button>
+            
+            {showDevTools && (
+              <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <p style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '0.25rem' }}>Force login as role (Dev Mode):</p>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem' }}>
+                  <button onClick={() => setDevRole('ADMIN')} className="btn-dashboard btn-dashboard--secondary btn-dashboard--sm" style={{ padding: '0.5rem', fontSize: '0.7rem', color: '#334155', borderColor: '#cbd5e1', background: '#f8fafc' }}>
+                     <ShieldCheck size={12} /> Admin
+                  </button>
+                  <button onClick={() => setDevRole('TECHNICIAN')} className="btn-dashboard btn-dashboard--secondary btn-dashboard--sm" style={{ padding: '0.5rem', fontSize: '0.7rem', color: '#334155', borderColor: '#cbd5e1', background: '#f8fafc' }}>
+                     <Wrench size={12} /> Tech
+                  </button>
+                  <button onClick={() => setDevRole('USER')} className="btn-dashboard btn-dashboard--secondary btn-dashboard--sm" style={{ padding: '0.5rem', fontSize: '0.7rem', color: '#334155', borderColor: '#cbd5e1', background: '#f8fafc' }}>
+                     <User size={12} /> Lecturer
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
