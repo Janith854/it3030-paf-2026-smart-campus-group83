@@ -92,13 +92,15 @@ export default function BookingsPage() {
             </button>
           ))}
         </div>
-        <button
-          className="btn-dashboard btn-dashboard--primary"
-          onClick={() => setShowForm(true)}
-          id="new-booking-btn"
-        >
-          <Plus size={16} /> New Booking
-        </button>
+        {!isAdmin && (
+          <button
+            className="btn-dashboard btn-dashboard--primary"
+            onClick={() => setShowForm(true)}
+            id="new-booking-btn"
+          >
+            <Plus size={16} /> New Booking
+          </button>
+        )}
       </div>
 
       {/* Bookings Table */}
@@ -109,7 +111,11 @@ export default function BookingsPage() {
           <div className="empty-state">
             <div className="empty-state__icon"><CalendarDays size={48} /></div>
             <div className="empty-state__title">No bookings yet</div>
-            <p>Click "New Booking" to reserve a room or resource.</p>
+            <p>
+              {isAdmin 
+                ? 'There are no bookings matching your current filter.' 
+                : 'Click "New Booking" to reserve a room or resource.'}
+            </p>
           </div>
         ) : (
           <div style={{ overflowX: 'auto' }}>

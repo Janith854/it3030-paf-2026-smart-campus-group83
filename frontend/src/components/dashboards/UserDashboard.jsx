@@ -6,6 +6,8 @@ import { CalendarDays, Wrench, Bell, Plus, Activity } from 'lucide-react';
 
 export default function UserDashboard() {
   const { user } = useAuth();
+  const isAdmin = user?.role === 'ADMIN';
+
   const [stats, setStats] = useState({ bookings: 0, tickets: 0, unread: 0 });
   const [recentBookings, setRecentBookings] = useState([]);
   const [recentTickets, setRecentTickets] = useState([]);
@@ -81,13 +83,15 @@ export default function UserDashboard() {
             Quick Actions
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            <button
-              className="btn-dashboard btn-dashboard--primary"
-              style={{ justifyContent: 'center', width: '100%', padding: '0.8rem' }}
-              onClick={() => navigate('/lecturer/bookings', { state: { openForm: true } })}
-            >
-              <Plus size={18} /> New Booking
-            </button>
+            {!isAdmin && (
+              <button
+                className="btn-dashboard btn-dashboard--primary"
+                style={{ justifyContent: 'center', width: '100%', padding: '0.8rem' }}
+                onClick={() => navigate('/lecturer/bookings', { state: { openForm: true } })}
+              >
+                <Plus size={18} /> New Booking
+              </button>
+            )}
             <button
               className="btn-dashboard btn-dashboard--secondary"
               style={{ justifyContent: 'center', width: '100%', padding: '0.8rem' }}
