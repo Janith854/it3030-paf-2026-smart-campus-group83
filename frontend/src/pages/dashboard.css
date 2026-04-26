@@ -394,6 +394,7 @@
   cursor: pointer;
   /* Solid dark bg so the native dropdown inherits it instead of going white */
   background-color: #1a1a2e;
+  color: #e2e8f0;
 }
 
 /* Make the native dropdown options readable in dark theme */

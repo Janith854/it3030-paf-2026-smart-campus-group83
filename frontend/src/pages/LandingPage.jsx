@@ -10,10 +10,8 @@ export default function LandingPage() {
       <main>
         {/* SECTION 1: HOME */}
         <Hero />
-        
 
-        
-        {/* SECTION 4: CONTACT (id="contact") */}
+        {/* SECTION 2: CONTACT (id="contact") */}
         <Contact />
       </main>
       <Footer />
