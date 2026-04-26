@@ -75,6 +75,7 @@ export default function DashboardLayout() {
     // Regular User / Lecturer
     navItems.push(
       { to: `${correctBasePath}/bookings`, icon: CalendarDays, label: 'Bookings' },
+      { to: `${correctBasePath}/resources`, icon: Building2, label: 'Resources' },
       { to: `${correctBasePath}/tickets`, icon: Wrench, label: 'Tickets' },
       { to: `${correctBasePath}/notifications`, icon: Bell, label: 'Notifications' }
     );
