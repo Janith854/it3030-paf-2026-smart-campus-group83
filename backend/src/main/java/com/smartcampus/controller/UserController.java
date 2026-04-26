@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import com.smartcampus.security.UserPrincipal;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -54,5 +56,21 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable String id) {
         authService.deleteUser(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/me/preferences")
+    public ResponseEntity<User.NotificationPreferences> getMyPreferences(@AuthenticationPrincipal UserPrincipal principal) {
+        User user = authService.getCurrentUser(principal.getId());
+        return ResponseEntity.ok(user.getNotificationPreferences());
+    }
+
+    @PutMapping("/me/preferences")
+    public ResponseEntity<User.NotificationPreferences> updateMyPreferences(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @RequestBody User.NotificationPreferences preferences) {
+        User user = authService.getCurrentUser(principal.getId());
+        user.setNotificationPreferences(preferences);
+        userRepository.save(user);
+        return ResponseEntity.ok(user.getNotificationPreferences());
     }
 }

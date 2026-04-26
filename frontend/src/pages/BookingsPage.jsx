@@ -73,20 +73,23 @@ export default function BookingsPage() {
 
   return (
     <>
-      <div className="dashboard__header">
-        <h1 className="dashboard__title">Bookings</h1>
-        <p className="dashboard__subtitle">{isAdmin ? 'Manage all campus bookings' : 'Your room & resource bookings'}</p>
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">Bookings</h1>
+          <p className="page-subtitle">{isAdmin ? 'Manage all campus bookings' : 'Your room & resource bookings'}</p>
+        </div>
       </div>
 
-      {error && <div className="login-card__error" style={{ marginBottom: '1rem' }}>{error}</div>}
+      {error && <div className="alert-conflict">{error}</div>}
 
-      <div className="action-bar">
-        <div className="filter-group">
+      <div className="filter-bar flex-between" style={{ marginBottom: '20px' }}>
+        <div className="status-tabs" style={{ margin: 0, border: 'none' }}>
           {isAdmin && ['', 'PENDING', 'APPROVED', 'REJECTED', 'CANCELLED'].map(s => (
             <button
               key={s}
-              className={`btn-dashboard btn-dashboard--sm ${filter === s ? 'btn-dashboard--primary' : 'btn-dashboard--secondary'}`}
+              className={`status-tab ${filter === s ? 'active' : ''}`}
               onClick={() => setFilter(s)}
+              style={{ borderBottom: filter === s ? '2px solid var(--primary)' : 'none' }}
             >
               {s || 'All'}
             </button>
@@ -94,7 +97,7 @@ export default function BookingsPage() {
         </div>
         {!isAdmin && (
           <button
-            className="btn-dashboard btn-dashboard--primary"
+            className="btn btn-primary"
             onClick={() => setShowForm(true)}
             id="new-booking-btn"
           >
@@ -104,14 +107,14 @@ export default function BookingsPage() {
       </div>
 
       {/* Bookings Table */}
-      <div className="card">
+      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
         {loading ? (
           <div className="empty-state">Loading...</div>
         ) : bookings.length === 0 ? (
           <div className="empty-state">
-            <div className="empty-state__icon"><CalendarDays size={48} /></div>
-            <div className="empty-state__title">No bookings yet</div>
-            <p>
+            <div style={{ marginBottom: '16px', color: 'var(--text-hint)' }}><CalendarDays size={48} /></div>
+            <div className="empty-state-title">No bookings yet</div>
+            <p className="empty-state-desc">
               {isAdmin 
                 ? 'There are no bookings matching your current filter.' 
                 : 'Click "New Booking" to reserve a room or resource.'}
@@ -133,23 +136,23 @@ export default function BookingsPage() {
               <tbody>
                 {bookings.map(b => (
                   <tr key={b.id}>
-                    <td style={{ fontWeight: 600 }}>{getResourceName(b.resourceId)}</td>
+                    <td style={{ fontWeight: 500 }}>{getResourceName(b.resourceId)}</td>
                     <td>{b.bookingDate}</td>
                     <td>{b.startTime} &ndash; {b.endTime}</td>
                     <td>{b.purpose}</td>
-                    <td><span className={`badge badge--${b.status?.toLowerCase()}`}>{b.status}</span></td>
+                    <td><span className={`badge badge-${b.status?.toLowerCase() || 'pending'}`}>{b.status}</span></td>
                     <td>
-                      <div style={{ display: 'flex', gap: '0.4rem' }}>
+                      <div className="flex-gap">
                         {isAdmin && b.status === 'PENDING' && (
                           <>
-                            <button className="btn-dashboard btn-dashboard--success btn-dashboard--sm" onClick={() => handleApprove(b.id)}>Approve</button>
-                            <button className="btn-dashboard btn-dashboard--danger btn-dashboard--sm" onClick={() => handleReject(b.id)}>Reject</button>
+                            <button className="btn btn-success btn-sm" onClick={() => handleApprove(b.id)}>Approve</button>
+                            <button className="btn btn-danger btn-sm" onClick={() => handleReject(b.id)}>Reject</button>
                           </>
                         )}
                         {b.status === 'PENDING' && (
-                          <button className="btn-dashboard btn-dashboard--secondary btn-dashboard--sm" onClick={() => handleCancel(b.id)}>Cancel</button>
+                          <button className="btn btn-outline btn-sm" onClick={() => handleCancel(b.id)}>Cancel</button>
                         )}
-                        <button className="btn-dashboard btn-dashboard--danger btn-dashboard--sm" onClick={() => handleDelete(b.id)}>Delete</button>
+                        <button className="btn btn-ghost btn-sm text-danger" style={{ border: 'none', padding: '4px' }} onClick={() => handleDelete(b.id)}>Delete</button>
                       </div>
                     </td>
                   </tr>
@@ -280,20 +283,20 @@ function BookingModal({ resources, initialResourceId, onClose, onCreated }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
           <h2 className="modal__title">New Booking</h2>
-          <button className="sidebar__logout" onClick={onClose} aria-label="Close"><X size={18} /></button>
+          <button className="btn btn-ghost btn-sm" style={{ padding: '4px', border: 'none' }} onClick={onClose} aria-label="Close"><X size={18} /></button>
         </div>
 
         {serverError && (
-          <div className="login-card__error" style={{ marginBottom: '1rem' }}>{serverError}</div>
+          <div className="alert-conflict" style={{ marginBottom: '1rem' }}>{serverError}</div>
         )}
 
         <form onSubmit={handleSubmit} noValidate>
 
           {/* Resource */}
           <div className="form-group">
-            <label htmlFor="bk-resource">Resource</label>
+            <label className="form-label" htmlFor="bk-resource">Resource</label>
             <select
               id="bk-resource"
               className={selectClass('resourceId')}
@@ -313,7 +316,7 @@ function BookingModal({ resources, initialResourceId, onClose, onCreated }) {
 
           {/* Date */}
           <div className="form-group">
-            <label htmlFor="bk-date">Date</label>
+            <label className="form-label" htmlFor="bk-date">Date</label>
             <input
               id="bk-date"
               type="date"
@@ -331,7 +334,7 @@ function BookingModal({ resources, initialResourceId, onClose, onCreated }) {
           {/* Start / End Time */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
             <div className="form-group">
-              <label htmlFor="bk-start">Start Time</label>
+              <label className="form-label" htmlFor="bk-start">Start Time</label>
               <input
                 id="bk-start"
                 type="time"
@@ -345,7 +348,7 @@ function BookingModal({ resources, initialResourceId, onClose, onCreated }) {
               )}
             </div>
             <div className="form-group">
-              <label htmlFor="bk-end">End Time</label>
+              <label className="form-label" htmlFor="bk-end">End Time</label>
               <input
                 id="bk-end"
                 type="time"
@@ -362,9 +365,9 @@ function BookingModal({ resources, initialResourceId, onClose, onCreated }) {
 
           {/* Purpose */}
           <div className="form-group">
-            <label htmlFor="bk-purpose">
+            <label className="form-label flex-between" htmlFor="bk-purpose">
               Purpose
-              <span className="form-char-count">{form.purpose.length}/200</span>
+              <span className="text-muted" style={{ fontWeight: 'normal', fontSize: '11px' }}>{form.purpose.length}/200</span>
             </label>
             <input
               id="bk-purpose"
@@ -383,9 +386,9 @@ function BookingModal({ resources, initialResourceId, onClose, onCreated }) {
 
           {/* Expected Attendees */}
           <div className="form-group">
-            <label htmlFor="bk-attendees">
+            <label className="form-label" htmlFor="bk-attendees">
               Expected Attendees
-              <span className="form-label-optional">(optional)</span>
+              <span className="text-muted" style={{ fontWeight: 'normal', marginLeft: '4px' }}>(optional)</span>
             </label>
             <input
               id="bk-attendees"
@@ -404,12 +407,12 @@ function BookingModal({ resources, initialResourceId, onClose, onCreated }) {
           </div>
 
           <div className="form-actions">
-            <button type="button" className="btn-dashboard btn-dashboard--secondary" onClick={onClose}>
+            <button type="button" className="btn btn-ghost" onClick={onClose}>
               Cancel
             </button>
             <button
               type="submit"
-              className="btn-dashboard btn-dashboard--primary"
+              className="btn btn-primary"
               disabled={submitting}
             >
               {submitting ? 'Creating\u2026' : 'Create Booking'}

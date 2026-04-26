@@ -18,10 +18,34 @@ import java.util.List;
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
+    private final com.smartcampus.repository.UserRepository userRepository;
 
     @Override
     public Notification createNotification(String userId, String title, String message,
                                            Notification.NotificationType type, String referenceId) {
+        
+        // Preference Check
+        com.smartcampus.model.User user = userRepository.findById(userId).orElse(null);
+        if (user != null) {
+            com.smartcampus.model.User.NotificationPreferences prefs = user.getNotificationPreferences();
+            boolean shouldSend = true;
+            
+            switch (type) {
+                case BOOKING_APPROVED: shouldSend = prefs.isBookingApproved(); break;
+                case BOOKING_REJECTED: shouldSend = prefs.isBookingRejected(); break;
+                case TICKET_STATUS_CHANGED: shouldSend = prefs.isTicketStatusChanged(); break;
+                case TICKET_COMMENT_ADDED: shouldSend = prefs.isNewCommentOnTicket(); break;
+                case TICKET_ASSIGNED: shouldSend = prefs.isTechnicianAssigned(); break;
+                case GENERAL: 
+                case URGENT_PRIORITY_ALERT: shouldSend = prefs.isGeneralAlerts(); break;
+            }
+            
+            if (!shouldSend) {
+                System.out.println("[DEBUG] Notification skipped due to user preference: " + type);
+                return null;
+            }
+        }
+
         System.out.println("[DEBUG] Creating notification for user: " + userId + " - Title: " + title);
         Notification n = new Notification();
         n.setUserId(userId);

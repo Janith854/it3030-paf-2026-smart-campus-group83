@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { Zap, ArrowLeft, UserPlus, Eye, EyeOff } from 'lucide-react';
 import { authApi } from '../services/api';
 import './dashboard.css';
+import authIllustration from '../assets/auth-illustration.png';
 
 export default function RegisterPage() {
   const { user } = useAuth();
@@ -45,102 +46,106 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="login-page">
-      <div className="login-card" style={{ maxWidth: '450px' }}>
-        <div className="login-card__logo">
-          <div className="login-card__logo-icon">
-            <Zap size={20} color="#fff" />
+    <div className="auth-split-page">
+      <div className="auth-left">
+        <div className="auth-left__content">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '3rem', fontSize: '1.2rem', fontWeight: 700 }}>
+            <Zap size={24} color="#fff" />
+            <span>SmartCampus Hub</span>
           </div>
-          <span>Smart<span style={{ color: '#3b82f6' }}>Campus</span> Hub</span>
+          <h1 className="auth-left__title">Join the Network.</h1>
+          <p className="auth-left__subtitle">
+            Create an account to manage resources, maintenance, and explore the campus ecosystem.
+          </p>
+          <img src={authIllustration} alt="Smart Campus" className="auth-left__image" />
         </div>
+      </div>
+      
+      <div className="auth-right">
+        <div className="auth-card">
+          <h2 className="auth-card__title">Create Account</h2>
+          <p className="auth-card__subtitle">Join as a Lecturer/Student or Technician.</p>
+          
+          {error && <div className="login-card__error">{error}</div>}
 
-        <h1 className="login-card__title">Create an Account</h1>
-        <p className="login-card__subtitle">
-          Join the Smart Campus network as a Lecturer/Student or Technician.
-        </p>
+          {success && (
+            <div style={{
+              background: 'rgba(16,185,129,0.12)',
+              border: '1px solid rgba(16,185,129,0.3)',
+              color: '#34d399',
+              padding: '0.75rem 1rem',
+              borderRadius: '8px',
+              fontSize: '0.875rem',
+              textAlign: 'center',
+              marginBottom: '1rem'
+            }}>
+              ✅ Account created! Redirecting to sign in...
+            </div>
+          )}
 
-        {error && <div className="login-card__error">{error}</div>}
+          <form onSubmit={handleRegister}>
+            <label className="auth-form-label">Full Name</label>
+            <input type="text" required className="auth-form-input" placeholder="e.g. John Doe" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+            
+            <label className="auth-form-label">Email Address</label>
+            <input type="email" required className="auth-form-input" placeholder="name@campus.edu" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
+            
+            <label className="auth-form-label">Password</label>
+            <div style={{ position: 'relative', marginBottom: '1.25rem' }}>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                required
+                className="auth-form-input"
+                placeholder="Minimum 6 characters"
+                value={formData.password}
+                onChange={e => setFormData({...formData, password: e.target.value})}
+                minLength={6}
+                style={{ marginBottom: 0, paddingRight: '2.8rem' }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(v => !v)}
+                style={{
+                  position: 'absolute', right: '0.75rem', top: '0.85rem',
+                  background: 'none', border: 'none', cursor: 'pointer', color: '#64748b',
+                  display: 'flex', alignItems: 'center', padding: 0
+                }}
+                tabIndex={-1}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
 
-        {success && (
-          <div style={{
-            background: 'rgba(16,185,129,0.12)',
-            border: '1px solid rgba(16,185,129,0.3)',
-            color: '#34d399',
-            padding: '0.75rem 1rem',
-            borderRadius: '8px',
-            fontSize: '0.875rem',
-            textAlign: 'center'
-          }}>
-            ✅ Account created! Redirecting to sign in...
+            <label className="auth-form-label">Account Type</label>
+            <select className="auth-form-input" value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})} style={{ appearance: 'auto', backgroundColor: '#f8fafc', color: '#0f172a' }}>
+              <option value="USER">Lecturer / Student</option>
+              <option value="TECHNICIAN">Technician</option>
+            </select>
+
+            <button
+              type="submit"
+              className="auth-btn-primary"
+              disabled={loading}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginTop: '1rem' }}
+            >
+              {loading ? 'Creating Account...' : (
+                <><UserPlus size={18} /> Register Now</>
+              )}
+            </button>
+          </form>
+
+          <div className="auth-divider">or</div>
+
+          <div style={{ textAlign: 'center', fontSize: '0.9rem', color: '#64748b' }}>
+            Already have an account? <Link to="/login" style={{ color: '#4CA799', textDecoration: 'none', fontWeight: 600 }}>Sign in here</Link>
           </div>
-        )}
 
-        <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1.5rem' }}>
-          <div className="form-group" style={{ marginBottom: 0 }}>
-             <label>Full Name</label>
-             <input type="text" required className="form-input" placeholder="e.g. John Doe" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
-          </div>
-          <div className="form-group" style={{ marginBottom: 0 }}>
-             <label>Email Address</label>
-             <input type="email" required className="form-input" placeholder="name@campus.edu" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
-          </div>
-          <div className="form-group" style={{ marginBottom: 0, position: 'relative' }}>
-             <label>Password</label>
-             <input
-               type={showPassword ? 'text' : 'password'}
-               required
-               className="form-input"
-               placeholder="Minimum 6 characters"
-               value={formData.password}
-               onChange={e => setFormData({...formData, password: e.target.value})}
-               minLength={6}
-               style={{ paddingRight: '2.8rem' }}
-             />
-             <button
-               type="button"
-               onClick={() => setShowPassword(v => !v)}
-               style={{
-                 position: 'absolute', right: '0.75rem', top: 'calc(50% + 10px)',
-                 transform: 'translateY(-50%)', background: 'none',
-                 border: 'none', cursor: 'pointer', color: '#64748b',
-                 display: 'flex', alignItems: 'center', padding: 0
-               }}
-               tabIndex={-1}
-               aria-label={showPassword ? 'Hide password' : 'Show password'}
-             >
-               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-             </button>
-          </div>
-          <div className="form-group" style={{ marginBottom: 0 }}>
-             <label>Account Type</label>
-             <select className="form-select" value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})}>
-                <option value="USER">Lecturer / Student</option>
-                <option value="TECHNICIAN">Technician</option>
-             </select>
-          </div>
-
-          <button
-            type="submit"
-            className="btn-dashboard btn-dashboard--primary"
-            style={{ padding: '0.8rem', justifyContent: 'center', marginTop: '0.5rem' }}
-            disabled={loading}
-          >
-            {loading ? 'Creating Account...' : (
-              <><UserPlus size={18} /> Register Now</>
-            )}
-          </button>
-        </form>
-
-        <div className="login-card__divider" style={{ margin: '1.5rem 0' }}>or</div>
-
-        <div style={{ textAlign: 'center', fontSize: '0.9rem', color: '#64748b' }}>
-          Already have an account? <Link to="/login" style={{ color: '#3b82f6', textDecoration: 'none', fontWeight: 600 }}>Sign in here</Link>
+          <Link to="/" className="login-card__back" style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'center' }}>
+            <ArrowLeft size={16} />
+            Back to Homepage
+          </Link>
         </div>
-
-        <Link to="/" className="login-card__back" style={{ marginTop: '1.5rem' }}>
-          <ArrowLeft size={16} />
-          Back to Homepage
-        </Link>
       </div>
     </div>
   );

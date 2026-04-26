@@ -46,46 +46,48 @@ export default function TechnicianDashboard() {
 
   return (
     <>
-      <div className="dashboard__header">
-        <h1 className="dashboard__title">Welcome back, {user?.name || 'Technician'} 👋</h1>
-        <p className="dashboard__subtitle">Here is your Technician overview for today.</p>
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">Welcome back, {user?.name || 'Technician'}</h1>
+          <p className="page-subtitle">Here is your Technician overview for today.</p>
+        </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+      <div className="card-grid mb-3">
         {cards.map((c, i) => (
-          <div className="card" key={i} style={{ borderTop: `3px solid ${c.color}` }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="stat-card" key={i} style={{ borderTop: `3px solid ${c.color}` }}>
+            <div className="flex-between">
               <div>
-                <div style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '0.25rem' }}>{c.label}</div>
-                <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#f1f5f9' }}>
+                <div className="stat-label">{c.label}</div>
+                <div className="stat-value">
                   {loading ? '—' : c.value}
                 </div>
               </div>
-              <div style={{ padding: '0.6rem', borderRadius: '10px', background: `${c.color}15` }}>
-                <c.icon size={22} color={c.color} />
+              <div style={{ padding: '8px', borderRadius: '8px', background: `${c.color}15` }}>
+                <c.icon size={20} color={c.color} />
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem' }}>
+      <div className="grid-1" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem' }}>
         {/* Critical Priority Alerts - Viva Requirement */}
         {assignedTickets.some(t => t.priority === 'CRITICAL' || t.priority === 'HIGH') && (
-          <div className="card" style={{ background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
-            <h2 style={{ fontSize: '1.1rem', color: '#ef4444', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Activity size={18} />
+          <div className="card" style={{ background: '#fef2f2', border: '1px solid #fca5a5' }}>
+            <h2 className="card-title flex-gap mb-2" style={{ color: '#dc2626' }}>
+              <Activity size={16} />
               URGENT Priority Alerts
             </h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem' }}>
+            <div className="card-grid">
               {assignedTickets.filter(t => t.priority === 'CRITICAL' || t.priority === 'HIGH').map(t => (
-                <div key={`urgent-${t.id}`} style={{ padding: '1rem', background: 'rgba(239, 68, 68, 0.1)', borderRadius: '8px', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                    <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#f8fafc' }}>{t.category}</div>
-                    <span className="badge badge--critical">URGENT</span>
+                <div key={`urgent-${t.id}`} className="ticket-card priority-critical" style={{ padding: '16px', background: '#ffffff', border: '1px solid #fecaca', borderRadius: 'var(--radius-md)' }}>
+                  <div className="flex-between mb-1">
+                    <div className="font-medium">{t.category}</div>
+                    <span className="badge badge-rejected">URGENT</span>
                   </div>
-                  <div style={{ fontSize: '0.8rem', color: '#fca5a5', marginBottom: '0.75rem' }}>{t.description}</div>
-                  <button className="btn-dashboard btn-dashboard--primary btn-dashboard--sm" style={{ backgroundColor: '#ef4444' }} onClick={() => navigate('/technician/tickets')}>Work on Info</button>
+                  <div className="text-sm text-danger mb-2">{t.description}</div>
+                  <button className="btn btn-danger btn-sm mt-1" onClick={() => navigate('/tech-dashboard/tickets')}>Work on Info</button>
                 </div>
               ))}
             </div>
@@ -94,34 +96,36 @@ export default function TechnicianDashboard() {
 
         {/* Active Assigned Tickets Widget */}
         <div className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h2 style={{ fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Wrench size={18} color="#3b82f6" />
+          <div className="card-header">
+            <h2 className="card-title flex-gap">
+              <Wrench size={16} className="text-primary" />
               My Active Assigned Tickets
             </h2>
             <button
-              className="btn-dashboard btn-dashboard--secondary btn-dashboard--sm"
-              onClick={() => navigate('/technician/tickets')}
+              className="btn btn-ghost btn-sm"
+              onClick={() => navigate('/tech-dashboard/tickets')}
             >
-              View All <ArrowRight size={14} />
+              View All <ArrowRight size={12} />
             </button>
           </div>
           {loading ? (
-            <div style={{ color: '#64748b', fontSize: '0.9rem' }}>Loading...</div>
+            <div className="text-muted text-sm">Loading...</div>
           ) : assignedTickets.length === 0 ? (
-            <div style={{ color: '#64748b', fontSize: '0.9rem' }}>No active tickets assigned to you at the moment.</div>
+            <div className="empty-state">
+              <p className="empty-state-title">No active tickets assigned to you at the moment.</p>
+            </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem' }}>
+            <div className="card-grid">
               {assignedTickets.map(t => (
-                <div key={`t-${t.id}`} style={{ padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                    <div style={{ fontSize: '0.9rem', fontWeight: 600 }}>{t.category}</div>
-                    <span className={`badge badge--${t.priority?.toLowerCase()}`}>{t.priority}</span>
+                <div key={`t-${t.id}`} className={`ticket-card priority-${t.priority?.toLowerCase() || 'medium'}`} style={{ padding: '16px', background: 'var(--primary-wash)', border: '1px solid var(--border)' }}>
+                  <div className="flex-between mb-1">
+                    <div className="font-medium text-sm">{t.category}</div>
+                    <span className={`badge badge-${t.priority?.toLowerCase() || 'pending'}`}>{t.priority}</span>
                   </div>
-                  <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.75rem', height: '40px', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.description}</div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span className={`badge badge--${t.status?.toLowerCase()}`}>{t.status?.replace(/_/g, ' ')}</span>
-                    <button className="btn-dashboard btn-dashboard--primary btn-dashboard--sm" onClick={() => navigate('/technician/tickets')}>Work on Info</button>
+                  <div className="text-sm text-muted mb-2" style={{ height: '40px', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.description}</div>
+                  <div className="flex-between mt-2">
+                    <span className={`badge badge-${t.status?.toLowerCase() || 'open'}`}>{t.status?.replace(/_/g, ' ')}</span>
+                    <button className="btn btn-primary btn-sm" onClick={() => navigate('/tech-dashboard/tickets')}>Work on Info</button>
                   </div>
                 </div>
               ))}

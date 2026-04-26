@@ -14,12 +14,6 @@ const links = {
   Support: ['Help Center', 'Safety & Security', 'Feedback', 'Documentation'],
 };
 
-const teamMembers = [
-  { name: 'Yashith', role: 'Full-Stack Developer' },
-  { name: 'Team Member 2', role: 'Backend Developer' },
-  { name: 'Team Member 3', role: 'UI/UX Designer' },
-];
-
 export default function Footer() {
   return (
     <footer className="footer" id="footer">
@@ -61,22 +55,6 @@ export default function Footer() {
               </ul>
             </div>
           ))}
-
-          {/* Team */}
-          <div className="footer__col">
-            <h4 className="footer__col-title">Our Team</h4>
-            <ul className="footer__team-list">
-              {teamMembers.map(m => (
-                <li key={m.name} className="footer__team-member">
-                  <div className="footer__team-avatar">{m.name.charAt(0)}</div>
-                  <div>
-                    <div className="footer__team-name">{m.name}</div>
-                    <div className="footer__team-role">{m.role}</div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
         </div>
 
         <div className="footer__bottom">
