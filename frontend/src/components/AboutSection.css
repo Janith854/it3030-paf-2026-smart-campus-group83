@@ -75,7 +75,6 @@
     align-items: center;
     gap: 16px;
     border: 1px solid var(--border);
-    animation: float 4s ease-in-out infinite;
 }
 
 .floating-badge__icon {
@@ -110,7 +109,6 @@
     box-shadow: var(--shadow-lg);
     text-align: center;
     border: 1px solid var(--border);
-    animation: float 5s ease-in-out infinite reverse;
 }
 
 .stats-circle {
@@ -130,11 +128,6 @@
     font-size: 0.75rem;
     font-weight: 600;
     color: var(--text-muted);
-}
-
-@keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-15px); }
 }
 
 @media (max-width: 1024px) {

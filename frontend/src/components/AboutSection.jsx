@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { ShieldCheck, Zap, Users, BarChart } from 'lucide-react';
 import './AboutSection.css';
 
@@ -31,13 +30,7 @@ export default function AboutSection() {
     <section className="about" id="about">
       <div className="container about__inner">
         <div className="about__grid">
-          <motion.div 
-            className="about__content"
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-          >
+          <div className="about__content">
             <div className="section-label">
               <span className="section-badge-dot" />
               Who We Are
@@ -58,15 +51,9 @@ export default function AboutSection() {
                 </div>
               ))}
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div 
-            className="about__visual"
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-          >
+          <div className="about__visual">
             <div className="about__image-container">
               <img 
                 src="https://images.unsplash.com/photo-1541339907198-e08756ebafe3?auto=format&fit=crop&q=80&w=1000" 
@@ -85,7 +72,7 @@ export default function AboutSection() {
                 <div className="stats-label">Efficiency Boost</div>
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>

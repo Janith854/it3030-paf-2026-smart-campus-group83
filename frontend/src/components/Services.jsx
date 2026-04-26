@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { Layout, Calendar, Wrench, Bell, Shield, Users } from 'lucide-react';
 import './Services.css';
 
@@ -46,12 +45,7 @@ export default function Services() {
   return (
     <section className="services" id="services">
       <div className="container">
-        <motion.div 
-          className="section-header"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-        >
+        <div className="section-header">
           <div className="section-label">
             <span className="section-badge-dot" />
             Our Services
@@ -60,18 +54,11 @@ export default function Services() {
           <p className="section-subtitle">
             We provide a suite of integrated tools designed to streamline operations and enhance the campus experience for everyone.
           </p>
-        </motion.div>
+        </div>
 
         <div className="services__grid">
           {services.map((service, index) => (
-            <motion.div 
-              key={service.title}
-              className="service-card"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-            >
+            <div key={service.title} className="service-card">
               <div className="service-card__icon" style={{ '--icon-color': service.color }}>
                 {service.icon}
               </div>
@@ -81,7 +68,7 @@ export default function Services() {
                 <span className="service-card__learn">Learn More</span>
                 <div className="service-card__line" />
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

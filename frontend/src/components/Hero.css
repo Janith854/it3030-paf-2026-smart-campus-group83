@@ -154,12 +154,7 @@
 }
 
 .hero__scroll-icon {
-  animation: bounce-down 1.6s ease infinite;
-}
-
-@keyframes bounce-down {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(6px); }
+  color: var(--text-hint);
 }
 
 @media (max-width: 768px) {
