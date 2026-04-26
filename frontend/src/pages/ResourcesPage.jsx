@@ -7,6 +7,13 @@ import { Plus, X, Building2, MapPin, Users, Tag, Clock, Eye } from 'lucide-react
 const TYPES = ['LECTURE_HALL', 'LAB', 'MEETING_ROOM', 'EQUIPMENT'];
 const STATUSES = ['ACTIVE', 'OUT_OF_SERVICE', 'MAINTENANCE'];
 
+const TYPE_COLORS = {
+  LECTURE_HALL: 'var(--primary)', // Teal
+  LAB: '#8b5cf6',                 // Violet
+  MEETING_ROOM: '#f59e0b',        // Amber
+  EQUIPMENT: '#ec4899'            // Pink
+};
+
 export default function ResourcesPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -274,21 +281,51 @@ export default function ResourcesPage() {
       ) : (
         <div className="card-grid">
           {resources.map(r => (
-            <div className="card" key={r.id}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text)' }}>{r.name}</div>
-                <span className={`badge badge-${r.status?.toLowerCase() || 'active'}`}>{r.status?.replace(/_/g, ' ')}</span>
+            <div className="card" key={r.id} style={{ display: 'flex', flexDirection: 'column', height: '100%', transition: 'all 0.2s ease', border: '1px solid var(--border)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+                <div>
+                  <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text)', marginBottom: '4px', letterSpacing: '-0.3px' }}>{r.name}</div>
+                  <div style={{ fontSize: '11px', fontWeight: 700, color: TYPE_COLORS[r.type] || 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Tag size={12} color={TYPE_COLORS[r.type] || 'var(--primary)'} /> {r.type?.replace(/_/g, ' ')}
+                  </div>
+                </div>
+                <span className={`badge badge-${r.status?.toLowerCase() || 'active'}`} style={{ padding: '6px 12px', fontSize: '11px' }}>{r.status?.replace(/_/g, ' ')}</span>
               </div>
-              <div style={{ fontSize: '13px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}><Tag size={14} /> {r.type?.replace(/_/g, ' ')}</div>
-              <div style={{ fontSize: '13px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}><MapPin size={14} /> {r.location}</div>
-              {r.capacity && <div style={{ fontSize: '13px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}><Users size={14} /> Capacity: {r.capacity}</div>}
-              {(r.availabilityWindow || (Array.isArray(r.availabilityWindows) && r.availabilityWindows[0]) || r.availabilityWindows) && (
-                <div style={{ fontSize: '13px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                  <Clock size={14} /> 
-                  {r.availabilityWindow || (Array.isArray(r.availabilityWindows) ? r.availabilityWindows[0] : r.availabilityWindows)}
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', flex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(42, 157, 143, 0.1)', color: 'var(--primary)', flexShrink: 0 }}>
+                    <MapPin size={16} />
+                  </div>
+                  <div style={{ fontSize: '13px', color: 'var(--text)', fontWeight: 500 }}>{r.location}</div>
+                </div>
+                
+                {r.capacity && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(99, 102, 241, 0.1)', color: '#6366f1', flexShrink: 0 }}>
+                      <Users size={16} />
+                    </div>
+                    <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}><span style={{ color: 'var(--text)', fontWeight: 600 }}>{r.capacity}</span> max capacity</div>
+                  </div>
+                )}
+                
+                {(r.availabilityWindow || (Array.isArray(r.availabilityWindows) && r.availabilityWindows[0]) || r.availabilityWindows) && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(245, 158, 11, 0.1)', color: '#d97706', flexShrink: 0 }}>
+                      <Clock size={16} />
+                    </div>
+                    <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
+                      {r.availabilityWindow || (Array.isArray(r.availabilityWindows) ? r.availabilityWindows[0] : r.availabilityWindows)}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {r.description && (
+                <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px dashed var(--border)', fontSize: '13px', color: 'var(--text-muted)', lineHeight: '1.6' }}>
+                  {r.description}
                 </div>
               )}
-              {r.description && <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '8px' }}>{r.description}</div>}
               <div className="flex-gap" style={{ marginTop: '16px', flexWrap: 'wrap' }}>
                 {isAdmin && (
                   <>
