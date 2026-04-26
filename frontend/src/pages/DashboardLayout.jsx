@@ -122,11 +122,11 @@ export default function DashboardLayout() {
       </aside>
 
       {/* Top Navbar */}
-      <header className="navbar">
+      <header className="dashboard-navbar">
         <div style={{ flex: 1 }}></div>
-        <div className="navbar-right">
+        <div className="dashboard-navbar-right">
           <NotificationBell />
-          <div className="navbar-user">
+          <div className="dashboard-navbar-user">
             <div className="user-avatar">
               {user.picture ? (
                 <img src={user.picture} alt={user.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
