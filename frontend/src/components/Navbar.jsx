@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Menu, X, Zap, User as UserIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import logo from '../assets/logo.png';
 import './Navbar.css';
 
 const navLinks = [
@@ -40,12 +41,7 @@ export default function Navbar() {
       <div className="container navbar__inner">
         {/* Logo */}
         <a href="#" className="navbar__logo" id="navbar-logo">
-          <div className="navbar__logo-icon">
-            <Zap size={18} />
-          </div>
-          <span className="navbar__logo-text">
-            Smart<span className="navbar__logo-accent">Campus</span> Hub
-          </span>
+          <img src={logo} alt="SmartCampus Hub" className="navbar__logo-img" />
         </a>
 
         {/* Desktop Links */}

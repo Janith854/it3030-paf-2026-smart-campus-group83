@@ -5,6 +5,7 @@ import {
   Wrench, Bell, Users, LogOut, Settings
 } from 'lucide-react';
 import NotificationBell from '../components/NotificationBell';
+import logo from '../assets/logo.png';
 import './dashboard.css';
 
 export default function DashboardLayout() {
@@ -85,8 +86,7 @@ export default function DashboardLayout() {
       {/* Sidebar */}
       <aside className="sidebar">
         <NavLink to="/" className="sidebar-logo">
-          <Zap size={16} />
-          <span>SmartCampus</span>
+          <img src={logo} alt="SmartCampus" className="sidebar-logo-img" />
         </NavLink>
 
         <div className="sidebar-section-label" style={{ marginTop: '16px' }}>Main Menu</div>

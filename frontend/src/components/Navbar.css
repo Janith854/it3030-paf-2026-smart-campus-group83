@@ -28,32 +28,15 @@
 .navbar__logo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   text-decoration: none;
-  flex-shrink: 0;
+  z-index: 10;
 }
 
-.navbar__logo-icon {
-  width: 36px;
-  height: 36px;
-  background: linear-gradient(135deg, var(--primary), #10B981);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  box-shadow: 0 4px 12px rgba(42, 157, 143, 0.4);
-}
-
-.navbar__logo-text {
-  font-size: 17px;
-  font-weight: 800;
-  color: var(--text);
-  letter-spacing: -0.3px;
-}
-
-.navbar__logo-accent {
-  color: var(--primary);
+.navbar__logo-img {
+  height: 48px;
+  width: auto;
+  object-fit: contain;
 }
 
 .navbar__links {
