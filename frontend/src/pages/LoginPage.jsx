@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { Zap, ArrowLeft, Eye, EyeOff, ShieldCheck, Wrench, User } from 'lucide-react';
 import { authApi } from '../services/api';
 import './dashboard.css';
+import authIllustration from '../assets/auth-illustration.png';
 
 export default function LoginPage() {
   const { user } = useAuth();
