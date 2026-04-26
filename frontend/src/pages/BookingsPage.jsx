@@ -73,27 +73,30 @@ export default function BookingsPage() {
 
   return (
     <>
-      <div className="dashboard__header">
-        <h1 className="dashboard__title">Bookings</h1>
-        <p className="dashboard__subtitle">{isAdmin ? 'Manage all campus bookings' : 'Your room & resource bookings'}</p>
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">Bookings</h1>
+          <p className="page-subtitle">{isAdmin ? 'Manage all campus bookings' : 'Your room & resource bookings'}</p>
+        </div>
       </div>
 
-      {error && <div className="login-card__error" style={{ marginBottom: '1rem' }}>{error}</div>}
+      {error && <div className="alert-conflict">{error}</div>}
 
-      <div className="action-bar">
-        <div className="filter-group">
+      <div className="filter-bar flex-between" style={{ marginBottom: '20px' }}>
+        <div className="status-tabs" style={{ margin: 0, border: 'none' }}>
           {isAdmin && ['', 'PENDING', 'APPROVED', 'REJECTED', 'CANCELLED'].map(s => (
             <button
               key={s}
-              className={`btn-dashboard btn-dashboard--sm ${filter === s ? 'btn-dashboard--primary' : 'btn-dashboard--secondary'}`}
+              className={`status-tab ${filter === s ? 'active' : ''}`}
               onClick={() => setFilter(s)}
+              style={{ borderBottom: filter === s ? '2px solid var(--primary)' : 'none' }}
             >
               {s || 'All'}
             </button>
           ))}
         </div>
         <button
-          className="btn-dashboard btn-dashboard--primary"
+          className="btn btn-primary"
           onClick={() => setShowForm(true)}
           id="new-booking-btn"
         >
@@ -102,14 +105,14 @@ export default function BookingsPage() {
       </div>
 
       {/* Bookings Table */}
-      <div className="card">
+      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
         {loading ? (
           <div className="empty-state">Loading...</div>
         ) : bookings.length === 0 ? (
           <div className="empty-state">
-            <div className="empty-state__icon"><CalendarDays size={48} /></div>
-            <div className="empty-state__title">No bookings yet</div>
-            <p>Click "New Booking" to reserve a room or resource.</p>
+            <div style={{ marginBottom: '16px', color: 'var(--text-hint)' }}><CalendarDays size={48} /></div>
+            <div className="empty-state-title">No bookings yet</div>
+            <p className="empty-state-desc">Click "New Booking" to reserve a room or resource.</p>
           </div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
@@ -127,23 +130,23 @@ export default function BookingsPage() {
               <tbody>
                 {bookings.map(b => (
                   <tr key={b.id}>
-                    <td style={{ fontWeight: 600 }}>{getResourceName(b.resourceId)}</td>
+                    <td style={{ fontWeight: 500 }}>{getResourceName(b.resourceId)}</td>
                     <td>{b.bookingDate}</td>
                     <td>{b.startTime} &ndash; {b.endTime}</td>
                     <td>{b.purpose}</td>
-                    <td><span className={`badge badge--${b.status?.toLowerCase()}`}>{b.status}</span></td>
+                    <td><span className={`badge badge-${b.status?.toLowerCase() || 'pending'}`}>{b.status}</span></td>
                     <td>
-                      <div style={{ display: 'flex', gap: '0.4rem' }}>
+                      <div className="flex-gap">
                         {isAdmin && b.status === 'PENDING' && (
                           <>
-                            <button className="btn-dashboard btn-dashboard--success btn-dashboard--sm" onClick={() => handleApprove(b.id)}>Approve</button>
-                            <button className="btn-dashboard btn-dashboard--danger btn-dashboard--sm" onClick={() => handleReject(b.id)}>Reject</button>
+                            <button className="btn btn-success btn-sm" onClick={() => handleApprove(b.id)}>Approve</button>
+                            <button className="btn btn-danger btn-sm" onClick={() => handleReject(b.id)}>Reject</button>
                           </>
                         )}
                         {b.status === 'PENDING' && (
-                          <button className="btn-dashboard btn-dashboard--secondary btn-dashboard--sm" onClick={() => handleCancel(b.id)}>Cancel</button>
+                          <button className="btn btn-outline btn-sm" onClick={() => handleCancel(b.id)}>Cancel</button>
                         )}
-                        <button className="btn-dashboard btn-dashboard--danger btn-dashboard--sm" onClick={() => handleDelete(b.id)}>Delete</button>
+                        <button className="btn btn-ghost btn-sm text-danger" style={{ border: 'none', padding: '4px' }} onClick={() => handleDelete(b.id)}>Delete</button>
                       </div>
                     </td>
                   </tr>
