@@ -134,12 +134,18 @@ export default function ResourcesPage() {
       const payload = { ...formData, capacity: formData.capacity ? parseInt(formData.capacity) : null };
       if (editing) {
         await resourcesApi.update(editing.id, payload);
+        setSuccessMsg('Resource updated successfully');
       } else {
         await resourcesApi.create(payload);
-        setSuccessMsg('Resource added successfully');
+        setSuccessMsg('Resource created successfully');
       }
       setShowForm(false);
       load();
+      
+      // Auto-hide toast after 3 seconds
+      setTimeout(() => {
+        setSuccessMsg('');
+      }, 3000);
     } catch (e) { setError(e.message); }
   };
 
@@ -156,25 +162,22 @@ export default function ResourcesPage() {
 
   return (
     <>
-      {/* Success Dialog (browser-style) */}
+      {/* Modern Toast Notification */}
       {successMsg && (
-        <div className="browser-dialog-overlay">
-          <div className="browser-dialog" role="alertdialog" aria-modal="true">
-            <div className="browser-dialog__header">
-              <span className="browser-dialog__site">{window.location.host} says</span>
+        <div className="toast-container">
+          <div className="toast-notification">
+            <div className="toast-icon-wrapper">
+              <svg className="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
             </div>
-            <div className="browser-dialog__body">
-              <p className="browser-dialog__msg">{successMsg}</p>
+            <div className="toast-content">
+              <p className="toast-message">{successMsg}</p>
             </div>
-            <div className="browser-dialog__footer">
-              <button
-                className="browser-dialog__btn browser-dialog__btn--ok"
-                onClick={() => setSuccessMsg('')}
-                autoFocus
-              >
-                OK
-              </button>
-            </div>
+            <button className="toast-close" onClick={() => setSuccessMsg('')}>
+              <X size={16} />
+            </button>
           </div>
         </div>
       )}
