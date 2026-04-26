@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Zap, ArrowLeft, Eye, EyeOff, ShieldCheck, Wrench, User } from 'lucide-react';
+import { Zap, ArrowLeft, Eye, EyeOff, ShieldCheck, Wrench, User, LogIn } from 'lucide-react';
 import { authApi } from '../services/api';
 import './LoginPage.css';
 import authIllustration from '../assets/auth-illustration.png';
@@ -158,7 +158,17 @@ export default function LoginPage() {
               className="auth-btn-primary"
               disabled={loading}
             >
-              {loading ? 'Authenticating...' : 'Login'}
+              {loading ? (
+                <>
+                  <div className="animate-spin" style={{ width: '18px', height: '18px', border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%', marginRight: '8px' }} />
+                  Signing In...
+                </>
+              ) : (
+                <>
+                  <LogIn size={20} style={{ marginRight: '8px' }} />
+                  Sign In
+                </>
+              )}
             </button>
           </form>
 
