@@ -277,20 +277,20 @@ function BookingModal({ resources, initialResourceId, onClose, onCreated }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
           <h2 className="modal__title">New Booking</h2>
-          <button className="sidebar__logout" onClick={onClose} aria-label="Close"><X size={18} /></button>
+          <button className="btn btn-ghost btn-sm" style={{ padding: '4px', border: 'none' }} onClick={onClose} aria-label="Close"><X size={18} /></button>
         </div>
 
         {serverError && (
-          <div className="login-card__error" style={{ marginBottom: '1rem' }}>{serverError}</div>
+          <div className="alert-conflict" style={{ marginBottom: '1rem' }}>{serverError}</div>
         )}
 
         <form onSubmit={handleSubmit} noValidate>
 
           {/* Resource */}
           <div className="form-group">
-            <label htmlFor="bk-resource">Resource</label>
+            <label className="form-label" htmlFor="bk-resource">Resource</label>
             <select
               id="bk-resource"
               className={selectClass('resourceId')}
@@ -310,7 +310,7 @@ function BookingModal({ resources, initialResourceId, onClose, onCreated }) {
 
           {/* Date */}
           <div className="form-group">
-            <label htmlFor="bk-date">Date</label>
+            <label className="form-label" htmlFor="bk-date">Date</label>
             <input
               id="bk-date"
               type="date"
@@ -328,7 +328,7 @@ function BookingModal({ resources, initialResourceId, onClose, onCreated }) {
           {/* Start / End Time */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
             <div className="form-group">
-              <label htmlFor="bk-start">Start Time</label>
+              <label className="form-label" htmlFor="bk-start">Start Time</label>
               <input
                 id="bk-start"
                 type="time"
@@ -342,7 +342,7 @@ function BookingModal({ resources, initialResourceId, onClose, onCreated }) {
               )}
             </div>
             <div className="form-group">
-              <label htmlFor="bk-end">End Time</label>
+              <label className="form-label" htmlFor="bk-end">End Time</label>
               <input
                 id="bk-end"
                 type="time"
@@ -359,9 +359,9 @@ function BookingModal({ resources, initialResourceId, onClose, onCreated }) {
 
           {/* Purpose */}
           <div className="form-group">
-            <label htmlFor="bk-purpose">
+            <label className="form-label flex-between" htmlFor="bk-purpose">
               Purpose
-              <span className="form-char-count">{form.purpose.length}/200</span>
+              <span className="text-muted" style={{ fontWeight: 'normal', fontSize: '11px' }}>{form.purpose.length}/200</span>
             </label>
             <input
               id="bk-purpose"
@@ -380,9 +380,9 @@ function BookingModal({ resources, initialResourceId, onClose, onCreated }) {
 
           {/* Expected Attendees */}
           <div className="form-group">
-            <label htmlFor="bk-attendees">
+            <label className="form-label" htmlFor="bk-attendees">
               Expected Attendees
-              <span className="form-label-optional">(optional)</span>
+              <span className="text-muted" style={{ fontWeight: 'normal', marginLeft: '4px' }}>(optional)</span>
             </label>
             <input
               id="bk-attendees"
@@ -401,12 +401,12 @@ function BookingModal({ resources, initialResourceId, onClose, onCreated }) {
           </div>
 
           <div className="form-actions">
-            <button type="button" className="btn-dashboard btn-dashboard--secondary" onClick={onClose}>
+            <button type="button" className="btn btn-ghost" onClick={onClose}>
               Cancel
             </button>
             <button
               type="submit"
-              className="btn-dashboard btn-dashboard--primary"
+              className="btn btn-primary"
               disabled={submitting}
             >
               {submitting ? 'Creating\u2026' : 'Create Booking'}
