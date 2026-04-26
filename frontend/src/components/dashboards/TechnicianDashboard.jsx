@@ -48,7 +48,7 @@ export default function TechnicianDashboard() {
     <>
       <div className="page-header">
         <div>
-          <h1 className="page-title">Welcome back, {user?.name || 'Technician'} 👋</h1>
+          <h1 className="page-title">Welcome back, {user?.name || 'Technician'}</h1>
           <p className="page-subtitle">Here is your Technician overview for today.</p>
         </div>
       </div>

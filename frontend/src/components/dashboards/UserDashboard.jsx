@@ -53,7 +53,7 @@ export default function UserDashboard() {
     <>
       <div className="page-header">
         <div>
-          <h1 className="page-title">Welcome back, {user?.name || 'Lecturer / Student'} 👋</h1>
+          <h1 className="page-title">Welcome back, {user?.name || 'Lecturer / Student'}</h1>
           <p className="page-subtitle">Here is your campus overview for today.</p>
         </div>
       </div>

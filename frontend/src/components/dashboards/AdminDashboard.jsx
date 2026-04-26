@@ -61,7 +61,7 @@ export default function AdminDashboard() {
     <>
       <div className="page-header">
         <div>
-          <h1 className="page-title">Welcome back, {user?.name || 'Administrator'} 👋</h1>
+          <h1 className="page-title">Welcome back, {user?.name || 'Administrator'}</h1>
           <p className="page-subtitle">Here is your Admin overview for today.</p>
         </div>
       </div>
