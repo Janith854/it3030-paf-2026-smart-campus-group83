@@ -1,5 +1,6 @@
 package com.smartcampus.dto.request;
 
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
@@ -12,6 +13,7 @@ public class BookingRequest {
     private String resourceId;
 
     @NotNull
+    @FutureOrPresent(message = "Booking date cannot be in the past")
     private LocalDate bookingDate;
 
     @NotNull

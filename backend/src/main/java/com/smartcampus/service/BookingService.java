@@ -12,5 +12,5 @@ public interface BookingService {
     Booking approveBooking(String id, String adminId);
     Booking rejectBooking(String id, String reason, String adminId);
     Booking cancelBooking(String id, String userId);
-    void deleteBooking(String id, String userId);
+    void deleteBooking(String id, String userId, boolean isAdmin);
 }

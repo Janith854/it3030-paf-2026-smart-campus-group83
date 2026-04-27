@@ -28,6 +28,11 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public Booking createBooking(Booking booking, String userId) {
+        // Guard: end time must be after start time
+        if (!booking.getStartTime().isBefore(booking.getEndTime())) {
+            throw new RuntimeException("End time must be after start time");
+        }
+
         List<Booking> conflicts = bookingRepository.findConflictingBookings(
             booking.getResourceId(),
             booking.getBookingDate(),
@@ -73,7 +78,15 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<Booking> getAllBookings(String status) {
         if (status != null) {
-            return bookingRepository.findByStatus(Booking.BookingStatus.valueOf(status));
+            try {
+                return bookingRepository.findByStatus(
+                    Booking.BookingStatus.valueOf(status.toUpperCase())
+                );
+            } catch (IllegalArgumentException e) {
+                throw new RuntimeException(
+                    "Invalid status '" + status + "'. Valid values: PENDING, APPROVED, REJECTED, CANCELLED"
+                );
+            }
         }
         return bookingRepository.findAll();
     }
@@ -143,11 +156,11 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public void deleteBooking(String id, String userId) {
+    public void deleteBooking(String id, String userId, boolean isAdmin) {
         Booking booking = bookingRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Booking not found: " + id));
 
-        if (!booking.getUserId().equals(userId)) {
+        if (!isAdmin && !booking.getUserId().equals(userId)) {
             throw new AccessDeniedException("You can only delete your own bookings");
         }
 
