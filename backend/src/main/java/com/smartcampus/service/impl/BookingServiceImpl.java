@@ -138,11 +138,12 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Booking cancelBooking(String id, String userId) {
+    public Booking cancelBooking(String id, String userId, boolean isAdmin) {
         Booking booking = bookingRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Booking not found: " + id));
 
-        if (!booking.getUserId().equals(userId)) {
+        // Regular users can only cancel their own bookings
+        if (!isAdmin && !booking.getUserId().equals(userId)) {
             throw new AccessDeniedException("You can only cancel your own bookings");
         }
 
@@ -152,7 +153,20 @@ public class BookingServiceImpl implements BookingService {
         }
 
         booking.setStatus(Booking.BookingStatus.CANCELLED);
-        return bookingRepository.save(booking);
+        Booking saved = bookingRepository.save(booking);
+
+        // Notify the booking owner if an admin cancels on their behalf
+        if (isAdmin && !booking.getUserId().equals(userId)) {
+            notificationService.createNotification(
+                saved.getUserId(),
+                "Booking Cancelled by Admin",
+                "Your booking for " + saved.getBookingDate() + " has been cancelled by an administrator.",
+                Notification.NotificationType.BOOKING_REJECTED,
+                saved.getId()
+            );
+        }
+
+        return saved;
     }
 
     @Override

@@ -143,7 +143,11 @@ export default function BookingsPage() {
                             <button className="btn btn-danger btn-sm" onClick={() => handleReject(b.id)}>Reject</button>
                           </>
                         )}
-                        {b.status === 'PENDING' && (
+                        {/* Admin can cancel any PENDING or APPROVED booking; users can cancel their own PENDING */}
+                        {(isAdmin
+                          ? (b.status === 'PENDING' || b.status === 'APPROVED')
+                          : b.status === 'PENDING'
+                        ) && (
                           <button className="btn btn-outline btn-sm" onClick={() => handleCancel(b.id)}>Cancel</button>
                         )}
                         <button className="btn btn-ghost btn-sm text-danger" style={{ border: 'none', padding: '4px' }} onClick={() => handleDelete(b.id)}>Delete</button>

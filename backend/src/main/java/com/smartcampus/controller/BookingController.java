@@ -1,6 +1,7 @@
 package com.smartcampus.controller;
 
 import com.smartcampus.dto.request.BookingRequest;
+import com.smartcampus.exception.AccessDeniedException;
 import com.smartcampus.model.Booking;
 import com.smartcampus.model.User;
 import com.smartcampus.security.UserPrincipal;
@@ -52,8 +53,16 @@ public class BookingController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Booking> getById(@PathVariable String id) {
-        return ResponseEntity.ok(bookingService.getBookingById(id));
+    public ResponseEntity<Booking> getById(@PathVariable String id,
+                                           @AuthenticationPrincipal UserPrincipal user) {
+        Booking booking = bookingService.getBookingById(id);
+        // Admins can view any booking; users can only view their own
+        if (user.getRole() != User.Role.ADMIN && !booking.getUserId().equals(user.getId())) {
+            throw new AccessDeniedException(
+                "You do not have permission to view this booking"
+            );
+        }
+        return ResponseEntity.ok(booking);
     }
 
     @PatchMapping("/{id}/approve")
@@ -73,8 +82,9 @@ public class BookingController {
 
     @PatchMapping("/{id}/cancel")
     public ResponseEntity<Booking> cancel(@PathVariable String id,
-                                            @AuthenticationPrincipal UserPrincipal user) {
-        return ResponseEntity.ok(bookingService.cancelBooking(id, user.getId()));
+                                          @AuthenticationPrincipal UserPrincipal user) {
+        boolean isAdmin = user.getRole() == User.Role.ADMIN;
+        return ResponseEntity.ok(bookingService.cancelBooking(id, user.getId(), isAdmin));
     }
 
     @DeleteMapping("/{id}")

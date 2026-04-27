@@ -11,6 +11,6 @@ public interface BookingService {
     List<Booking> getAllBookings(String status);
     Booking approveBooking(String id, String adminId);
     Booking rejectBooking(String id, String reason, String adminId);
-    Booking cancelBooking(String id, String userId);
+    Booking cancelBooking(String id, String userId, boolean isAdmin);
     void deleteBooking(String id, String userId, boolean isAdmin);
 }
