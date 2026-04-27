@@ -1,6 +1,8 @@
 package com.smartcampus.service;
 
+import com.smartcampus.dto.response.BookingSlotDTO;
 import com.smartcampus.model.Booking;
+import java.time.LocalDate;
 import java.util.List;
 
 /** Member 2 implements this */
@@ -14,5 +16,5 @@ public interface BookingService {
     Booking rejectBooking(String id, String reason, String adminId);
     Booking cancelBooking(String id, String userId, boolean isAdmin);
     void deleteBooking(String id, String userId, boolean isAdmin);
-    java.util.List<com.smartcampus.dto.response.BookingSlotDTO> getAvailability(String resourceId, java.time.LocalDate date);
+    List<BookingSlotDTO> getAvailability(String resourceId, LocalDate date);
 }
