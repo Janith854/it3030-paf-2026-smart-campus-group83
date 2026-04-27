@@ -3,6 +3,7 @@ package com.smartcampus.controller;
 import com.smartcampus.dto.BookingDTO;
 import com.smartcampus.dto.request.BookingRequest;
 import com.smartcampus.dto.request.BookingUpdateRequest;
+import com.smartcampus.dto.response.BookingSlotDTO;
 import com.smartcampus.exception.AccessDeniedException;
 import com.smartcampus.model.Booking;
 import com.smartcampus.model.User;
@@ -10,11 +11,13 @@ import com.smartcampus.security.UserPrincipal;
 import com.smartcampus.service.BookingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,6 +31,17 @@ import java.util.stream.Collectors;
 public class BookingController {
 
     private final BookingService bookingService;
+
+    // ── Availability Timeline endpoint (Unique Feature) ────────────────────────
+    // GET /api/v1/bookings/availability?resourceId=X&date=2026-05-10
+    // Returns all PENDING/APPROVED slots for that resource on that date.
+    // Open to all authenticated users (they need this to book wisely).
+    @GetMapping("/availability")
+    public ResponseEntity<List<BookingSlotDTO>> getAvailability(
+            @RequestParam String resourceId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        return ResponseEntity.ok(bookingService.getAvailability(resourceId, date));
+    }
 
     // Feature #15: Return BookingDTO, not raw entity
     @PostMapping
