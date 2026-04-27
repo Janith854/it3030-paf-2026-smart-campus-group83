@@ -2,7 +2,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
   Zap, LayoutDashboard, CalendarDays, Building2,
-  Wrench, Bell, Users, LogOut,
+  Wrench, Bell, Users, LogOut, Settings
 } from 'lucide-react';
 import NotificationBell from '../components/NotificationBell';
 import './dashboard.css';
@@ -29,17 +29,20 @@ export default function DashboardLayout() {
   const isUser = !isAdmin && !isTechnician;
 
   // Determine actual base path based on role
-  let correctBasePath = '/lecturer';
-  if (isAdmin) correctBasePath = '/admin';
-  else if (isTechnician) correctBasePath = '/technician';
+  let correctBasePath = '/user-dashboard';
+  if (isAdmin) correctBasePath = '/admin-dashboard';
+  else if (isTechnician) correctBasePath = '/tech-dashboard';
 
-  // Authorization check: if on a path not matching their role, redirect
-  // (We use a simple check based on URL, or we can just rely on the correct base path)
-  if (window.location.pathname.startsWith('/admin') && !isAdmin) {
+  // Authorization guard: prevent accessing a dashboard belonging to another role
+  if (window.location.pathname.startsWith('/admin-dashboard') && !isAdmin) {
     navigate(correctBasePath, { replace: true });
     return null;
   }
-  if (window.location.pathname.startsWith('/technician') && !isTechnician) {
+  if (window.location.pathname.startsWith('/tech-dashboard') && !isTechnician) {
+    navigate(correctBasePath, { replace: true });
+    return null;
+  }
+  if (window.location.pathname.startsWith('/user-dashboard') && !isUser) {
     navigate(correctBasePath, { replace: true });
     return null;
   }
@@ -72,55 +75,91 @@ export default function DashboardLayout() {
     // Regular User / Lecturer
     navItems.push(
       { to: `${correctBasePath}/bookings`, icon: CalendarDays, label: 'Bookings' },
+      { to: `${correctBasePath}/resources`, icon: Building2, label: 'Resources' },
       { to: `${correctBasePath}/tickets`, icon: Wrench, label: 'Tickets' },
       { to: `${correctBasePath}/notifications`, icon: Bell, label: 'Notifications' }
     );
   }
 
   return (
-    <div className="dashboard">
+    <div className="app-layout">
       {/* Sidebar */}
       <aside className="sidebar">
-        <NavLink to="/" className="sidebar__logo">
-          <div className="sidebar__logo-icon"><Zap size={16} color="#fff" /></div>
-          <span>Smart<span className="sidebar__logo-accent">Campus</span></span>
+        <NavLink to="/" className="sidebar-logo">
+          <img src="/logo.svg" alt="SmartCampus" className="sidebar-logo-img" />
         </NavLink>
 
-        <nav className="sidebar__nav">
+        <div className="sidebar-section-label" style={{ marginTop: '16px' }}>Main Menu</div>
+        <nav>
           {navItems.map(item => (
             <NavLink
               key={item.to}
               to={item.to}
               end={item.end}
-              className={({ isActive }) => `sidebar__link ${isActive ? 'active' : ''}`}
+              className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
             >
-              <item.icon size={18} />
+              <item.icon size={16} />
               {item.label}
             </NavLink>
           ))}
         </nav>
 
-        <div className="sidebar__user">
-          <div className="sidebar__avatar">
-            {user.picture
-              ? <img src={user.picture} alt={user.name} />
-              : initials}
+        <div className="sidebar-section-label" style={{ marginTop: '24px' }}>Account</div>
+        <nav>
+          <NavLink 
+            to={`${correctBasePath}/preferences`} 
+            className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+          >
+            <Settings size={16} />
+            Preferences
+          </NavLink>
+        </nav>
+
+        <div className="sidebar-user">
+          <div className="user-avatar" style={{ width: '28px', height: '28px' }}>
+            {user.picture ? (
+              <img src={user.picture} alt={user.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+            ) : (
+              initials
+            )}
           </div>
-          <div className="sidebar__user-info">
-            <div className="sidebar__user-name">{user.name || user.email}</div>
-            <div className="sidebar__user-role">{user.role}</div>
+          <div>
+            <div className="sidebar-user-name" style={{ maxWidth: '120px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.name || user.email}</div>
+            <div className="sidebar-user-role">
+              {isAdmin ? 'Administrator' : isTechnician ? 'Technician' : 'User'}
+            </div>
           </div>
-          <button className="sidebar__logout" onClick={handleLogout} title="Logout">
-            <LogOut size={16} />
-          </button>
         </div>
       </aside>
 
-      {/* Main */}
-      <main className="dashboard__main">
-        <div style={{ display: 'flex', justifyContent: 'flex-end', paddingBottom: '1rem' }}>
+      {/* Top Navbar */}
+      <header className="dashboard-navbar">
+        <div style={{ flex: 1 }}></div>
+        <div className="dashboard-navbar-right">
           <NotificationBell />
+          <div className="dashboard-navbar-user">
+            <div className="user-avatar">
+              {user.picture ? (
+                <img src={user.picture} alt={user.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+              ) : (
+                initials
+              )}
+            </div>
+            <div>
+              <div className="user-name">{user.name || user.email}</div>
+              <div className="user-role-badge">
+                {isAdmin ? 'Admin' : isTechnician ? 'Tech' : 'User'}
+              </div>
+            </div>
+            <button className="sidebar-sign-out" style={{ marginLeft: '12px' }} onClick={handleLogout} title="Logout">
+              <LogOut size={16} />
+            </button>
+          </div>
         </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="main-content">
         <Outlet />
       </main>
     </div>

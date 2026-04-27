@@ -172,42 +172,45 @@ export default function ResourcesPage() {
         </div>
       )}
 
-      <div className="dashboard__header">
-        <h1 className="dashboard__title">Resources</h1>
-        <p className="dashboard__subtitle">Campus rooms, labs, and equipment</p>
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">Resources</h1>
+          <p className="page-subtitle">Campus rooms, labs, and equipment</p>
+        </div>
       </div>
 
-      {error && <div className="login-card__error" style={{ marginBottom: '1rem' }}>{error}</div>}
+      {error && <div className="alert-conflict" style={{ marginBottom: '1rem' }}>{error}</div>}
 
-      <div className="action-bar" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'stretch' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
-          <div className="filter-group" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+      <div className="filter-bar flex-between" style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'stretch', marginBottom: '20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+          <div className="status-tabs" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', border: 'none', margin: 0 }}>
             {['', ...TYPES].map(t => (
               <button
                 key={t}
-                className={`btn-dashboard btn-dashboard--sm ${filterType === t ? 'btn-dashboard--primary' : 'btn-dashboard--secondary'}`}
+                className={`status-tab ${filterType === t ? 'active' : ''}`}
                 onClick={() => setFilterType(t)}
+                style={{ borderBottom: filterType === t ? '2px solid var(--primary)' : 'none' }}
               >
                 {t ? t.replace(/_/g, ' ') : 'All Types'}
               </button>
             ))}
           </div>
           {isAdmin && (
-            <button className="btn-dashboard btn-dashboard--primary" onClick={openCreate} id="new-resource-btn" style={{ whiteSpace: 'nowrap', height: 'fit-content' }}>
+            <button className="btn btn-primary" onClick={openCreate} id="new-resource-btn" style={{ whiteSpace: 'nowrap', height: 'fit-content' }}>
               <Plus size={16} /> Add Resource
             </button>
           )}
         </div>
         
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+        <div className="flex-gap" style={{ flexWrap: 'wrap' }}>
           <div className="search-input-wrapper" style={{ flex: '1', minWidth: '200px' }}>
             <div style={{ position: 'relative' }}>
-              <MapPin size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
+              <MapPin size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-hint)' }} />
               <input 
                 type="text" 
                 placeholder="Search by location..." 
                 className="form-input" 
-                style={{ paddingLeft: '32px' }}
+                style={{ paddingLeft: '36px' }}
                 value={filterLocation}
                 onChange={e => setFilterLocation(e.target.value)}
               />
@@ -215,12 +218,12 @@ export default function ResourcesPage() {
           </div>
           <div className="search-input-wrapper" style={{ width: '200px' }}>
             <div style={{ position: 'relative' }}>
-              <Users size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
+              <Users size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-hint)' }} />
               <input 
                 type="number" 
                 placeholder="Min capacity..." 
                 className="form-input" 
-                style={{ paddingLeft: '32px' }}
+                style={{ paddingLeft: '36px' }}
                 value={filterCapacity}
                 onChange={e => setFilterCapacity(e.target.value)}
                 min="1"
@@ -235,42 +238,42 @@ export default function ResourcesPage() {
       ) : resources.length === 0 ? (
         <div className="card">
           <div className="empty-state">
-            <div className="empty-state__icon"><Building2 size={48} /></div>
-            <div className="empty-state__title">No resources found</div>
+            <div style={{ marginBottom: '16px', color: 'var(--text-hint)' }}><Building2 size={48} /></div>
+            <div className="empty-state-title">No resources found</div>
           </div>
         </div>
       ) : (
-        <div className="resource-grid">
+        <div className="card-grid">
           {resources.map(r => (
-            <div className="resource-card" key={r.id}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
-                <div className="resource-card__name">{r.name}</div>
-                <span className={`badge badge--${r.status?.toLowerCase()}`}>{r.status?.replace(/_/g, ' ')}</span>
+            <div className="card" key={r.id}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text)' }}>{r.name}</div>
+                <span className={`badge badge-${r.status?.toLowerCase() || 'active'}`}>{r.status?.replace(/_/g, ' ')}</span>
               </div>
-              <div className="resource-card__detail"><Tag size={14} /> {r.type?.replace(/_/g, ' ')}</div>
-              <div className="resource-card__detail"><MapPin size={14} /> {r.location}</div>
-              {r.capacity && <div className="resource-card__detail"><Users size={14} /> Capacity: {r.capacity}</div>}
-              {r.availabilityWindow && <div className="resource-card__detail"><Clock size={14} /> {r.availabilityWindow}</div>}
-              {r.description && <div className="resource-card__detail" style={{ color: '#64748b', marginTop: '0.5rem' }}>{r.description}</div>}
-              <div className="resource-card__actions">
+              <div style={{ fontSize: '13px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}><Tag size={14} /> {r.type?.replace(/_/g, ' ')}</div>
+              <div style={{ fontSize: '13px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}><MapPin size={14} /> {r.location}</div>
+              {r.capacity && <div style={{ fontSize: '13px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}><Users size={14} /> Capacity: {r.capacity}</div>}
+              {r.availabilityWindow && <div style={{ fontSize: '13px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}><Clock size={14} /> {r.availabilityWindow}</div>}
+              {r.description && <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '8px' }}>{r.description}</div>}
+              <div className="flex-gap" style={{ marginTop: '16px', flexWrap: 'wrap' }}>
                 <button
-                  className="btn-dashboard btn-dashboard--primary btn-dashboard--sm"
+                  className="btn btn-primary btn-sm"
                   onClick={() => navigate(`${basePath}/resources/${r.id}`)}
                 >
                   <Eye size={14} /> Details
                 </button>
                 {isAdmin && (
                   <>
-                    <button className="btn-dashboard btn-dashboard--secondary btn-dashboard--sm" onClick={() => openEdit(r)}>Edit</button>
+                    <button className="btn btn-outline btn-sm" onClick={() => openEdit(r)}>Edit</button>
                     <select
                       className="form-select"
-                      style={{ padding: '0.35rem', fontSize: '0.75rem', width: 'auto' }}
+                      style={{ padding: '4px 8px', fontSize: '12px', width: 'auto', minHeight: '30px' }}
                       value={r.status}
                       onChange={e => handleStatusChange(r.id, e.target.value)}
                     >
                       {STATUSES.map(s => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
                     </select>
-                    <button className="btn-dashboard btn-dashboard--danger btn-dashboard--sm" onClick={() => handleDelete(r.id)}>Delete</button>
+                    <button className="btn btn-ghost btn-sm text-danger" style={{ border: 'none' }} onClick={() => handleDelete(r.id)}><X size={14} /> Delete</button>
                   </>
                 )}
               </div>
@@ -283,14 +286,14 @@ export default function ResourcesPage() {
       {showForm && (
         <div className="modal-overlay" onClick={() => setShowForm(false)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
               <h2 className="modal__title">{editing ? 'Edit Resource' : 'Add Resource'}</h2>
-              <button className="sidebar__logout" onClick={() => setShowForm(false)}><X size={18} /></button>
+              <button className="btn btn-ghost btn-sm" style={{ padding: '4px', border: 'none' }} onClick={() => setShowForm(false)}><X size={18} /></button>
             </div>
             <form onSubmit={handleSubmit} noValidate>
               {/* Name */}
               <div className="form-group">
-                <label>Name <span style={{ color: '#ef4444' }}>*</span></label>
+                <label className="form-label">Name <span style={{ color: '#dc2626' }}>*</span></label>
                 <input
                   type="text"
                   className={`form-input${formErrors.name ? ' form-input--error' : ''}`}
@@ -298,12 +301,12 @@ export default function ResourcesPage() {
                   value={formData.name}
                   onChange={e => { setFormData({ ...formData, name: e.target.value }); clearError('name'); }}
                 />
-                {formErrors.name && <span className="form-error-msg">{formErrors.name}</span>}
+                {formErrors.name && <span className="form-field-error">{formErrors.name}</span>}
               </div>
 
               {/* Type */}
               <div className="form-group">
-                <label>Type <span style={{ color: '#ef4444' }}>*</span></label>
+                <label className="form-label">Type <span style={{ color: '#dc2626' }}>*</span></label>
                 <select
                   className={`form-select${formErrors.type ? ' form-input--error' : ''}`}
                   value={formData.type}
@@ -311,12 +314,12 @@ export default function ResourcesPage() {
                 >
                   {TYPES.map(t => <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>)}
                 </select>
-                {formErrors.type && <span className="form-error-msg">{formErrors.type}</span>}
+                {formErrors.type && <span className="form-field-error">{formErrors.type}</span>}
               </div>
 
               {/* Location */}
               <div className="form-group">
-                <label>Location <span style={{ color: '#ef4444' }}>*</span></label>
+                <label className="form-label">Location <span style={{ color: '#dc2626' }}>*</span></label>
                 <input
                   type="text"
                   className={`form-input${formErrors.location ? ' form-input--error' : ''}`}
@@ -324,12 +327,12 @@ export default function ResourcesPage() {
                   value={formData.location}
                   onChange={e => { setFormData({ ...formData, location: e.target.value }); clearError('location'); }}
                 />
-                {formErrors.location && <span className="form-error-msg">{formErrors.location}</span>}
+                {formErrors.location && <span className="form-field-error">{formErrors.location}</span>}
               </div>
 
               {/* Capacity */}
               <div className="form-group">
-                <label>Capacity <span style={{ color: '#64748b', fontWeight: 400 }}>(optional)</span></label>
+                <label className="form-label">Capacity <span className="text-muted" style={{ fontWeight: 'normal', marginLeft: '4px' }}>(optional)</span></label>
                 <input
                   type="number"
                   min="1"
@@ -338,12 +341,12 @@ export default function ResourcesPage() {
                   value={formData.capacity}
                   onChange={e => { setFormData({ ...formData, capacity: e.target.value }); clearError('capacity'); }}
                 />
-                {formErrors.capacity && <span className="form-error-msg">{formErrors.capacity}</span>}
+                {formErrors.capacity && <span className="form-field-error">{formErrors.capacity}</span>}
               </div>
 
               {/* Availability Window */}
               <div className="form-group">
-                <label>Availability Window <span style={{ color: '#ef4444' }}>*</span></label>
+                <label className="form-label">Availability Window <span style={{ color: '#dc2626' }}>*</span></label>
                 <input
                   id="availability-window-input"
                   type="text"
@@ -352,16 +355,15 @@ export default function ResourcesPage() {
                   value={formData.availabilityWindow}
                   onChange={e => { setFormData({ ...formData, availabilityWindow: e.target.value }); clearError('availabilityWindow'); }}
                 />
-                {formErrors.availabilityWindow && <span className="form-error-msg">{formErrors.availabilityWindow}</span>}
+                {formErrors.availabilityWindow && <span className="form-field-error">{formErrors.availabilityWindow}</span>}
               </div>
 
               {/* Description */}
               <div className="form-group">
-                <label>
-                  Description{' '}
-                  <span style={{ color: '#64748b', fontWeight: 400 }}>(optional)</span>
+                <label className="form-label flex-between">
+                  <span>Description <span className="text-muted" style={{ fontWeight: 'normal', marginLeft: '4px' }}>(optional)</span></span>
                   {formData.description.length > 0 && (
-                    <span style={{ float: 'right', color: formData.description.length > 500 ? '#ef4444' : '#64748b' }}>
+                    <span style={{ color: formData.description.length > 500 ? '#dc2626' : 'var(--text-hint)', fontSize: '11px', fontWeight: 'normal' }}>
                       {formData.description.length}/500
                     </span>
                   )}
@@ -372,12 +374,12 @@ export default function ResourcesPage() {
                   value={formData.description}
                   onChange={e => { setFormData({ ...formData, description: e.target.value }); clearError('description'); }}
                 />
-                {formErrors.description && <span className="form-error-msg">{formErrors.description}</span>}
+                {formErrors.description && <span className="form-field-error">{formErrors.description}</span>}
               </div>
 
               <div className="form-actions">
-                <button type="button" className="btn-dashboard btn-dashboard--secondary" onClick={() => setShowForm(false)}>Cancel</button>
-                <button type="submit" className="btn-dashboard btn-dashboard--primary">{editing ? 'Update' : 'Create'}</button>
+                <button type="button" className="btn btn-ghost" onClick={() => setShowForm(false)}>Cancel</button>
+                <button type="submit" className="btn btn-primary">{editing ? 'Update' : 'Create'}</button>
               </div>
             </form>
           </div>

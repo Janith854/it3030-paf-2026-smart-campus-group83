@@ -1,0 +1,155 @@
+.preferences-container {
+    padding: 32px;
+    max-width: 800px;
+}
+
+.preferences-header {
+    margin-bottom: 40px;
+}
+
+.preferences-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 12px;
+}
+
+.preferences-subtitle {
+    color: var(--text-muted);
+    font-size: 1rem;
+}
+
+.preferences-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    padding: 0;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.preference-item {
+    padding: 24px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    transition: background-color 0.2s;
+}
+
+.preference-item:last-child {
+    border-bottom: none;
+}
+
+.preference-item:hover {
+    background-color: var(--bg);
+}
+
+.preference-info {
+    flex: 1;
+    padding-right: 40px;
+}
+
+.preference-label {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+    display: block;
+}
+
+.preference-description {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+/* Custom Toggle Switch */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 32px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--border);
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 24px;
+    width: 24px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+input:checked + .slider {
+    background-color: var(--primary);
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px var(--primary);
+}
+
+input:checked + .slider:before {
+    transform: translateX(28px);
+}
+
+.toggle-status {
+    margin-left: 12px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    min-width: 30px;
+}
+
+input:checked ~ .toggle-status {
+    color: var(--primary);
+}
+
+.preferences-save-banner {
+    margin-top: 24px;
+    padding: 16px 24px;
+    background: var(--primary-wash);
+    border: 1px solid var(--border-teal);
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.save-banner-text {
+    font-size: 0.9rem;
+    color: var(--badge-approved-text);
+    font-weight: 500;
+}
+
+@media (max-width: 640px) {
+    .preference-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+    .preference-info {
+        padding-right: 0;
+    }
+}

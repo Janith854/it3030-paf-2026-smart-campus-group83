@@ -7,7 +7,6 @@ import com.smartcampus.repository.UserRepository;
 import com.smartcampus.security.JwtUtil;
 import com.smartcampus.service.AuthService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Module E — Authentication
+ * Module E — Authentication & RBAC
  * Member 4: feature/auth
  */
 @Service
@@ -28,6 +27,8 @@ public class AuthServiceImpl implements AuthService {
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
 
+    // ── Google OAuth ────────────────────────────────────────────────────────── //
+
     @Override
     public String loginWithGoogle(String googleToken) {
         if (googleToken == null || googleToken.isBlank()) {
@@ -35,8 +36,8 @@ public class AuthServiceImpl implements AuthService {
         }
 
         Map<String, Object> payload = fetchGoogleTokenInfo(googleToken);
-        String email = (String) payload.get("email");
-        String name = (String) payload.get("name");
+        String email   = (String) payload.get("email");
+        String name    = (String) payload.get("name");
         String picture = (String) payload.get("picture");
         String googleId = (String) payload.get("sub");
 
@@ -63,34 +64,62 @@ public class AuthServiceImpl implements AuthService {
         return jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole().name());
     }
 
+    // ── Local Registration ──────────────────────────────────────────────────── //
+
     @Override
-    public String registerLocal(String email, String password, String name, User.Role role) {
+    public AuthResponse registerLocal(String email, String password, String name, User.Role role) {
         if (userRepository.findByEmail(email).isPresent()) {
             throw new RuntimeException("Email is already registered");
         }
 
+        // SECURITY: Prevent self-registration as ADMIN — silently downgrade to USER
+        User.Role safeRole = (role == null || role == User.Role.ADMIN) ? User.Role.USER : role;
+
         User user = new User();
         user.setEmail(email);
-        user.setPassword(passwordEncoder.encode(password));
+        user.setPassword(passwordEncoder.encode(password));  // BCrypt hash
         user.setName(name);
-        user.setRole(role != null ? role : User.Role.USER);
+        user.setRole(safeRole);
 
         User saved = userRepository.save(user);
-        return jwtUtil.generateToken(saved.getId(), saved.getEmail(), saved.getRole().name());
+        String token = jwtUtil.generateToken(saved.getId(), saved.getEmail(), saved.getRole().name());
+
+        return AuthResponse.builder()
+                .token(token)
+                .user(AuthResponse.UserResponse.builder()
+                        .id(saved.getId())
+                        .name(saved.getName())
+                        .email(saved.getEmail())
+                        .role(saved.getRole().name())
+                        .build())
+                .build();
     }
 
+    // ── Local Login ─────────────────────────────────────────────────────────── //
+
     @Override
-    public String loginLocal(String email, String password) {
+    public AuthResponse loginLocal(String email, String password) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Invalid email or password"));
 
-        // If user logged in through Google previously, they might not have a password
         if (user.getPassword() == null || !passwordEncoder.matches(password, user.getPassword())) {
             throw new RuntimeException("Invalid email or password");
         }
 
-        return jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole().name());
+        String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole().name());
+
+        return AuthResponse.builder()
+                .token(token)
+                .user(AuthResponse.UserResponse.builder()
+                        .id(user.getId())
+                        .name(user.getName())
+                        .email(user.getEmail())
+                        .role(user.getRole().name())
+                        .build())
+                .build();
     }
+
+    // ── User Management ─────────────────────────────────────────────────────── //
 
     @Override
     public User getCurrentUser(String userId) {
@@ -117,6 +146,8 @@ public class AuthServiceImpl implements AuthService {
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
+
+    // ── Google Token Verification ───────────────────────────────────────────── //
 
     private Map<String, Object> fetchGoogleTokenInfo(String googleToken) {
         String url = "https://oauth2.googleapis.com/tokeninfo?id_token={token}";

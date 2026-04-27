@@ -4,7 +4,8 @@ import { bookingsApi, ticketsApi, notificationsApi } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { CalendarDays, Wrench, Bell, Plus, Activity } from 'lucide-react';
 
-export default function UserDashboard({ user }) {
+export default function UserDashboard() {
+  const { user } = useAuth();
   const [stats, setStats] = useState({ bookings: 0, tickets: 0, unread: 0 });
   const [recentBookings, setRecentBookings] = useState([]);
   const [recentTickets, setRecentTickets] = useState([]);
@@ -50,94 +51,100 @@ export default function UserDashboard({ user }) {
 
   return (
     <>
-      <div className="dashboard__header">
-        <h1 className="dashboard__title">Welcome back, {user?.name || 'User'} 👋</h1>
-        <p className="dashboard__subtitle">Here is your campus overview for today.</p>
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">Welcome back, {user?.name || 'Lecturer / Student'}</h1>
+          <p className="page-subtitle">Here is your campus overview for today.</p>
+        </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+      <div className="card-grid mb-3">
         {cards.map((c, i) => (
-          <div className="card" key={i} style={{ borderTop: `3px solid ${c.color}` }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="stat-card" key={i} style={{ borderTop: `3px solid ${c.color}` }}>
+            <div className="flex-between">
               <div>
-                <div style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '0.25rem' }}>{c.label}</div>
-                <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#f1f5f9' }}>
+                <div className="stat-label">{c.label}</div>
+                <div className="stat-value">
                   {loading ? '—' : c.value}
                 </div>
               </div>
-              <div style={{ padding: '0.6rem', borderRadius: '10px', background: `${c.color}15` }}>
-                <c.icon size={22} color={c.color} />
+              <div style={{ padding: '8px', borderRadius: '8px', background: `${c.color}15` }}>
+                <c.icon size={20} color={c.color} />
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
+      <div className="grid-2">
         <div className="card">
-          <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Activity size={18} color="#3b82f6" />
-            Quick Actions
-          </h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <div className="card-header">
+            <h2 className="card-title flex-gap">
+              <Activity size={16} className="text-primary" />
+              Quick Actions
+            </h2>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <button
-              className="btn-dashboard btn-dashboard--primary"
-              style={{ justifyContent: 'center', width: '100%', padding: '0.8rem' }}
-              onClick={() => navigate('/lecturer/bookings', { state: { openForm: true } })}
+              className="btn btn-primary btn-full"
+              onClick={() => navigate('/user-dashboard/bookings', { state: { openForm: true } })}
             >
-              <Plus size={18} /> New Booking
+              <Plus size={16} /> New Booking
             </button>
             <button
-              className="btn-dashboard btn-dashboard--secondary"
-              style={{ justifyContent: 'center', width: '100%', padding: '0.8rem' }}
-              onClick={() => navigate('/lecturer/tickets', { state: { openForm: true } })}
+              className="btn btn-outline btn-full"
+              onClick={() => navigate('/user-dashboard/tickets', { state: { openForm: true } })}
             >
-              <Wrench size={18} /> Report an Incident
+              <Wrench size={16} /> Report an Incident
             </button>
           </div>
         </div>
 
         <div className="card">
-          <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <CalendarDays size={18} color="#10b981" />
-            Recent Activity
-          </h2>
+          <div className="card-header">
+            <h2 className="card-title flex-gap">
+              <CalendarDays size={16} className="text-success" />
+              Recent Activity
+            </h2>
+          </div>
           {loading ? (
-            <div style={{ color: '#64748b', fontSize: '0.9rem' }}>Loading recent activity...</div>
+            <div className="text-muted text-sm">Loading recent activity...</div>
           ) : recentBookings.length === 0 && recentTickets.length === 0 ? (
-            <div style={{ color: '#64748b', fontSize: '0.9rem' }}>No recent activity to show.</div>
+            <div className="empty-state">
+              <p className="empty-state-title">No recent activity to show.</p>
+            </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxHeight: '400px', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '400px', overflowY: 'auto' }}>
               {recentNotifications.map(n => (
-                <div key={`n-${n.id}`} style={{ padding: '0.75rem', background: n.isRead ? 'rgba(255,255,255,0.01)' : 'rgba(99, 102, 241, 0.08)', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderLeft: n.isRead ? 'none' : '3px solid #6366f1' }}>
-                  <div style={{ display: 'flex', gap: '0.75rem' }}>
-                    <div style={{ marginTop: '0.2rem' }}>
-                      <Bell size={14} color={n.isRead ? '#64748b' : '#6366f1'} />
+                <div key={`n-${n.id}`} className={n.isRead ? 'notification-item read' : 'notification-item unread'} style={{ padding: '12px', margin: 0 }}>
+                  <div className="flex-gap" style={{ alignItems: 'flex-start' }}>
+                    <div style={{ marginTop: '2px' }}>
+                      <Bell size={14} className={n.isRead ? 'text-muted' : 'text-primary'} />
                     </div>
                     <div>
-                      <div style={{ fontSize: '0.85rem', fontWeight: n.isRead ? 500 : 700, color: n.isRead ? '#cbd5e1' : '#f8fafc' }}>{n.title}</div>
-                      <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.1rem' }}>{n.message}</div>
-                      <div style={{ fontSize: '0.65rem', color: '#64748b', marginTop: '0.3rem' }}>{n.createdAt && new Date(n.createdAt).toLocaleString()}</div>
+                      <div className={n.isRead ? 'font-medium text-sm' : 'font-bold text-sm'}>{n.title}</div>
+                      <div className="text-sm text-muted mt-1">{n.message}</div>
+                      <div style={{ fontSize: '10px', color: 'var(--text-hint)', marginTop: '4px' }}>{n.createdAt && new Date(n.createdAt).toLocaleString()}</div>
                     </div>
                   </div>
                 </div>
               ))}
               {recentBookings.map(b => (
-                <div key={`b-${b.id}`} style={{ padding: '0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div key={`b-${b.id}`} style={{ padding: '12px', background: 'var(--primary-wash)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)' }} className="flex-between">
                   <div>
-                    <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>Booking - {b.purpose}</div>
-                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{b.bookingDate} {b.startTime}</div>
+                    <div className="font-medium text-sm">Booking - {b.purpose}</div>
+                    <div className="text-sm text-muted">{b.bookingDate} {b.startTime}</div>
                   </div>
-                  <span className={`badge badge--${b.status?.toLowerCase()}`}>{b.status}</span>
+                  <span className={`badge badge-${b.status?.toLowerCase() || 'pending'}`}>{b.status}</span>
                 </div>
               ))}
               {recentTickets.map(t => (
-                <div key={`t-${t.id}`} style={{ padding: '0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div key={`t-${t.id}`} className={`ticket-card priority-${t.priority?.toLowerCase() || 'medium'} flex-between`} style={{ padding: '12px', background: 'var(--primary-wash)', border: '1px solid var(--border)' }}>
                   <div>
-                    <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>Ticket - {t.category}</div>
-                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Priority: {t.priority}</div>
+                    <div className="font-medium text-sm">Ticket - {t.category}</div>
+                    <div className="text-sm text-muted">Priority: {t.priority}</div>
                   </div>
-                  <span className={`badge badge--${t.status?.toLowerCase()}`}>{t.status?.replace(/_/g, ' ')}</span>
+                  <span className={`badge badge-${t.status?.toLowerCase() || 'open'}`}>{t.status?.replace(/_/g, ' ')}</span>
                 </div>
               ))}
             </div>
