@@ -3,7 +3,9 @@ package com.smartcampus.service;
 import com.smartcampus.dto.response.PeakHourDTO;
 import com.smartcampus.dto.response.TopResourceDTO;
 import com.smartcampus.model.Booking;
+import com.smartcampus.model.Resource;
 import com.smartcampus.repository.BookingRepository;
+import com.smartcampus.repository.ResourceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,7 @@ import java.util.stream.Collectors;
 public class AnalyticsService {
 
     private final BookingRepository bookingRepository;
+    private final ResourceRepository resourceRepository;
 
     public List<TopResourceDTO> getTopResources() {
         List<Booking> approvedBookings = bookingRepository.findAll().stream()
@@ -25,7 +28,13 @@ public class AnalyticsService {
                 .collect(Collectors.groupingBy(Booking::getResourceId, Collectors.counting()));
 
         return counts.entrySet().stream()
-                .map(e -> new TopResourceDTO(e.getKey(), e.getValue()))
+                .map(e -> {
+                    String resourceId = e.getKey();
+                    String resourceName = resourceRepository.findById(resourceId)
+                            .map(Resource::getName)
+                            .orElse("Unknown Resource");
+                    return new TopResourceDTO(resourceId, resourceName, e.getValue());
+                })
                 .sorted((a, b) -> Long.compare(b.getTotalBookings(), a.getTotalBookings()))
                 .limit(5)
                 .collect(Collectors.toList());

@@ -9,5 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class TopResourceDTO {
     private String resourceId;
+    private String resourceName;
     private long totalBookings;
 }

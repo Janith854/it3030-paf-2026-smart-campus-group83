@@ -56,7 +56,7 @@ const AnalyticsDashboard = () => {
               {topResources.map((res, i) => (
                 <div key={i}>
                   <div className="flex-between mb-1">
-                    <span className="font-medium text-sm">Resource ID: {res.resourceId}</span>
+                    <span className="font-medium text-sm">Resource: {res.resourceName || res.resourceId}</span>
                     <span className="badge badge-active">{res.totalBookings} Bookings</span>
                   </div>
                   <div style={{ background: 'var(--primary-wash)', height: '10px', borderRadius: '5px', overflow: 'hidden' }}>
