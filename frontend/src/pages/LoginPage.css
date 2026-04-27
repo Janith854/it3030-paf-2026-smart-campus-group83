@@ -32,11 +32,6 @@
   position: relative;
   z-index: 3;
   max-width: 500px;
-  background: rgba(255, 255, 255, 0.6); /* Add a subtle backdrop so text is always readable */
-  backdrop-filter: blur(4px);
-  padding: 2rem;
-  border-radius: 1rem;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
 
 .auth-left__title {
