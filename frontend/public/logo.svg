@@ -2,6 +2,6 @@
   <rect width="240" height="60" rx="8" fill="transparent"/>
   <path d="M20 30L30 15L40 30L30 45L20 30Z" fill="#2A9D8F"/>
   <path d="M30 20L35 30L30 40L25 30L30 20Z" fill="white"/>
-  <text x="55" y="38" font-family="Inter, sans-serif" font-weight="800" font-size="22" fill="#2A9D8F">Smart<tspan fill="#334155">Campus</tspan></text>
-  <text x="55" y="52" font-family="Inter, sans-serif" font-weight="500" font-size="10" fill="#64748b" letter-spacing="0.1em">OPERATIONS HUB</text>
+  <text x="55" y="38" font-family="Inter, sans-serif" font-weight="800" font-size="22" fill="#2A9D8F">Smart<tspan fill="#f8fafc">Campus</tspan></text>
+  <text x="55" y="52" font-family="Inter, sans-serif" font-weight="500" font-size="10" fill="#94a3b8" letter-spacing="0.1em">OPERATIONS HUB</text>
 </svg>

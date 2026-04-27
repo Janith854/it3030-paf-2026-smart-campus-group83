@@ -3,6 +3,8 @@ import { useNavigate, useOutletContext } from 'react-router-dom';
 import { bookingsApi, ticketsApi, resourcesApi, usersApi, notificationsApi } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { Users, Clock, Wrench, Building2, Activity, ArrowRight } from 'lucide-react';
+import AnalyticsDashboard from '../AnalyticsDashboard';
+
 
 export default function AdminDashboard() {
   const { user } = useAuth();
@@ -82,6 +84,10 @@ export default function AdminDashboard() {
             </div>
           </div>
         ))}
+      </div>
+
+      <div style={{ marginBottom: '24px' }}>
+        <AnalyticsDashboard />
       </div>
 
       <div className="grid-3">

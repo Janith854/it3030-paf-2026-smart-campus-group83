@@ -18,6 +18,7 @@ import TicketsPage from './pages/TicketsPage';
 import NotificationsPage from './pages/NotificationsPage';
 import NotificationPreferencesPage from './pages/NotificationPreferencesPage';
 import AdminPage from './pages/AdminPage';
+import ResourceBookingsPage from './pages/ResourceBookingsPage';
 const DashboardRedirect = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
@@ -77,6 +78,7 @@ function App() {
               <Route path="notifications" element={<NotificationsPage />} />
               <Route path="users" element={<AdminPage />} />
               <Route path="preferences" element={<NotificationPreferencesPage />} />
+              <Route path="resource-bookings" element={<ResourceBookingsPage />} />
             </Route>
             {/* Legacy alias */}
             <Route path="/admin/*" element={<Navigate to="/admin-dashboard" replace />} />

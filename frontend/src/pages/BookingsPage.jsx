@@ -104,13 +104,15 @@ export default function BookingsPage() {
             </button>
           ))}
         </div>
-        <button
-          className="btn btn-primary"
-          onClick={() => setShowForm(true)}
-          id="new-booking-btn"
-        >
-          <Plus size={16} /> New Booking
-        </button>
+        {!isAdmin && (
+          <button
+            className="btn btn-primary"
+            onClick={() => setShowForm(true)}
+            id="new-booking-btn"
+          >
+            <Plus size={16} /> New Booking
+          </button>
+        )}
       </div>
 
       {/* Bookings Table */}
@@ -121,7 +123,11 @@ export default function BookingsPage() {
           <div className="empty-state">
             <div style={{ marginBottom: '16px', color: 'var(--text-hint)' }}><CalendarDays size={48} /></div>
             <div className="empty-state-title">No bookings yet</div>
-            <p className="empty-state-desc">Click "New Booking" to reserve a room or resource.</p>
+            <p className="empty-state-desc">
+              {isAdmin 
+                ? 'There are no bookings matching your current filter.' 
+                : 'Click "New Booking" to reserve a room or resource.'}
+            </p>
           </div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
@@ -155,7 +161,7 @@ export default function BookingsPage() {
                         {b.status === 'PENDING' && (
                           <button className="btn btn-outline btn-sm" onClick={() => handleCancel(b.id)}>Cancel</button>
                         )}
-                        <button className="btn btn-ghost btn-sm text-danger" style={{ border: 'none', padding: '4px' }} onClick={() => handleDelete(b.id)}>Delete</button>
+                        <button className="btn btn-outline-danger btn-sm" onClick={() => handleDelete(b.id)}><X size={14} /> Delete</button>
                       </div>
                     </td>
                   </tr>

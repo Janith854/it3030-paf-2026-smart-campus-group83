@@ -36,13 +36,16 @@ export default function LoginPage() {
     }
   }, [isRegistering]);
 
-  // If already logged in, redirect to the correct role-based dashboard
-  if (user) {
-    if (user.role === 'ADMIN') navigate('/admin-dashboard', { replace: true });
-    else if (user.role === 'TECHNICIAN') navigate('/tech-dashboard', { replace: true });
-    else navigate('/user-dashboard', { replace: true });
-    return null;
-  }
+  useEffect(() => {
+    if (user) {
+      const target = user.role === 'ADMIN' ? '/admin-dashboard' 
+                  : user.role === 'TECHNICIAN' ? '/tech-dashboard' 
+                  : '/user-dashboard';
+      navigate(target, { replace: true });
+    }
+  }, [user, navigate]);
+
+  if (user) return null;
 
   const handleGoogleCallback = async (response) => {
     setError('');

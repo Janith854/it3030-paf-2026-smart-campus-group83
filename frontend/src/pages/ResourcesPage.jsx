@@ -7,6 +7,13 @@ import { Plus, X, Building2, MapPin, Users, Tag, Clock, Eye } from 'lucide-react
 const TYPES = ['LECTURE_HALL', 'LAB', 'MEETING_ROOM', 'EQUIPMENT'];
 const STATUSES = ['ACTIVE', 'OUT_OF_SERVICE', 'MAINTENANCE'];
 
+const TYPE_COLORS = {
+  LECTURE_HALL: 'var(--primary)', // Teal
+  LAB: '#8b5cf6',                 // Violet
+  MEETING_ROOM: '#f59e0b',        // Amber
+  EQUIPMENT: '#ec4899'            // Pink
+};
+
 export default function ResourcesPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -63,7 +70,14 @@ export default function ResourcesPage() {
   const openEdit = (r) => {
     setEditing(r);
     setFormErrors({});
-    setFormData({ name: r.name, type: r.type, capacity: r.capacity || '', location: r.location, description: r.description || '', availabilityWindow: r.availabilityWindow || '' });
+    setFormData({ 
+      name: r.name, 
+      type: r.type, 
+      capacity: r.capacity || '', 
+      location: r.location, 
+      description: r.description || '', 
+      availabilityWindow: r.availabilityWindow || (Array.isArray(r.availabilityWindows) ? r.availabilityWindows[0] : (r.availabilityWindows || '')) 
+    });
     setShowForm(true);
   };
 
@@ -127,12 +141,18 @@ export default function ResourcesPage() {
       const payload = { ...formData, capacity: formData.capacity ? parseInt(formData.capacity) : null };
       if (editing) {
         await resourcesApi.update(editing.id, payload);
+        setSuccessMsg('Resource updated successfully');
       } else {
         await resourcesApi.create(payload);
-        setSuccessMsg('Resource added successfully');
+        setSuccessMsg('Resource created successfully');
       }
       setShowForm(false);
       load();
+      
+      // Auto-hide toast after 3 seconds
+      setTimeout(() => {
+        setSuccessMsg('');
+      }, 3000);
     } catch (e) { setError(e.message); }
   };
 
@@ -149,25 +169,22 @@ export default function ResourcesPage() {
 
   return (
     <>
-      {/* Success Dialog (browser-style) */}
+      {/* Modern Toast Notification */}
       {successMsg && (
-        <div className="browser-dialog-overlay">
-          <div className="browser-dialog" role="alertdialog" aria-modal="true">
-            <div className="browser-dialog__header">
-              <span className="browser-dialog__site">{window.location.host} says</span>
+        <div className="toast-container">
+          <div className="toast-notification">
+            <div className="toast-icon-wrapper">
+              <svg className="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
             </div>
-            <div className="browser-dialog__body">
-              <p className="browser-dialog__msg">{successMsg}</p>
+            <div className="toast-content">
+              <p className="toast-message">{successMsg}</p>
             </div>
-            <div className="browser-dialog__footer">
-              <button
-                className="browser-dialog__btn browser-dialog__btn--ok"
-                onClick={() => setSuccessMsg('')}
-                autoFocus
-              >
-                OK
-              </button>
-            </div>
+            <button className="toast-close" onClick={() => setSuccessMsg('')}>
+              <X size={16} />
+            </button>
           </div>
         </div>
       )}
@@ -178,6 +195,25 @@ export default function ResourcesPage() {
           <p className="page-subtitle">Campus rooms, labs, and equipment</p>
         </div>
       </div>
+
+      {!isAdmin && (
+        <div className="card" style={{ marginBottom: '24px', backgroundColor: 'rgba(42, 157, 143, 0.04)', borderColor: 'rgba(42, 157, 143, 0.2)' }}>
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+            <div style={{ color: 'var(--primary)', marginTop: '2px' }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            </div>
+            <div>
+              <h3 style={{ marginBottom: '6px', color: 'var(--primary-dark)', fontSize: '14px', fontWeight: '600' }}>Guidelines for Resource Usage</h3>
+              <ul style={{ margin: '0', paddingLeft: '20px', color: 'var(--text-muted)', fontSize: '13px', lineHeight: '1.6' }}>
+                <li>Please book resources in advance through the Bookings dashboard; walk-ins are not permitted for reserved spaces.</li>
+                <li>Leave the room or equipment in a clean, orderly condition after use.</li>
+                <li>Return any borrowed equipment immediately following your scheduled time to avoid conflicts.</li>
+                <li>If you encounter damaged equipment or facilities, please report it immediately via the Tickets page.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
 
       {error && <div className="alert-conflict" style={{ marginBottom: '1rem' }}>{error}</div>}
 
@@ -245,23 +281,52 @@ export default function ResourcesPage() {
       ) : (
         <div className="card-grid">
           {resources.map(r => (
-            <div className="card" key={r.id}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text)' }}>{r.name}</div>
-                <span className={`badge badge-${r.status?.toLowerCase() || 'active'}`}>{r.status?.replace(/_/g, ' ')}</span>
+            <div className="card" key={r.id} style={{ display: 'flex', flexDirection: 'column', height: '100%', transition: 'all 0.2s ease', border: '1px solid var(--border)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+                <div>
+                  <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text)', marginBottom: '4px', letterSpacing: '-0.3px' }}>{r.name}</div>
+                  <div style={{ fontSize: '11px', fontWeight: 700, color: TYPE_COLORS[r.type] || 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Tag size={12} color={TYPE_COLORS[r.type] || 'var(--primary)'} /> {r.type?.replace(/_/g, ' ')}
+                  </div>
+                </div>
+                <span className={`badge badge-${r.status?.toLowerCase() || 'active'}`} style={{ padding: '6px 12px', fontSize: '11px' }}>{r.status?.replace(/_/g, ' ')}</span>
               </div>
-              <div style={{ fontSize: '13px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}><Tag size={14} /> {r.type?.replace(/_/g, ' ')}</div>
-              <div style={{ fontSize: '13px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}><MapPin size={14} /> {r.location}</div>
-              {r.capacity && <div style={{ fontSize: '13px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}><Users size={14} /> Capacity: {r.capacity}</div>}
-              {r.availabilityWindow && <div style={{ fontSize: '13px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}><Clock size={14} /> {r.availabilityWindow}</div>}
-              {r.description && <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '8px' }}>{r.description}</div>}
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', flex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(42, 157, 143, 0.1)', color: 'var(--primary)', flexShrink: 0 }}>
+                    <MapPin size={16} />
+                  </div>
+                  <div style={{ fontSize: '13px', color: 'var(--text)', fontWeight: 500 }}>{r.location}</div>
+                </div>
+                
+                {r.capacity && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(99, 102, 241, 0.1)', color: '#6366f1', flexShrink: 0 }}>
+                      <Users size={16} />
+                    </div>
+                    <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}><span style={{ color: 'var(--text)', fontWeight: 600 }}>{r.capacity}</span> max capacity</div>
+                  </div>
+                )}
+                
+                {(r.availabilityWindow || (Array.isArray(r.availabilityWindows) && r.availabilityWindows[0]) || r.availabilityWindows) && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(245, 158, 11, 0.1)', color: '#d97706', flexShrink: 0 }}>
+                      <Clock size={16} />
+                    </div>
+                    <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
+                      {r.availabilityWindow || (Array.isArray(r.availabilityWindows) ? r.availabilityWindows[0] : r.availabilityWindows)}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {r.description && (
+                <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px dashed var(--border)', fontSize: '13px', color: 'var(--text-muted)', lineHeight: '1.6' }}>
+                  {r.description}
+                </div>
+              )}
               <div className="flex-gap" style={{ marginTop: '16px', flexWrap: 'wrap' }}>
-                <button
-                  className="btn btn-primary btn-sm"
-                  onClick={() => navigate(`${basePath}/resources/${r.id}`)}
-                >
-                  <Eye size={14} /> Details
-                </button>
                 {isAdmin && (
                   <>
                     <button className="btn btn-outline btn-sm" onClick={() => openEdit(r)}>Edit</button>
@@ -273,7 +338,7 @@ export default function ResourcesPage() {
                     >
                       {STATUSES.map(s => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
                     </select>
-                    <button className="btn btn-ghost btn-sm text-danger" style={{ border: 'none' }} onClick={() => handleDelete(r.id)}><X size={14} /> Delete</button>
+                    <button className="btn btn-outline-danger btn-sm" onClick={() => handleDelete(r.id)}><X size={14} /> Delete</button>
                   </>
                 )}
               </div>

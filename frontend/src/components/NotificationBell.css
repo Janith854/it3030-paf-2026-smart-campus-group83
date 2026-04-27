@@ -5,62 +5,85 @@
 }
 
 .notification-bell-btn {
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #94a3b8;
+  color: #f8fafc; /* Lighter color for better visibility */
   cursor: pointer;
-  padding: 10px;
+  width: 42px;
+  height: 42px;
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease;
   position: relative;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  outline: none;
 }
 
 .notification-bell-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(59, 130, 246, 0.3);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #f8fafc;
+  transform: translateY(-1px);
 }
 
 .notification-bell-btn:active {
   transform: translateY(0);
 }
 
-.notification-badge-prominent {
-  position: absolute;
-  top: -2px;
-  right: -2px;
-  background-color: #FF4081; /* Pink from flaticon image */
-  color: white;
-  font-size: 0.75rem;
-  font-weight: 800;
-  padding: 2px 6px;
-  border-radius: 50%;
-  min-width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-  border: 2px solid #1A237E; /* Dark blue outline */
-  box-shadow: 0 4px 10px rgba(255, 64, 129, 0.4);
+.bell-icon {
+  transition: transform 0.2s ease;
 }
 
-/* Subtle swing animation */
-.animated-bell:hover svg {
-  animation: bellSwing 0.5s ease-in-out;
+.notification-bell-btn:hover .bell-icon {
+  animation: bell-ring 0.4s ease-in-out;
 }
 
-@keyframes bellSwing {
+@keyframes bell-ring {
   0% { transform: rotate(0); }
   25% { transform: rotate(15deg); }
   50% { transform: rotate(-15deg); }
   75% { transform: rotate(10deg); }
   100% { transform: rotate(0); }
+}
+
+.modern-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background-color: #ef4444; 
+  color: white;
+  font-size: 9px;
+  font-weight: 700;
+  min-width: 14px;
+  height: 14px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border: 2px solid #0f172a; /* Match background color for hollow effect */
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
+.has-notifications::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 14px;
+  height: 14px;
+  background: #ef4444;
+  border-radius: 50%;
+  z-index: -1;
+  animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+  opacity: 0;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.33); opacity: 0; }
+  50% { opacity: 0.5; }
+  100% { transform: scale(1.5); opacity: 0; }
 }
 
 /* Notification Panel Overlay */

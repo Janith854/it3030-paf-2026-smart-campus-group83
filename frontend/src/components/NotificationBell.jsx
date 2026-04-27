@@ -23,14 +23,14 @@ export default function NotificationBell() {
   return (
     <div className="notification-bell-container" ref={containerRef}>
       <button 
-        className="notification-bell-btn animated-bell" 
+        className={`notification-bell-btn ${unreadCount > 0 ? 'has-notifications' : ''}`} 
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Toggle notifications"
       >
-        <Bell size={28} fill="#FFD300" color="#1A237E" strokeWidth={2.5} />
+        <Bell size={20} className="bell-icon" />
         {unreadCount > 0 && (
-          <span className="notification-badge-prominent">
-            {unreadCount > 99 ? '99+' : unreadCount}
+          <span className="modern-badge">
+            {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
       </button>

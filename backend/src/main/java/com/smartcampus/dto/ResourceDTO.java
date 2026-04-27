@@ -29,7 +29,7 @@ public class ResourceDTO {
     @NotNull(message = "Status is required")
     private Resource.ResourceStatus status;
 
-    private List<String> availabilityWindows;
+    private String availabilityWindow;
 
     // Helper method to convert Entity to DTO
     public static ResourceDTO fromEntity(Resource entity) {
@@ -41,7 +41,7 @@ public class ResourceDTO {
         dto.setLocation(entity.getLocation());
         dto.setDescription(entity.getDescription());
         dto.setStatus(entity.getStatus());
-        dto.setAvailabilityWindows(entity.getAvailabilityWindows());
+        dto.setAvailabilityWindow(entity.getAvailabilityWindow());
         return dto;
     }
 
@@ -55,7 +55,7 @@ public class ResourceDTO {
         entity.setLocation(this.location);
         entity.setDescription(this.description);
         entity.setStatus(this.status);
-        entity.setAvailabilityWindows(this.availabilityWindows);
+        entity.setAvailabilityWindow(this.availabilityWindow);
         return entity;
     }
 }
