@@ -2,6 +2,7 @@ package com.smartcampus.model;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,10 @@ public class Ticket {
     @NotBlank(message = "Description is required") private String description;
     @NotNull(message = "Priority is required") private Priority priority;
     private String location;
+    @Pattern(
+        regexp = "^$|^(\\d{10}|[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,})$",
+        message = "Preferred contact must be a valid email or a 10-digit phone number"
+    )
     private String preferredContact;
     private List<String> imageAttachments = new ArrayList<>();
     private TicketStatus status = TicketStatus.OPEN;

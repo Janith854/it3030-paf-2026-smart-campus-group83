@@ -76,8 +76,19 @@ export default function TicketsPage() {
       setError('You can upload a maximum of 3 images.');
       return;
     }
+
+    const preferredContact = formData.preferredContact.trim();
+    if (preferredContact) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const phoneRegex = /^\d{10}$/;
+      if (!emailRegex.test(preferredContact) && !phoneRegex.test(preferredContact)) {
+        setError('Preferred Contact must be a valid email or a 10-digit phone number.');
+        return;
+      }
+    }
+
     try {
-      const newTicket = await ticketsApi.create(formData, images);
+      const newTicket = await ticketsApi.create({ ...formData, preferredContact }, images);
       setNewlyCreatedId(newTicket.id);
       setShowForm(false);
       setFormData({ category: 'IT/Network', description: '', priority: 'MEDIUM', location: '', preferredContact: '', resourceId: '' });
@@ -147,7 +158,7 @@ export default function TicketsPage() {
       <div className="page-header">
         <div>
           <h1 className="page-title">Maintenance Tickets</h1>
-          <p className="page-subtitle">{isStaff ? 'Manage all maintenance requests' : 'Report and track issues'}</p>
+          <p className="page-subtitle">{isStaff ? 'Manage all maintenance requests' : 'Lecturer/Student: view how to report an issue and create a ticket.'}</p>
         </div>
       </div>
 
@@ -179,7 +190,7 @@ export default function TicketsPage() {
           <div className="empty-state">
             <div style={{ marginBottom: '16px', color: 'var(--text-hint)' }}><Wrench size={48} /></div>
             <div className="empty-state-title">No tickets found</div>
-            <p className="empty-state-desc">Click "Report Issue" to create a maintenance request.</p>
+            <p className="empty-state-desc">Click "Report Issue", fill in the details, then click "Submit Ticket" to create a maintenance request.</p>
           </div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
@@ -274,7 +285,7 @@ export default function TicketsPage() {
               </div>
               <div className="form-group">
                 <label className="form-label">Preferred Contact (optional)</label>
-                <input type="text" className="form-input" value={formData.preferredContact} onChange={e => setFormData({ ...formData, preferredContact: e.target.value })} placeholder="e.g. email or phone" />
+                <input type="text" className="form-input" value={formData.preferredContact} onChange={e => setFormData({ ...formData, preferredContact: e.target.value })} placeholder="e.g. name@example.com or 0771234567" />
               </div>
               <div className="form-group">
                 <label className="form-label">Images (max 3)</label>
