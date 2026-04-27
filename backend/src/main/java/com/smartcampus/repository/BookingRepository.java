@@ -1,6 +1,8 @@
 package com.smartcampus.repository;
 
 import com.smartcampus.model.Booking;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import java.time.LocalDate;
@@ -13,6 +15,10 @@ public interface BookingRepository extends MongoRepository<Booking, String> {
     List<Booking> findByResourceId(String resourceId);
     List<Booking> findByStatus(Booking.BookingStatus status);
     List<Booking> findByUserIdAndStatus(String userId, Booking.BookingStatus status);
+
+    // Paginated variants for admin getAllBookings
+    Page<Booking> findByStatus(Booking.BookingStatus status, Pageable pageable);
+    Page<Booking> findAll(Pageable pageable);
 
     // Conflict detection: overlapping bookings for same resource on same date
     @Query("{ 'resourceId': ?0, 'bookingDate': ?1, " +
