@@ -68,9 +68,20 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
-    public Ticket getTicketById(String id) {
-        return ticketRepository.findById(id)
+    public Ticket getTicketById(String id, com.smartcampus.security.UserPrincipal user) {
+        Ticket ticket = ticketRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Ticket not found: " + id));
+
+        // Security check: Only the reporter, an Admin, or a Technician can view the ticket details
+        boolean isAdmin = user.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        boolean isTech = user.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_TECHNICIAN"));
+        boolean isOwner = ticket.getReportedByUserId() != null && ticket.getReportedByUserId().equals(user.getId());
+
+        if (!isAdmin && !isTech && !isOwner) {
+            throw new AccessDeniedException("You are not authorized to view this ticket");
+        }
+
+        return ticket;
     }
 
     @Override
