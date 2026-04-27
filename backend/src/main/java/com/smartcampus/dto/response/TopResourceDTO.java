@@ -10,5 +10,7 @@ import lombok.NoArgsConstructor;
 public class TopResourceDTO {
     private String resourceId;
     private String resourceName;
+    private String type;
+    private String location;
     private long totalBookings;
 }

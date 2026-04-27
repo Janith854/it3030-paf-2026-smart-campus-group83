@@ -1,71 +1,116 @@
 import React, { useEffect, useState } from 'react';
 import { analyticsService } from '../services/analyticsService';
-import { BarChart3, Activity } from 'lucide-react';
+import { BarChart3, Activity, ArrowRight, TrendingUp, Clock } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import './AnalyticsDashboard.css';
 
 const AnalyticsDashboard = () => {
   const [topResources, setTopResources] = useState([]);
   const [peakHours, setPeakHours] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeFilter, setActiveFilter] = useState('week');
+
+  const fetchData = async (period) => {
+    setLoading(true);
+    try {
+      const topRes = await analyticsService.getTopResources(period);
+      const peakRes = await analyticsService.getPeakHours(period);
+      setTopResources(topRes || []);
+      setPeakHours(peakRes || []);
+    } catch (err) {
+      console.error("Failed to load analytics", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const topRes = await analyticsService.getTopResources();
-        const peakRes = await analyticsService.getPeakHours();
-        setTopResources(topRes || []);
-        setPeakHours(peakRes || []);
-      } catch (err) {
-        console.error("Failed to load analytics", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+    fetchData(activeFilter);
+  }, [activeFilter]);
 
-  if (loading) return <div className="text-muted text-sm" style={{ padding: '20px' }}>Loading Analytics...</div>;
+  if (loading) return <div className="text-muted text-sm" style={{ padding: '40px' }}>Loading Analytics...</div>;
 
   const maxResCount = Math.max(...topResources.map(r => r.totalBookings), 1);
   const maxHourCount = Math.max(...peakHours.map(r => r.totalBookings), 1);
 
+  const formatHour = (hour) => {
+    if (hour === 0) return '12:00 AM';
+    if (hour === 12) return '12:00 PM';
+    return hour > 12 ? `${hour - 12}:00 PM` : `${hour}:00 AM`;
+  };
+
+  const busiestHourData = [...peakHours].sort((a,b) => b.totalBookings - a.totalBookings)[0];
+  const busiestHour = busiestHourData ? formatHour(busiestHourData.hour) : 'N/A';
+  const avgBookings = peakHours.length > 0 
+    ? (peakHours.reduce((acc, curr) => acc + curr.totalBookings, 0) / peakHours.length).toFixed(1)
+    : '0.0';
+
   return (
-    <>
-      <div className="page-header" style={{ marginTop: '2rem' }}>
-        <div>
-          <h2 className="page-title">Campus Usage Analytics</h2>
-          <p className="page-subtitle">Visual overview of resource utilization</p>
+    <div className="analytics-container">
+      {/* Dashboard Header */}
+      <div className="analytics-header" style={{ marginBottom: '24px' }}>
+        <div className="header-left">
+          <h2 className="analytics-title">Campus Usage Analytics</h2>
+          <p className="analytics-subtitle">Track resource demand and booking activity in real time</p>
+        </div>
+        <div className="filter-chips">
+          {[
+            { label: 'Today', value: 'today' },
+            { label: 'This Week', value: 'week' },
+            { label: 'This Month', value: 'month' },
+          ].map(({ label, value }) => (
+            <button
+              key={value}
+              className={`filter-chip ${activeFilter === value ? 'active' : ''}`}
+              onClick={() => setActiveFilter(value)}
+            >
+              {label}
+            </button>
+          ))}
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
+      <div className="analytics-grid">
         
         {/* Top Resources Card */}
-        <div className="card">
-          <div className="card-header">
-            <h2 className="card-title flex-gap">
-              <BarChart3 size={16} className="text-primary" />
-              Top Requested Resources
-            </h2>
+        <div className="modern-card">
+          <div className="card-header-row">
+            <div className="card-title-group">
+              <div className="icon-box">
+                <BarChart3 size={20} />
+              </div>
+              <h3 className="modern-card-title">Top Requested Resources</h3>
+            </div>
+            <Link to="/admin-dashboard/resource-bookings" className="view-all-link">
+              View all <ArrowRight size={14} style={{ display: 'inline', marginLeft: '4px' }} />
+            </Link>
           </div>
+
           {topResources.length === 0 ? (
-            <div className="empty-state" style={{ minHeight: '150px' }}>
+            <div className="empty-state" style={{ minHeight: '200px' }}>
               <p className="empty-state-title text-muted">No booking data available.</p>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '10px' }}>
+            <div className="ranked-list">
               {topResources.map((res, i) => (
-                <div key={i}>
-                  <div className="flex-between mb-1">
-                    <span className="font-medium text-sm">Resource: {res.resourceName || res.resourceId}</span>
-                    <span className="badge badge-active">{res.totalBookings} Bookings</span>
+                <div key={i} className="ranked-item">
+                  <div className="item-info">
+                    <div className="item-main">
+                      <span className="rank-number">#{i + 1}</span>
+                      <div className="item-details">
+                        <span className="item-name">{res.resourceName}</span>
+                        <span className="item-meta">
+                          {res.type?.replace('_', ' ')} • {res.location}
+                        </span>
+                      </div>
+                    </div>
+                    <span className="item-badge">{res.totalBookings} bookings</span>
                   </div>
-                  <div style={{ background: 'var(--primary-wash)', height: '10px', borderRadius: '5px', overflow: 'hidden' }}>
-                    <div style={{ 
-                      width: `${(res.totalBookings / maxResCount) * 100}%`, 
-                      background: 'var(--primary)', 
-                      height: '100%',
-                      transition: 'width 1s ease-in-out'
-                    }}></div>
+                  <div className="modern-progress-bg">
+                    <div 
+                      className="modern-progress-fill" 
+                      style={{ width: `${(res.totalBookings / maxResCount) * 100}%` }}
+                    ></div>
                   </div>
                 </div>
               ))}
@@ -74,41 +119,76 @@ const AnalyticsDashboard = () => {
         </div>
 
         {/* Peak Hours Card */}
-        <div className="card">
-          <div className="card-header">
-            <h2 className="card-title flex-gap">
-              <Activity size={16} className="text-primary" />
-              Peak Booking Hours
-            </h2>
+        <div className="modern-card">
+          <div className="card-header-row">
+            <div className="card-title-group">
+              <div className="icon-box">
+                <Clock size={20} />
+              </div>
+              <h3 className="modern-card-title">Peak Booking Hours</h3>
+            </div>
+            <TrendingUp size={18} style={{ color: '#2f9e8f', opacity: 0.6 }} />
           </div>
+
+          {/* Quick Stats */}
+          <div className="chart-stats">
+            <div className="stat-item">
+              <span className="stat-label">Busiest Hour</span>
+              <span className="stat-value">{busiestHour}</span>
+            </div>
+            <div className="stat-item" style={{ borderLeft: '1px solid #eef4f2', paddingLeft: '32px' }}>
+              <span className="stat-label">Avg Bookings/Hr</span>
+              <span className="stat-value">{avgBookings}</span>
+            </div>
+          </div>
+
           {peakHours.length === 0 ? (
-             <div className="empty-state" style={{ minHeight: '150px' }}>
-               <p className="empty-state-title text-muted">No timing data available.</p>
-             </div>
+            <div className="empty-state" style={{ minHeight: '200px' }}>
+              <p className="empty-state-title text-muted">No timing data available.</p>
+            </div>
           ) : (
-            <div style={{ display: 'flex', alignItems: 'flex-end', height: '180px', gap: '8px', marginTop: '20px', borderBottom: '1px solid var(--border)' }}>
-              {peakHours.map((ph, i) => (
-                <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', height: '100%' }}>
-                  <span className="text-sm font-medium" style={{ marginBottom: '4px' }}>{ph.totalBookings}</span>
-                  <div style={{ 
-                    width: '100%', 
-                    background: 'var(--primary)', 
-                    height: `${(ph.totalBookings / maxHourCount) * 140}px`,
-                    borderRadius: '4px 4px 0 0',
-                    minHeight: ph.totalBookings > 0 ? '4px' : '0',
-                    transition: 'height 1s ease-in-out'
-                  }}></div>
-                  <span className="text-muted" style={{ fontSize: '11px', marginTop: '4px' }}>
-                    {ph.hour}:00
-                  </span>
-                </div>
-              ))}
+            <div className="heatmap-container">
+              {/* Group into Morning / Afternoon / Evening */}
+              {[
+                { label: '🌅 Morning', range: [6, 12] },
+                { label: '☀️ Afternoon', range: [12, 18] },
+                { label: '🌙 Evening', range: [18, 24] },
+                { label: '🌃 Night', range: [0, 6] },
+              ].map(({ label, range }) => {
+                const slots = peakHours.filter(ph => ph.hour >= range[0] && ph.hour < range[1]);
+                if (slots.length === 0) return null;
+                return (
+                  <div key={label} className="heatmap-group">
+                    <div className="heatmap-group-label">{label}</div>
+                    <div className="heatmap-slots">
+                      {slots.map((ph, i) => {
+                        const pct = maxHourCount > 0 ? ph.totalBookings / maxHourCount : 0;
+                        const isPeak = ph.totalBookings === maxHourCount && maxHourCount > 0;
+                        const intensity = pct > 0.75 ? 'high' : pct > 0.4 ? 'mid' : 'low';
+                        return (
+                          <div key={i} className={`heatmap-slot ${intensity} ${isPeak ? 'peak-slot' : ''}`} title={`${formatHour(ph.hour)}: ${ph.totalBookings} bookings`}>
+                            <span className="slot-time">{formatHour(ph.hour)}</span>
+                            <span className="slot-count">{ph.totalBookings}</span>
+                            {isPeak && <span className="slot-peak-tag">PEAK</span>}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Admin Insight */}
+              <div className="admin-insight">
+                <span className="insight-icon">💡</span>
+                <span>Peak demand at <strong>{busiestHour}</strong>. Consider scheduling extra resources during this window.</span>
+              </div>
             </div>
           )}
         </div>
 
       </div>
-    </>
+    </div>
   );
 };
 
