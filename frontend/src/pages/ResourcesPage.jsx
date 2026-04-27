@@ -76,7 +76,7 @@ export default function ResourcesPage() {
       capacity: r.capacity || '', 
       location: r.location, 
       description: r.description || '', 
-      availabilityWindow: r.availabilityWindow || (Array.isArray(r.availabilityWindows) ? r.availabilityWindows[0] : (r.availabilityWindows || '')) 
+      availabilityWindow: r.availabilityWindow || ''
     });
     setShowForm(true);
   };
@@ -309,13 +309,13 @@ export default function ResourcesPage() {
                   </div>
                 )}
                 
-                {(r.availabilityWindow || (Array.isArray(r.availabilityWindows) && r.availabilityWindows[0]) || r.availabilityWindows) && (
+                {r.availabilityWindow && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(245, 158, 11, 0.1)', color: '#d97706', flexShrink: 0 }}>
                       <Clock size={16} />
                     </div>
                     <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-                      {r.availabilityWindow || (Array.isArray(r.availabilityWindows) ? r.availabilityWindows[0] : r.availabilityWindows)}
+                      {r.availabilityWindow}
                     </div>
                   </div>
                 )}
