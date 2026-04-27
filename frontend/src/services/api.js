@@ -82,8 +82,13 @@ export const resourcesApi = {
 export const bookingsApi = {
   create: (booking) => req('POST', '/bookings', booking),
   getMy: () => req('GET', '/bookings/my'),
-  getAll: (status) => req('GET', status ? `/bookings?status=${status}` : '/bookings'),
+  getAll: (status, page = 0, size = 20) => {
+    const qs = new URLSearchParams({ page, size });
+    if (status) qs.set('status', status);
+    return req('GET', `/bookings?${qs}`);
+  },
   getById: (id) => req('GET', `/bookings/${id}`),
+  update: (id, data) => req('PATCH', `/bookings/${id}`, data),
   approve: (id) => req('PATCH', `/bookings/${id}/approve`),
   reject: (id, reason) => req('PATCH', `/bookings/${id}/reject?reason=${encodeURIComponent(reason)}`),
   cancel: (id) => req('PATCH', `/bookings/${id}/cancel`),
