@@ -5,12 +5,16 @@ import com.smartcampus.exception.BookingConflictException;
 import com.smartcampus.exception.ResourceNotFoundException;
 import com.smartcampus.model.Booking;
 import com.smartcampus.model.Notification;
+import com.smartcampus.model.Resource;
 import com.smartcampus.repository.BookingRepository;
+import com.smartcampus.repository.ResourceRepository;
 import com.smartcampus.service.BookingService;
 import com.smartcampus.service.NotificationService;
 import com.smartcampus.model.User;
 import com.smartcampus.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -25,12 +29,25 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final NotificationService notificationService;
     private final UserRepository userRepository;
+    private final ResourceRepository resourceRepository;
 
     @Override
     public Booking createBooking(Booking booking, String userId) {
         // Guard: end time must be after start time
         if (!booking.getStartTime().isBefore(booking.getEndTime())) {
             throw new RuntimeException("End time must be after start time");
+        }
+
+        // Feature #13: Capacity vs. attendees validation
+        if (booking.getExpectedAttendees() != null) {
+            Resource resource = resourceRepository.findById(booking.getResourceId())
+                .orElseThrow(() -> new ResourceNotFoundException("Resource not found: " + booking.getResourceId()));
+            if (resource.getCapacity() != null && booking.getExpectedAttendees() > resource.getCapacity()) {
+                throw new RuntimeException(
+                    "Expected attendees (" + booking.getExpectedAttendees() +
+                    ") exceeds resource capacity (" + resource.getCapacity() + ")"
+                );
+            }
         }
 
         List<Booking> conflicts = bookingRepository.findConflictingBookings(
@@ -60,7 +77,7 @@ public class BookingServiceImpl implements BookingService {
                 saved.getId()
             );
         }
-        
+
         return saved;
     }
 
@@ -75,20 +92,56 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.findByUserId(userId);
     }
 
+    // Feature #14: Pagination support
     @Override
-    public List<Booking> getAllBookings(String status) {
+    public List<Booking> getAllBookings(String status, int page, int size) {
+        PageRequest pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         if (status != null) {
             try {
                 return bookingRepository.findByStatus(
-                    Booking.BookingStatus.valueOf(status.toUpperCase())
-                );
+                    Booking.BookingStatus.valueOf(status.toUpperCase()), pageable
+                ).getContent();
             } catch (IllegalArgumentException e) {
                 throw new RuntimeException(
                     "Invalid status '" + status + "'. Valid values: PENDING, APPROVED, REJECTED, CANCELLED"
                 );
             }
         }
-        return bookingRepository.findAll();
+        return bookingRepository.findAll(pageable).getContent();
+    }
+
+    // Feature #12: Update purpose and/or expectedAttendees on a PENDING booking
+    @Override
+    public Booking updateBooking(String id, String userId, String purpose, Integer expectedAttendees) {
+        Booking booking = bookingRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Booking not found: " + id));
+
+        if (!booking.getUserId().equals(userId)) {
+            throw new AccessDeniedException("You can only edit your own bookings");
+        }
+
+        if (booking.getStatus() != Booking.BookingStatus.PENDING) {
+            throw new RuntimeException("Only PENDING bookings can be edited");
+        }
+
+        if (purpose != null && !purpose.isBlank()) {
+            booking.setPurpose(purpose.trim());
+        }
+
+        // Feature #13: Re-validate capacity when attendees change
+        if (expectedAttendees != null) {
+            Resource resource = resourceRepository.findById(booking.getResourceId())
+                .orElseThrow(() -> new ResourceNotFoundException("Resource not found: " + booking.getResourceId()));
+            if (resource.getCapacity() != null && expectedAttendees > resource.getCapacity()) {
+                throw new RuntimeException(
+                    "Expected attendees (" + expectedAttendees +
+                    ") exceeds resource capacity (" + resource.getCapacity() + ")"
+                );
+            }
+            booking.setExpectedAttendees(expectedAttendees);
+        }
+
+        return bookingRepository.save(booking);
     }
 
     @Override
