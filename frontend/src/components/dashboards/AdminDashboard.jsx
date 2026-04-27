@@ -116,7 +116,7 @@ export default function AdminDashboard() {
               {recentPendingBookings.map(b => (
                 <div key={`b-${b.id}`} style={{ padding: '12px', background: 'var(--primary-wash)', borderRadius: 'var(--radius-md)' }}>
                   <div className="flex-between mb-1">
-                    <div className="font-medium text-sm">{b.purpose}</div>
+                    <div className="font-medium text-sm" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', paddingRight: '8px' }}>{b.purpose}</div>
                   </div>
                   <div className="text-sm text-muted">Date: {b.bookingDate} {b.startTime} - {b.endTime}</div>
                   <div className="mt-2">
@@ -151,12 +151,12 @@ export default function AdminDashboard() {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {recentOpenTickets.map(t => (
-                <div key={`t-${t.id}`} className={`ticket-card priority-${t.priority?.toLowerCase() || 'medium'}`} style={{ padding: '12px', background: 'var(--primary-wash)', border: '1px solid var(--border)' }}>
+                <div key={`t-${t.id}`} className={`ticket-card priority-${t.priority?.toLowerCase() || 'medium'}`} style={{ padding: '12px', background: 'var(--primary-wash)', border: '1px solid var(--border)', overflow: 'hidden' }}>
                   <div className="flex-between mb-1">
-                    <div className="font-medium text-sm">{t.category}</div>
-                    <span className={`badge badge-${t.priority?.toLowerCase() || 'pending'}`}>{t.priority}</span>
+                    <div className="font-medium text-sm" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', paddingRight: '8px' }}>{t.category}</div>
+                    <span className={`badge badge-${t.priority?.toLowerCase() || 'pending'}`} style={{ flexShrink: 0 }}>{t.priority}</span>
                   </div>
-                  <div className="text-sm text-muted mb-2" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.description}</div>
+                  <div className="text-sm text-muted mb-2" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{t.description}</div>
                   <div>
                     <button className="btn btn-primary btn-sm" onClick={() => navigate('/admin-dashboard/tickets')}>Assign</button>
                   </div>
@@ -190,9 +190,9 @@ export default function AdminDashboard() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {recentNotifications.map(n => (
                 <div key={`n-${n.id}`} className={n.isRead ? 'notification-item read' : 'notification-item unread'} style={{ padding: '12px', margin: 0 }}>
-                  <div>
-                    <div className={n.isRead ? 'font-medium text-sm' : 'font-bold text-sm'}>{n.title}</div>
-                    <div className="text-sm text-muted mt-1">{n.message}</div>
+                  <div style={{ overflow: 'hidden' }}>
+                    <div className={n.isRead ? 'font-medium text-sm' : 'font-bold text-sm'} style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{n.title}</div>
+                    <div className="text-sm text-muted mt-1" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{n.message}</div>
                     <div style={{ fontSize: '10px', color: 'var(--text-hint)', marginTop: '4px' }}>{n.createdAt && new Date(n.createdAt).toLocaleString()}</div>
                   </div>
                 </div>
