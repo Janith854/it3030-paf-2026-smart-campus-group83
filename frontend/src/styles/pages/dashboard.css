@@ -392,6 +392,13 @@
 .form-select {
   appearance: none;
   cursor: pointer;
+  background-color: #1a1a2e;
+  color: #e2e8f0;
+}
+
+.form-select option {
+  background-color: #1a1a2e;
+  color: #e2e8f0;
 }
 
 .form-actions {

@@ -1,134 +1,61 @@
-.about-section {
+.about {
     padding: 100px 0;
-    overflow: hidden;
+    background: var(--bg);
 }
 
-.about-section__grid {
-    display: grid;
-    grid-template-columns: 1.2fr 1fr;
-    gap: 80px;
+.about__inner {
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.about__content {
+    display: flex;
+    flex-direction: column;
     align-items: center;
 }
 
-.about-section__mission-grid {
+.about__features {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: 32px;
     margin-top: 48px;
+    text-align: left;
+    width: 100%;
 }
 
-.mission-item {
+.about__feature-item {
     display: flex;
     gap: 16px;
 }
 
-.mission-item__icon {
-    width: 48px;
-    height: 48px;
+.about__feature-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--primary-wash);
+    color: var(--primary);
     border-radius: 12px;
-    background: rgba(37, 99, 235, 0.1);
-    color: #2563EB;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
 }
 
-.mission-item__title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #1E293B;
-    margin-bottom: 8px;
+.about__feature-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
 }
 
-.mission-item__desc {
-    font-size: 0.9rem;
-    color: #64748B;
+.about__feature-desc {
+    font-size: 0.85rem;
+    color: var(--text-muted);
     line-height: 1.5;
 }
 
-.about-section__visual {
-    position: relative;
-}
-
-.about-section__image-wrapper {
-    position: relative;
-    border-radius: 24px;
-    overflow: visible;
-}
-
-.about-section__image {
-    width: 100%;
-    height: auto;
-    border-radius: 24px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-}
-
-.about-section__floating-card {
-    position: absolute;
-    bottom: -30px;
-    left: -30px;
-    background: #2563EB;
-    color: white;
-    padding: 20px 24px;
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3);
-    animation: floating 3s ease-in-out infinite;
-}
-
-.floating-card__icon {
-    background: rgba(255, 255, 255, 0.2);
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.floating-card__text {
-    display: flex;
-    flex-direction: column;
-}
-
-.floating-card__text strong {
-    font-size: 1.1rem;
-}
-
-.floating-card__text span {
-    font-size: 0.85rem;
-    opacity: 0.9;
-}
-
-@keyframes floating {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
-}
-
-@media (max-width: 1024px) {
-    .about-section__grid {
+@media (max-width: 768px) {
+    .about__features {
         grid-template-columns: 1fr;
-        gap: 60px;
-    }
-    
-    .about-section__visual {
-        order: -1;
-        max-width: 600px;
-        margin: 0 auto;
-    }
-}
-
-@media (max-width: 640px) {
-    .about-section__mission-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .about-section__floating-card {
-        left: 20px;
-        right: 20px;
-        bottom: -20px;
     }
 }

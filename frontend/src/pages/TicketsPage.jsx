@@ -132,39 +132,42 @@ export default function TicketsPage() {
 
   return (
     <>
-      <div className="dashboard__header">
-        <h1 className="dashboard__title">Maintenance Tickets</h1>
-        <p className="dashboard__subtitle">{isStaff ? 'Manage all maintenance requests' : 'Report and track issues'}</p>
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">Maintenance Tickets</h1>
+          <p className="page-subtitle">{isStaff ? 'Manage all maintenance requests' : 'Report and track issues'}</p>
+        </div>
       </div>
 
-      {error && <div className="login-card__error" style={{ marginBottom: '1rem' }}>{error}</div>}
+      {error && <div className="alert-conflict" style={{ marginBottom: '1rem' }}>{error}</div>}
 
-      <div className="action-bar">
-        <div className="filter-group">
+      <div className="filter-bar flex-between" style={{ marginBottom: '20px' }}>
+        <div className="status-tabs" style={{ margin: 0, border: 'none' }}>
           {isStaff && ['', ...TICKET_STATUSES].map(s => (
             <button
               key={s}
-              className={`btn-dashboard btn-dashboard--sm ${filterStatus === s ? 'btn-dashboard--primary' : 'btn-dashboard--secondary'}`}
+              className={`status-tab ${filterStatus === s ? 'active' : ''}`}
               onClick={() => setFilterStatus(s)}
+              style={{ borderBottom: filterStatus === s ? '2px solid var(--primary)' : 'none' }}
             >
               {s || 'All'}
             </button>
           ))}
         </div>
-        <button className="btn-dashboard btn-dashboard--primary" onClick={() => setShowForm(true)} id="new-ticket-btn">
+        <button className="btn btn-primary" onClick={() => setShowForm(true)} id="new-ticket-btn">
           <Plus size={16} /> Report Issue
         </button>
       </div>
 
       {/* Tickets Table */}
-      <div className="card">
+      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
         {loading ? (
           <div className="empty-state">Loading...</div>
         ) : tickets.length === 0 ? (
           <div className="empty-state">
-            <div className="empty-state__icon"><Wrench size={48} /></div>
-            <div className="empty-state__title">No tickets found</div>
-            <p>Click "Report Issue" to create a maintenance request.</p>
+            <div style={{ marginBottom: '16px', color: 'var(--text-hint)' }}><Wrench size={48} /></div>
+            <div className="empty-state-title">No tickets found</div>
+            <p className="empty-state-desc">Click "Report Issue" to create a maintenance request.</p>
           </div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
@@ -182,20 +185,20 @@ export default function TicketsPage() {
               <tbody>
                 {tickets.map(t => (
                   <tr key={t.id}>
-                    <td style={{ fontWeight: 600 }}>{t.category}</td>
+                    <td style={{ fontWeight: 500 }}>{t.category}</td>
                     <td style={{ maxWidth: '250px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.description}</td>
-                    <td><span className={`badge badge--${t.priority?.toLowerCase()}`}>{t.priority}</span></td>
+                    <td><span className={`badge badge-${t.priority?.toLowerCase() || 'pending'}`}>{t.priority}</span></td>
                     <td>{t.location || '—'}</td>
-                    <td><span className={`badge badge--${t.status?.toLowerCase()}`}>{t.status?.replace(/_/g, ' ')}</span></td>
+                    <td><span className={`badge badge-${t.status?.toLowerCase() || 'open'}`}>{t.status?.replace(/_/g, ' ')}</span></td>
                     <td>
-                      <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
-                        <button className="btn-dashboard btn-dashboard--secondary btn-dashboard--sm" onClick={() => openDetail(t)}>
+                      <div className="flex-gap" style={{ flexWrap: 'wrap' }}>
+                        <button className="btn btn-outline btn-sm" onClick={() => openDetail(t)}>
                           <MessageSquare size={14} /> View
                         </button>
                         {isStaff && t.status !== 'CLOSED' && t.status !== 'RESOLVED' && (
                           <select
                             className="form-select"
-                            style={{ padding: '0.3rem', fontSize: '0.72rem', width: 'auto' }}
+                            style={{ padding: '4px 8px', fontSize: '11px', width: 'auto', minHeight: '26px' }}
                             value=""
                             onChange={e => { if (e.target.value) handleStatusUpdate(t.id, e.target.value); }}
                           >
@@ -208,7 +211,7 @@ export default function TicketsPage() {
                         {isAdmin && (
                           <select
                              className="form-select"
-                             style={{ padding: '0.3rem', fontSize: '0.72rem', width: 'auto', outline: t.assignedTechnicianId ? undefined : '1px solid #ef4444' }}
+                             style={{ padding: '4px 8px', fontSize: '11px', width: 'auto', minHeight: '26px', border: t.assignedTechnicianId ? '1px solid var(--border)' : '1px solid #ef4444' }}
                              value={t.assignedTechnicianId || ''}
                              onChange={e => handleAssign(t.id, e.target.value)}
                           >
@@ -232,42 +235,42 @@ export default function TicketsPage() {
       {showForm && (
         <div className="modal-overlay" onClick={() => setShowForm(false)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
               <h2 className="modal__title">Report an Issue</h2>
-              <button className="sidebar__logout" onClick={() => setShowForm(false)}><X size={18} /></button>
+              <button className="btn btn-ghost btn-sm" style={{ padding: '4px', border: 'none' }} onClick={() => setShowForm(false)}><X size={18} /></button>
             </div>
             <form onSubmit={handleSubmit}>
               <div className="form-group">
-                <label>Category</label>
+                <label className="form-label">Category</label>
                 <select className="form-select" value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} required>
                   {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
               <div className="form-group">
-                <label>Priority</label>
+                <label className="form-label">Priority</label>
                 <select className="form-select" value={formData.priority} onChange={e => setFormData({ ...formData, priority: e.target.value })} required>
                   {PRIORITIES.map(p => <option key={p} value={p}>{p}</option>)}
                 </select>
               </div>
               <div className="form-group">
-                <label>Description</label>
+                <label className="form-label">Description</label>
                 <textarea className="form-textarea" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} required placeholder="Describe the issue in detail..." />
               </div>
               <div className="form-group">
-                <label>Optional Resource ID</label>
+                <label className="form-label">Optional Resource ID</label>
                 <input type="text" className="form-input" value={formData.resourceId} onChange={e => setFormData({ ...formData, resourceId: e.target.value })} placeholder="e.g. LAB-03" />
               </div>
               <div className="form-group">
-                <label>Preferred Contact (optional)</label>
+                <label className="form-label">Preferred Contact (optional)</label>
                 <input type="text" className="form-input" value={formData.preferredContact} onChange={e => setFormData({ ...formData, preferredContact: e.target.value })} placeholder="e.g. email or phone" />
               </div>
               <div className="form-group">
-                <label>Images (max 3)</label>
-                <input type="file" className="form-input" accept="image/*" multiple onChange={e => setImages(Array.from(e.target.files))} />
+                <label className="form-label">Images (max 3)</label>
+                <input type="file" className="form-input" accept="image/*" multiple onChange={e => setImages(Array.from(e.target.files))} style={{ background: 'transparent', padding: '6px' }} />
               </div>
               <div className="form-actions">
-                <button type="button" className="btn-dashboard btn-dashboard--secondary" onClick={() => setShowForm(false)}>Cancel</button>
-                <button type="submit" className="btn-dashboard btn-dashboard--primary">Submit Ticket</button>
+                <button type="button" className="btn btn-ghost" onClick={() => setShowForm(false)}>Cancel</button>
+                <button type="submit" className="btn btn-primary">Submit Ticket</button>
               </div>
             </form>
           </div>
@@ -278,80 +281,80 @@ export default function TicketsPage() {
       {selectedTicket && (
         <div className="modal-overlay" onClick={() => setSelectedTicket(null)}>
           <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '600px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <h2 className="modal__title">Ticket Details</h2>
-              <button className="sidebar__logout" onClick={() => setSelectedTicket(null)}><X size={18} /></button>
+              <button className="btn btn-ghost btn-sm" style={{ padding: '4px', border: 'none' }} onClick={() => setSelectedTicket(null)}><X size={18} /></button>
             </div>
             <div style={{ marginBottom: '1rem' }}>
-              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                <span className={`badge badge--${selectedTicket.priority?.toLowerCase()}`}>{selectedTicket.priority}</span>
-                <span className={`badge badge--${selectedTicket.status?.toLowerCase()}`}>{selectedTicket.status?.replace(/_/g, ' ')}</span>
+              <div className="flex-gap" style={{ marginBottom: '8px' }}>
+                <span className={`badge badge-${selectedTicket.priority?.toLowerCase() || 'pending'}`}>{selectedTicket.priority}</span>
+                <span className={`badge badge-${selectedTicket.status?.toLowerCase() || 'open'}`}>{selectedTicket.status?.replace(/_/g, ' ')}</span>
               </div>
-              <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>{selectedTicket.category}</div>
-              <div style={{ color: '#94a3b8', fontSize: '0.85rem' }}>{selectedTicket.description}</div>
-              {selectedTicket.location && <div style={{ color: '#64748b', fontSize: '0.82rem', marginTop: '0.25rem' }}>📍 {selectedTicket.location}</div>}
+              <div style={{ fontWeight: 600, fontSize: '15px', marginBottom: '4px' }}>{selectedTicket.category}</div>
+              <div className="text-muted text-sm">{selectedTicket.description}</div>
+              {selectedTicket.location && <div className="text-muted text-sm mt-1">📍 {selectedTicket.location}</div>}
             </div>
 
             {/* Detail Info */}
-            <div style={{ padding: '0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', marginBottom: '1rem', fontSize: '0.85rem' }}>
+            <div style={{ padding: '12px', background: 'var(--primary-wash)', borderRadius: 'var(--radius-md)', marginBottom: '16px', fontSize: '12px' }}>
               {selectedTicket.reportedByUserId && (
-                <div style={{ marginBottom: '0.5rem' }}>
-                  <span style={{ color: '#64748b' }}>Reported By ID:</span> {selectedTicket.reportedByUserId}
+                <div style={{ marginBottom: '8px' }}>
+                  <span className="text-muted">Reported By ID:</span> {selectedTicket.reportedByUserId}
                 </div>
               )}
               {selectedTicket.rejectionReason && (
-                <div style={{ color: '#ef4444', marginBottom: '0.5rem' }}>
+                <div style={{ color: '#dc2626', marginBottom: '8px' }}>
                   <span style={{ fontWeight: 600 }}>Rejection Reason:</span> {selectedTicket.rejectionReason}
                 </div>
               )}
               {selectedTicket.resolutionNotes && (
-                <div style={{ color: '#10b981' }}>
+                <div style={{ color: '#16a34a' }}>
                   <span style={{ fontWeight: 600 }}>Resolution Notes:</span> {selectedTicket.resolutionNotes}
                 </div>
               )}
             </div>
 
             {/* Comments */}
-            <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '1rem' }}>
-              <div style={{ fontWeight: 600, marginBottom: '0.75rem', fontSize: '0.9rem' }}>Comments ({selectedTicket.comments?.length || 0})</div>
+            <div style={{ borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
+              <div style={{ fontWeight: 600, marginBottom: '12px', fontSize: '14px' }}>Comments ({selectedTicket.comments?.length || 0})</div>
               {selectedTicket.comments?.length > 0 ? (
                 selectedTicket.comments.map((c, i) => (
                   <div key={i} style={{ 
-                    padding: '0.5rem', 
-                    background: 'rgba(255,255,255,0.02)', 
-                    borderRadius: '8px', 
-                    marginBottom: '0.5rem', 
-                    fontSize: '0.82rem',
+                    padding: '12px', 
+                    background: '#f8fafc', 
+                    borderRadius: 'var(--radius-md)', 
+                    marginBottom: '8px', 
+                    fontSize: '12px',
                     position: 'relative'
                   }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                      <div style={{ color: '#94a3b8', flex: 1 }}>{c.content}</div>
+                      <div style={{ color: '#475569', flex: 1 }}>{c.content}</div>
                       {c.userId === user.id && (
-                        <div style={{ display: 'flex', gap: '0.2rem' }}>
+                        <div className="flex-gap" style={{ gap: '4px' }}>
                           <button 
                             onClick={() => handleEditComment(c.id, c.content)}
-                            style={{ background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer', padding: '0.2rem' }}
+                            className="btn btn-ghost btn-sm" style={{ padding: '2px', border: 'none', color: 'var(--primary)' }}
                             title="Edit My Comment"
                           >
-                            <Pencil size={12} />
+                            <Pencil size={14} />
                           </button>
                           <button 
                             onClick={() => handleDeleteComment(c.id)}
-                            style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '0.2rem' }}
+                            className="btn btn-ghost btn-sm text-danger" style={{ padding: '2px', border: 'none' }}
                             title="Delete My Comment"
                           >
-                            <X size={12} />
+                            <X size={14} />
                           </button>
                         </div>
                       )}
                     </div>
-                    <div style={{ color: '#475569', fontSize: '0.72rem', marginTop: '0.25rem' }}>{c.createdAt && new Date(c.createdAt).toLocaleString()}</div>
+                    <div style={{ color: '#94a3b8', fontSize: '10px', marginTop: '6px' }}>{c.createdAt && new Date(c.createdAt).toLocaleString()}</div>
                   </div>
                 ))
               ) : (
-                <div style={{ color: '#475569', fontSize: '0.82rem' }}>No comments yet.</div>
+                <div className="text-muted text-sm">No comments yet.</div>
               )}
-              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem' }}>
+              <div className="flex-gap mt-3">
                 <input
                   type="text"
                   className="form-input"
@@ -360,7 +363,7 @@ export default function TicketsPage() {
                   onChange={e => setComment(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleAddComment()}
                 />
-                <button className="btn-dashboard btn-dashboard--primary btn-dashboard--sm" onClick={handleAddComment}>Send</button>
+                <button className="btn btn-primary" onClick={handleAddComment}>Send</button>
               </div>
             </div>
           </div>

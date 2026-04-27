@@ -1,19 +1,37 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Zap, ArrowLeft, Code2 } from 'lucide-react';
+import { Zap, ArrowLeft, Eye, EyeOff, ShieldCheck, Wrench, User, LogIn } from 'lucide-react';
 import { authApi } from '../services/api';
-import './dashboard.css';
+import './LoginPage.css';
+import authIllustration from '../assets/auth-illustration.png';
 
 export default function LoginPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-  // If already logged in, redirect
+  useEffect(() => {
+    // Render official Google button on mount
+    if (window.google && window.google.accounts) {
+      window.google.accounts.id.initialize({
+        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || '',
+        callback: handleGoogleCallback,
+      });
+      window.google.accounts.id.renderButton(
+        document.getElementById('google-signin-button'),
+        { theme: 'filled_black', size: 'large', width: 320 }
+      );
+    }
+  }, []);
+
+  // If already logged in, redirect to the correct role-based dashboard
   if (user) {
-    navigate('/dashboard', { replace: true });
+    if (user.role === 'ADMIN') navigate('/admin-dashboard', { replace: true });
+    else if (user.role === 'TECHNICIAN') navigate('/tech-dashboard', { replace: true });
+    else navigate('/user-dashboard', { replace: true });
     return null;
   }
 
@@ -34,28 +52,18 @@ export default function LoginPage() {
       
       const data = await res.json();
       localStorage.setItem('token', data.token);
-      window.location.href = '/'; // Simple redirect to clear state and let App.jsx handle routing
+      // Google login: role determined by /me endpoint in AuthContext on reload
+      window.location.href = '/dashboard';
     } catch (e) {
       setError(e.message);
       setLoading(false);
     }
   };
 
-  const handleGoogleLogin = () => {
-    if (window.google && window.google.accounts) {
-      window.google.accounts.id.initialize({
-        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || '',
-        callback: handleGoogleCallback,
-        auto_select: false,
-        cancel_on_tap_outside: true
-      });
-      window.google.accounts.id.prompt(); // Show One Tap if available
-      // Also trigger standard selection popup
-      // Note: We can't easily trigger the standard popup via JS without renderButton
-      // but we can at least ensure initialization happened.
-    } else {
-      setError('Google Sign-In script not loaded. Please refresh or try another method.');
-    }
+  const setDevRole = (role) => {
+    localStorage.setItem('testRoleOverride', role);
+    localStorage.setItem('token', 'dev-dummy-token'); // Fake token to trigger AuthContext
+    window.location.href = '/dashboard';
   };
 
     const handleLocalLogin = async (e) => {
@@ -70,7 +78,7 @@ export default function LoginPage() {
       if (email === 'admin@smartcampus.com' && password === 'admin123') {
         localStorage.setItem('token', 'mock-admin-token');
         localStorage.setItem('testRoleOverride', 'ADMIN');
-        window.location.href = '/admin';
+        window.location.href = '/admin-dashboard';
         return;
       }
 
@@ -79,7 +87,16 @@ export default function LoginPage() {
         
         localStorage.setItem('token', data.token);
         localStorage.removeItem('testRoleOverride');
-        window.location.href = '/dashboard';
+
+        // Role-based redirect using role from login response
+        const role = data.user?.role;
+        if (role === 'ADMIN') {
+          window.location.href = '/admin-dashboard';
+        } else if (role === 'TECHNICIAN') {
+          window.location.href = '/tech-dashboard';
+        } else {
+          window.location.href = '/user-dashboard';
+        }
       } catch (e) {
         setError(e.message);
       }
@@ -87,64 +104,92 @@ export default function LoginPage() {
     };
 
   return (
-    <div className="login-page">
-      <div className="login-card">
-        <div className="login-card__logo">
-          <div className="login-card__logo-icon">
-            <Zap size={20} color="#fff" />
+    <div className="auth-split-page">
+      <div className="auth-left">
+        <img src={authIllustration} alt="Smart Campus" className="auth-left__image" />
+        <div className="auth-left__content">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '3rem', fontSize: '1.2rem', fontWeight: 700 }}>
+            <Zap size={24} color="#fff" />
+            <span>SmartCampus Hub</span>
           </div>
-          <span>Smart<span style={{ color: '#3b82f6' }}>Campus</span> Hub</span>
+          <h1 className="auth-left__title">Welcome Back.</h1>
+          <p className="auth-left__subtitle">
+            Sign in to manage campus resources, bookings, and maintenance seamlessly.
+          </p>
         </div>
+      </div>
+      
+      <div className="auth-right">
+        <div className="auth-card">
+          <h2 className="auth-card__title">Sign In</h2>
+          <p className="auth-card__subtitle">Continue with Google or enter your details.</p>
+          
+          {error && <div className="login-card__error">{error}</div>}
 
-        <h1 className="login-card__title">Welcome Back</h1>
-        <p className="login-card__subtitle">
-          Sign in to manage campus resources, bookings, and maintenance
-        </p>
+          <div 
+            id="google-signin-button" 
+            style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}
+          ></div>
 
-        {error && <div className="login-card__error">{error}</div>}
+          <div className="auth-divider">or</div>
 
-        <form onSubmit={handleLocalLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1.5rem', width: '100%' }}>
-          <div className="form-group" style={{ marginBottom: 0 }}>
-             <input type="email" name="email" required className="form-input" placeholder="Email Address" />
+          <form onSubmit={handleLocalLogin}>
+            <label className="auth-form-label">Email Address</label>
+            <input type="email" name="email" required className="auth-form-input" placeholder="example@campus.edu" />
+            
+            <label className="auth-form-label">Password</label>
+            <div style={{ position: 'relative' }}>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                required
+                className="auth-form-input"
+                placeholder="••••••••"
+                style={{ paddingRight: '2.8rem' }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(v => !v)}
+                style={{
+                  position: 'absolute', right: '0.75rem', top: '0.85rem',
+                  background: 'none', border: 'none', cursor: 'pointer', color: '#64748b',
+                  display: 'flex', alignItems: 'center', padding: 0
+                }}
+                tabIndex={-1}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+
+            <button
+              type="submit"
+              className="auth-btn-primary"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <div className="animate-spin" style={{ width: '18px', height: '18px', border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%', marginRight: '8px' }} />
+                  Signing In...
+                </>
+              ) : (
+                <>
+                  <LogIn size={20} style={{ marginRight: '8px' }} />
+                  Sign In
+                </>
+              )}
+            </button>
+          </form>
+
+          <div style={{ textAlign: 'center', fontSize: '0.9rem', color: '#64748b', marginTop: '1.5rem' }}>
+            Don't have an account? <Link to="/register" style={{ color: '#4CA799', textDecoration: 'none', fontWeight: 600 }}>Sign up free</Link>
           </div>
-          <div className="form-group" style={{ marginBottom: 0 }}>
-             <input type="password" name="password" required className="form-input" placeholder="Password" />
-          </div>
-          <button
-            type="submit"
-            className="btn-dashboard btn-dashboard--primary"
-            style={{ padding: '0.8rem', justifyContent: 'center', marginTop: '0.5rem' }}
-            disabled={loading}
-          >
-            {loading ? 'Authenticating...' : 'Sign In'}
-          </button>
-        </form>
 
-        <div className="login-card__divider" style={{ margin: '1.5rem 0' }}>or continue with</div>
-
-        <button
-          className="login-card__google-btn"
-          onClick={handleGoogleLogin}
-          disabled={loading}
-          id="login-google-btn"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24">
-            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" />
-            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-          </svg>
-          {loading ? 'Signing in...' : 'Sign in with Google'}
-        </button>
-
-        <div style={{ textAlign: 'center', fontSize: '0.9rem', color: '#64748b', marginTop: '1.5rem' }}>
-          Don't have an account? <Link to="/register" style={{ color: '#3b82f6', textDecoration: 'none', fontWeight: 600 }}>Register here</Link>
+          <Link to="/" className="login-card__back" style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'center' }}>
+            <ArrowLeft size={16} />
+            Back to Homepage
+          </Link>
         </div>
-
-        <Link to="/" className="login-card__back" style={{ marginTop: '1.5rem' }}>
-          <ArrowLeft size={16} />
-          Back to Homepage
-        </Link>
       </div>
     </div>
   );

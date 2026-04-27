@@ -50,20 +50,22 @@ export default function AdminPage() {
 
   return (
     <>
-      <div className="dashboard__header">
-        <h1 className="dashboard__title">User Management</h1>
-        <p className="dashboard__subtitle">Manage user roles and permissions</p>
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">User Management</h1>
+          <p className="page-subtitle">Manage user roles and permissions</p>
+        </div>
       </div>
 
-      {error && <div className="login-card__error" style={{ marginBottom: '1rem' }}>{error}</div>}
+      {error && <div className="alert-conflict" style={{ marginBottom: '1rem' }}>{error}</div>}
 
-      <div className="card">
+      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
         {loading ? (
           <div className="empty-state">Loading...</div>
         ) : users.length === 0 ? (
           <div className="empty-state">
-            <div className="empty-state__icon"><Users size={48} /></div>
-            <div className="empty-state__title">No users found</div>
+            <div style={{ marginBottom: '16px', color: 'var(--text-hint)' }}><Users size={48} /></div>
+            <div className="empty-state-title">No users found</div>
           </div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
@@ -81,45 +83,45 @@ export default function AdminPage() {
                 {users.map(u => (
                   <tr key={u.id}>
                     <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                      <div className="flex-gap" style={{ gap: '12px' }}>
                         <div style={{
                           width: 32, height: 32, borderRadius: '50%',
-                          background: 'linear-gradient(135deg, #3b82f6, #6366f1)',
+                          background: 'var(--primary-wash)',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: '0.75rem', fontWeight: 600, color: '#fff', overflow: 'hidden',
+                          fontSize: '12px', fontWeight: 600, color: 'var(--primary)', overflow: 'hidden',
                         }}>
                           {u.picture
                             ? <img src={u.picture} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             : (u.name ? u.name[0].toUpperCase() : '?')}
                         </div>
-                        <span style={{ fontWeight: 600 }}>{u.name || '—'}</span>
+                        <span style={{ fontWeight: 500 }}>{u.name || '—'}</span>
                       </div>
                     </td>
                     <td>{u.email}</td>
-                    <td><span className={`badge badge--${u.role === 'ADMIN' ? 'approved' : u.role === 'TECHNICIAN' ? 'in_progress' : 'open'}`}>{u.role}</span></td>
-                    <td style={{ fontSize: '0.8rem', color: '#64748b' }}>{u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—'}</td>
+                    <td><span className={`badge badge-${u.role === 'ADMIN' ? 'approved' : u.role === 'TECHNICIAN' ? 'pending' : 'active'}`}>{u.role}</span></td>
+                    <td style={{ fontSize: '13px', color: 'var(--text-muted)' }}>{u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—'}</td>
                     <td>
                       {u.id !== user.id ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <div className="flex-gap" style={{ gap: '8px' }}>
                           <select
                             className="form-select"
-                            style={{ padding: '0.35rem', fontSize: '0.75rem', width: 'auto' }}
+                            style={{ padding: '4px 8px', fontSize: '12px', width: 'auto', minHeight: '30px' }}
                             value={u.role}
                             onChange={e => handleRoleChange(u.id, e.target.value)}
                           >
                             {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
                           </select>
                           <button
-                            className="btn-dashboard btn-dashboard--danger"
-                            style={{ padding: '0.35rem 0.5rem', borderRadius: '6px' }}
+                            className="btn btn-ghost btn-sm text-danger"
+                            style={{ padding: '6px', border: 'none' }}
                             onClick={() => handleDelete(u.id)}
                             title="Delete User"
                           >
-                            <Trash2 size={14} />
+                            <Trash2 size={16} />
                           </button>
                         </div>
                       ) : (
-                        <span style={{ color: '#475569', fontSize: '0.8rem' }}>You</span>
+                        <span style={{ color: 'var(--text-hint)', fontSize: '13px' }}>You</span>
                       )}
                     </td>
                   </tr>

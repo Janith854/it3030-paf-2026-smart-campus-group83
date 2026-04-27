@@ -22,7 +22,20 @@ public class User {
     private String picture;
     private String googleId;
 
+    private NotificationPreferences notificationPreferences = new NotificationPreferences();
+
     private Role role = Role.USER;
+
+    @Data
+    public static class NotificationPreferences {
+        private boolean bookingApproved = true;
+        private boolean bookingRejected = true;
+        private boolean ticketStatusChanged = true;
+        private boolean newCommentOnTicket = true;
+        private boolean technicianAssigned = true;
+        private boolean generalAlerts = true;
+    }
+
     @CreatedDate
     private LocalDateTime createdAt;
     @LastModifiedDate

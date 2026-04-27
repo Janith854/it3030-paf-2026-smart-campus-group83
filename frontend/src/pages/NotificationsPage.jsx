@@ -45,58 +45,91 @@ export default function NotificationsPage() {
 
   return (
     <>
-      <div className="dashboard__header">
-        <h1 className="dashboard__title">Notifications</h1>
-        <p className="dashboard__subtitle">
-          {unreadCount > 0 ? `${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}` : 'All caught up!'}
-        </p>
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">Notifications</h1>
+          <p className="page-subtitle">
+            {unreadCount > 0 ? `${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}` : 'All caught up!'}
+          </p>
+        </div>
       </div>
 
-      {error && <div className="login-card__error" style={{ marginBottom: '1rem' }}>{error}</div>}
+      {error && <div className="alert-conflict" style={{ marginBottom: '1rem' }}>{error}</div>}
 
       {unreadCount > 0 && (
-        <div style={{ marginBottom: '1rem' }}>
-          <button className="btn-dashboard btn-dashboard--secondary" onClick={markAllRead}>
-            <CheckCheck size={16} /> Mark all as read
+        <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'flex-end' }}>
+          <button className="btn btn-outline btn-sm" onClick={markAllRead}>
+            <CheckCheck size={16} style={{ marginRight: '6px' }} /> Mark all as read
           </button>
         </div>
       )}
 
-      <div className="card" style={{ padding: 0 }}>
+      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
         {notifications.length === 0 ? (
           <div className="empty-state">
-            <div className="empty-state__icon"><Bell size={48} /></div>
-            <div className="empty-state__title">You're all caught up!</div>
-            <p>You have no new notifications.</p>
+            <div style={{ marginBottom: '16px', color: 'var(--text-hint)' }}><Bell size={48} /></div>
+            <div className="empty-state-title">You're all caught up!</div>
+            <p className="empty-state-desc">You have no new notifications.</p>
           </div>
         ) : (
-          notifications.map(n => (
-            <div key={n.id} className={`notif-item ${!n.read ? 'notif-item--unread' : ''} ${n.type === 'URGENT_PRIORITY_ALERT' ? 'notif-item--urgent' : ''}`}>
-              <div className="notif-item__body">
-                <div className="notif-item__title">{n.title}</div>
-                <div className="notif-item__message">{n.message}</div>
-                <div className="notif-item__time">{timeAgo(n.createdAt)}</div>
-              </div>
-              <div className="notif-item__actions">
-                {!n.read && (
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {notifications.map((n, index) => (
+              <div 
+                key={n.id} 
+                style={{ 
+                  padding: '16px', 
+                  borderBottom: index < notifications.length - 1 ? '1px solid var(--border)' : 'none',
+                  background: !n.read ? (n.type === 'URGENT_PRIORITY_ALERT' ? '#fef2f2' : 'var(--primary-wash)') : 'transparent',
+                  display: 'flex',
+                  gap: '16px',
+                  alignItems: 'flex-start',
+                  transition: 'background 0.2s'
+                }}
+              >
+                <div style={{ 
+                  width: '8px', 
+                  height: '8px', 
+                  borderRadius: '50%', 
+                  background: !n.read ? (n.type === 'URGENT_PRIORITY_ALERT' ? '#ef4444' : 'var(--primary)') : 'transparent',
+                  marginTop: '6px',
+                  flexShrink: 0
+                }} />
+                
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: '14px', fontWeight: !n.read ? 600 : 500, color: n.type === 'URGENT_PRIORITY_ALERT' ? '#dc2626' : 'var(--text)', marginBottom: '4px' }}>
+                    {n.title}
+                  </div>
+                  <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '8px', lineHeight: 1.5 }}>
+                    {n.message}
+                  </div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-hint)', fontWeight: 500 }}>
+                    {timeAgo(n.createdAt)}
+                  </div>
+                </div>
+
+                <div className="flex-gap" style={{ flexShrink: 0 }}>
+                  {!n.read && (
+                    <button
+                      className="btn btn-ghost btn-sm"
+                      onClick={() => markRead(n.id)}
+                      title="Mark as read"
+                      style={{ padding: '6px', color: 'var(--primary)', border: 'none' }}
+                    >
+                      <Check size={16} />
+                    </button>
+                  )}
                   <button
-                    className="btn-dashboard btn-dashboard--secondary btn-dashboard--sm"
-                    onClick={() => markRead(n.id)}
-                    title="Mark as read"
+                    className="btn btn-ghost btn-sm text-danger"
+                    onClick={() => handleDelete(n.id)}
+                    title="Delete"
+                    style={{ padding: '6px', border: 'none' }}
                   >
-                    <Check size={14} />
+                    <Trash2 size={16} />
                   </button>
-                )}
-                <button
-                  className="btn-dashboard btn-dashboard--danger btn-dashboard--sm"
-                  onClick={() => handleDelete(n.id)}
-                  title="Delete"
-                >
-                  <Trash2 size={14} />
-                </button>
+                </div>
               </div>
-            </div>
-          ))
+            ))}
+          </div>
         )}
       </div>
     </>

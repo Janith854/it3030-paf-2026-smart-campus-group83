@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Mail, Phone, MapPin, Send, MessageCircle } from 'lucide-react';
+import { Mail, Phone, MapPin, Send } from 'lucide-react';
 import './Contact.css';
 
 export default function Contact() {
@@ -21,12 +20,7 @@ export default function Contact() {
   return (
     <section className="section section-dark contact" id="contact">
       <div className="container">
-        <motion.div 
-          className="section-header"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-        >
+        <div className="section-header">
           <div className="section-label">
             <span className="section-badge-dot" />
             Get In Touch
@@ -37,16 +31,11 @@ export default function Contact() {
           <p className="section-subtitle">
             Have questions about the platform or need technical assistance? Our team is available 24/7 to support your campus journey.
           </p>
-        </motion.div>
+        </div>
 
         <div className="contact__grid">
           {/* Contact Info */}
-          <motion.div 
-            className="contact__info"
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-          >
+          <div className="contact__info">
             <div className="contact__info-card">
               <h3 className="contact__info-title">Contact Information</h3>
               <p className="contact__info-desc">Reach out to us through any of these channels or fill the form.</p>
@@ -79,15 +68,10 @@ export default function Contact() {
                 <div className="social-badge">Active Support 24/7</div>
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* Contact Form */}
-          <motion.div 
-            className="contact__form-wrapper"
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-          >
+          <div className="contact__form-wrapper">
             <form className="contact__form" onSubmit={handleSubmit}>
               <div className="form-row">
                 <div className="form-group">
@@ -144,7 +128,7 @@ export default function Contact() {
                 )}
               </button>
             </form>
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>
