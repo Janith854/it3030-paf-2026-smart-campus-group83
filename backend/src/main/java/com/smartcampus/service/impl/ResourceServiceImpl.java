@@ -15,6 +15,8 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import java.util.List;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 /**
  * Module A — Facilities & Assets
@@ -101,28 +103,33 @@ public class ResourceServiceImpl implements ResourceService {
 
     private void cancelActiveBookingsForResource(Resource resource, Resource.ResourceStatus newStatus) {
         List<Booking> bookings = bookingRepository.findByResourceId(resource.getId());
-        LocalDate today = LocalDate.now();
+        LocalDateTime now = LocalDateTime.now();
 
         for (Booking b : bookings) {
-            if ((b.getStatus() == Booking.BookingStatus.PENDING || b.getStatus() == Booking.BookingStatus.APPROVED)
-                && (b.getBookingDate().isEqual(today) || b.getBookingDate().isAfter(today))) {
+            if (b.getStatus() == Booking.BookingStatus.PENDING || b.getStatus() == Booking.BookingStatus.APPROVED) {
                 
-                b.setStatus(Booking.BookingStatus.CANCELLED);
-                b.setRejectionReason("Resource is currently " + newStatus.name());
-                bookingRepository.save(b);
+                LocalDateTime bookingDateTime = LocalDateTime.of(b.getBookingDate(), b.getStartTime());
+                
+                // Only cancel if the booking is in the future AND within the next 48 hours
+                if (bookingDateTime.isAfter(now) && ChronoUnit.HOURS.between(now, bookingDateTime) <= 48) {
+                    
+                    b.setStatus(Booking.BookingStatus.CANCELLED);
+                    b.setRejectionReason("Resource is currently " + newStatus.name());
+                    bookingRepository.save(b);
 
-                // Notify the user
-                String reason = newStatus == Resource.ResourceStatus.MAINTENANCE ? "maintenance" : "being out of service";
-                String message = String.format("Your booking for '%s' on %s has been cancelled due to the resource %s.",
-                        resource.getName(), b.getBookingDate(), reason);
+                    // Notify the user
+                    String reason = newStatus == Resource.ResourceStatus.MAINTENANCE ? "maintenance" : "being out of service";
+                    String message = String.format("Your booking for '%s' on %s has been cancelled due to the resource %s.",
+                            resource.getName(), b.getBookingDate(), reason);
 
-                notificationService.createNotification(
-                        b.getUserId(),
-                        "Booking Cancelled",
-                        message,
-                        Notification.NotificationType.BOOKING_CANCELLED,
-                        b.getId()
-                );
+                    notificationService.createNotification(
+                            b.getUserId(),
+                            "Booking Cancelled",
+                            message,
+                            Notification.NotificationType.BOOKING_CANCELLED,
+                            b.getId()
+                    );
+                }
             }
         }
     }
