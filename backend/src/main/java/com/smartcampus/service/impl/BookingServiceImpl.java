@@ -3,6 +3,7 @@ package com.smartcampus.service.impl;
 import com.smartcampus.exception.AccessDeniedException;
 import com.smartcampus.exception.BookingConflictException;
 import com.smartcampus.exception.ResourceNotFoundException;
+import com.smartcampus.dto.response.BookingSlotDTO;
 import com.smartcampus.model.Booking;
 import com.smartcampus.model.Notification;
 import com.smartcampus.model.Resource;
@@ -16,7 +17,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Module B — Booking Management
@@ -232,5 +236,20 @@ public class BookingServiceImpl implements BookingService {
         }
 
         bookingRepository.delete(booking);
+    }
+
+    // ── Availability timeline feature ───────────────────────────────────────── //
+    @Override
+    public List<BookingSlotDTO> getAvailability(String resourceId, LocalDate date) {
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("HH:mm");
+        return bookingRepository
+            .findByResourceIdAndDateAndActiveStatuses(resourceId, date)
+            .stream()
+            .map(b -> new BookingSlotDTO(
+                b.getStartTime().format(fmt),
+                b.getEndTime().format(fmt),
+                b.getStatus().name()
+            ))
+            .collect(Collectors.toList());
     }
 }
