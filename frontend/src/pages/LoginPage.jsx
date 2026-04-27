@@ -113,6 +113,10 @@ export default function LoginPage() {
       <div className="auth-left">
         <img src={authIllustration} alt="Smart Campus" className="auth-left__image" />
         <div className="auth-left__content">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '3rem', fontSize: '1.2rem', fontWeight: 700 }}>
+            <Zap size={24} color="#fff" />
+            <span>SmartCampus Hub</span>
+          </div>
           <h1 className="auth-left__title">Welcome Back.</h1>
           <p className="auth-left__subtitle">
             Sign in to manage campus resources, bookings, and maintenance seamlessly.
