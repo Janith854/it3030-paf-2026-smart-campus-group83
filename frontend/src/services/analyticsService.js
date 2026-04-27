@@ -16,12 +16,12 @@ const getAuthHeaders = () => {
 
 export const analyticsService = {
   getTopResources: async () => {
-    const res = await fetch('http://localhost:8080/api/v1/analytics/top-resources', { headers: getAuthHeaders() });
+    const res = await fetch('/api/v1/analytics/top-resources', { headers: getAuthHeaders() });
     if (!res.ok) throw new Error("Failed to fetch top resources");
     return res.json();
   },
   getPeakHours: async () => {
-    const res = await fetch('http://localhost:8080/api/v1/analytics/peak-hours', { headers: getAuthHeaders() });
+    const res = await fetch('/api/v1/analytics/peak-hours', { headers: getAuthHeaders() });
     if (!res.ok) throw new Error("Failed to fetch peak hours");
     return res.json();
   }

@@ -19,7 +19,6 @@ public class AnalyticsService {
 
     public List<TopResourceDTO> getTopResources() {
         List<Booking> approvedBookings = bookingRepository.findAll().stream()
-                .filter(b -> b.getStatus() == Booking.BookingStatus.APPROVED)
                 .collect(Collectors.toList());
 
         Map<String, Long> counts = approvedBookings.stream()
@@ -34,7 +33,6 @@ public class AnalyticsService {
 
     public List<PeakHourDTO> getPeakBookingHours() {
         List<Booking> approvedBookings = bookingRepository.findAll().stream()
-                .filter(b -> b.getStatus() == Booking.BookingStatus.APPROVED)
                 .collect(Collectors.toList());
 
         Map<Integer, Long> hourCounts = approvedBookings.stream()
