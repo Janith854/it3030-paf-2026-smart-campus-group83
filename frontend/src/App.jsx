@@ -5,6 +5,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 import DashboardLayout from './pages/DashboardLayout';
 // Dashboards
 import UserDashboard from './components/dashboards/UserDashboard';
@@ -49,7 +50,7 @@ function App() {
             {/* Public */}
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<Navigate to="/login" replace />} />
+            <Route path="/register" element={<RegisterPage />} />
 
             {/* Dashboard Routing — role-based redirect */}
             <Route path="/dashboard" element={<DashboardRedirect />} />
