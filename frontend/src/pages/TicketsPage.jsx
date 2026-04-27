@@ -19,6 +19,7 @@ export default function TicketsPage() {
   const [showForm, setShowForm] = useState(false);
   const [filterStatus, setFilterStatus] = useState('');
   const [error, setError] = useState('');
+  const [newlyCreatedId, setNewlyCreatedId] = useState(null);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [comment, setComment] = useState('');
   const [formData, setFormData] = useState({
@@ -45,12 +46,20 @@ export default function TicketsPage() {
       } else {
         data = await ticketsApi.getMy();
       }
-      setTickets(Array.isArray(data) ? data : []);
+      const sorted = Array.isArray(data) ? [...data].sort((x, y) => (y.id || 0) > (x.id || 0) ? 1 : -1) : [];
+      setTickets(sorted);
     } catch (e) { setError(e.message); }
     setLoading(false);
   };
 
   useEffect(() => { load(); }, [filterStatus]);
+
+  useEffect(() => {
+    if (newlyCreatedId) {
+      const timer = setTimeout(() => setNewlyCreatedId(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [newlyCreatedId]);
 
   useEffect(() => {
     if (location.state?.openForm && !showForm) {
@@ -68,7 +77,8 @@ export default function TicketsPage() {
       return;
     }
     try {
-      await ticketsApi.create(formData, images);
+      const newTicket = await ticketsApi.create(formData, images);
+      setNewlyCreatedId(newTicket.id);
       setShowForm(false);
       setFormData({ category: 'IT/Network', description: '', priority: 'MEDIUM', location: '', preferredContact: '', resourceId: '' });
       setImages([]);
@@ -186,7 +196,7 @@ export default function TicketsPage() {
               </thead>
               <tbody>
                 {tickets.map(t => (
-                  <tr key={t.id}>
+                  <tr key={t.id} className={newlyCreatedId === t.id ? 'highlight-new' : ''}>
                     <td style={{ fontWeight: 500 }}>{t.category}</td>
                     <td style={{ maxWidth: '250px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.description}</td>
                     <td><span className={`badge badge-${t.priority?.toLowerCase() || 'pending'}`}>{t.priority}</span></td>
