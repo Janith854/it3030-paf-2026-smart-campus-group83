@@ -129,9 +129,33 @@ public class ResourceServiceImpl implements ResourceService {
 
     @Override
     public void deleteResource(String id) {
-        if (!resourceRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Resource not found: " + id);
+        Resource existing = resourceRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Resource not found: " + id));
+
+        // Cascade delete all bookings for this resource
+        List<Booking> bookings = bookingRepository.findByResourceId(id);
+        LocalDate today = LocalDate.now();
+
+        for (Booking b : bookings) {
+            // Notify users if they had a future active booking
+            if ((b.getStatus() == Booking.BookingStatus.PENDING || b.getStatus() == Booking.BookingStatus.APPROVED)
+                && (b.getBookingDate().isEqual(today) || b.getBookingDate().isAfter(today))) {
+                
+                String message = String.format("Your booking for '%s' on %s has been cancelled because the resource was permanently deleted by an administrator.",
+                        existing.getName(), b.getBookingDate());
+
+                notificationService.createNotification(
+                        b.getUserId(),
+                        "Booking Cancelled (Resource Deleted)",
+                        message,
+                        Notification.NotificationType.BOOKING_CANCELLED,
+                        b.getId()
+                );
+            }
+            // Delete the booking entirely so it removes it from the dashboard
+            bookingRepository.delete(b);
         }
+
         resourceRepository.deleteById(id);
     }
 }
