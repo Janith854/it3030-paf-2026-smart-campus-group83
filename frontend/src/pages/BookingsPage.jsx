@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useLocation } from 'react-router-dom';
 import { bookingsApi, resourcesApi } from '../services/api';
@@ -447,6 +447,8 @@ function BookingModal({ resources, initialResourceId, onClose, onCreated }) {
   const [touched, setTouched] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState('');
+  // Unique Feature: two-step time selection via timeline
+  const [timeSelectStep, setTimeSelectStep] = useState('start'); // 'start' | 'end'
 
   /* ── Validation rules ── */
   const validate = (f) => {
@@ -498,6 +500,26 @@ function BookingModal({ resources, initialResourceId, onClose, onCreated }) {
   const handleChange = (field, value) => {
     setForm(f => ({ ...f, [field]: value }));
     touch(field);
+  };
+
+  // Unique Feature: timeline click handler — two-step start → end selection
+  const handleTimelineSelect = (time) => {
+    if (timeSelectStep === 'start') {
+      handleChange('startTime', time);
+      setForm(f => ({ ...f, startTime: time, endTime: '' }));
+      touch('startTime');
+      setTimeSelectStep('end');
+    } else {
+      if (time > form.startTime) {
+        handleChange('endTime', time);
+        touch('endTime');
+        setTimeSelectStep('start');
+      } else {
+        // Clicked before current start — reset and treat as new start
+        setForm(f => ({ ...f, startTime: time, endTime: '' }));
+        touch('startTime');
+      }
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -585,6 +607,16 @@ function BookingModal({ resources, initialResourceId, onClose, onCreated }) {
               <span className="form-field-error">{errors.bookingDate}</span>
             )}
           </div>
+
+          {/* ── Unique Feature: Availability Timeline ──────────────────────── */}
+          <AvailabilityTimeline
+            resourceId={form.resourceId}
+            date={form.bookingDate}
+            startTime={form.startTime}
+            endTime={form.endTime}
+            selectStep={timeSelectStep}
+            onTimeSelect={handleTimelineSelect}
+          />
 
           {/* Start / End Time */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
@@ -675,6 +707,214 @@ function BookingModal({ resources, initialResourceId, onClose, onCreated }) {
           </div>
         </form>
       </div>
+    </div>
+  );
+}
+
+/* ── Unique Feature: Availability Timeline Component ─────────────────────────
+ * Renders a visual day bar (07:00–22:00) showing booked slots for the
+ * selected resource + date. Clicking a free zone auto-fills start/end times.
+ * ─────────────────────────────────────────────────────────────────────────── */
+function AvailabilityTimeline({ resourceId, date, startTime, endTime, selectStep, onTimeSelect }) {
+  const START_HOUR = 7;
+  const END_HOUR = 22;
+  const TOTAL_MINS = (END_HOUR - START_HOUR) * 60;
+
+  const [slots, setSlots] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [hoverTime, setHoverTime] = useState(null);
+  const barRef = useRef(null);
+
+  useEffect(() => {
+    if (!resourceId || !date) { setSlots([]); return; }
+    setLoading(true);
+    bookingsApi.getAvailability(resourceId, date)
+      .then(s => setSlots(Array.isArray(s) ? s : []))
+      .catch(() => setSlots([]))
+      .finally(() => setLoading(false));
+  }, [resourceId, date]);
+
+  const toMins = (t) => {
+    if (!t) return null;
+    const [h, m] = t.split(':').map(Number);
+    return h * 60 + m;
+  };
+  const toTime = (mins) => {
+    const h = Math.floor(mins / 60).toString().padStart(2, '0');
+    const m = (mins % 60).toString().padStart(2, '0');
+    return `${h}:${m}`;
+  };
+  const pct = (mins) => `${Math.max(0, Math.min(100, ((mins - START_HOUR * 60) / TOTAL_MINS) * 100))}%`;
+  const wPct = (sm, em) => `${Math.max(0, ((em - sm) / TOTAL_MINS) * 100)}%`;
+
+  const isBooked = (mins) => slots.some(s => {
+    const sm = toMins(s.startTime), em = toMins(s.endTime);
+    return sm !== null && em !== null && mins >= sm && mins < em;
+  });
+
+  const getMinsFromEvent = (e) => {
+    const rect = barRef.current.getBoundingClientRect();
+    const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    const raw = START_HOUR * 60 + ratio * TOTAL_MINS;
+    return Math.round(raw / 30) * 30; // snap to 30-min grid
+  };
+
+  const handleMouseMove = (e) => {
+    const mins = getMinsFromEvent(e);
+    setHoverTime(toTime(Math.min(mins, END_HOUR * 60)));
+  };
+  const handleClick = (e) => {
+    const mins = getMinsFromEvent(e);
+    if (isBooked(mins)) return;
+    onTimeSelect(toTime(Math.min(mins, END_HOUR * 60)));
+  };
+
+  const startMins = toMins(startTime);
+  const endMins = toMins(endTime);
+  const hours = Array.from({ length: END_HOUR - START_HOUR + 1 }, (_, i) => START_HOUR + i);
+
+  if (!resourceId || !date) return null;
+
+  return (
+    <div style={{ marginBottom: '1.25rem' }}>
+      {/* Header row */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+        <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-secondary)', letterSpacing: '0.02em' }}>
+          📅 Availability — click a free slot to set {selectStep === 'start' ? 'start' : 'end'} time
+        </span>
+        {hoverTime && (
+          <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--primary)', background: 'rgba(99,102,241,0.1)', padding: '2px 8px', borderRadius: '99px' }}>
+            {hoverTime}
+          </span>
+        )}
+      </div>
+
+      {loading ? (
+        <div style={{ height: '52px', borderRadius: '10px', background: 'var(--surface-variant, #f0f0f5)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.78rem', color: 'var(--text-hint)' }}>
+          Checking availability…
+        </div>
+      ) : (
+        <>
+          {/* ── Timeline bar ── */}
+          <div
+            ref={barRef}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={() => setHoverTime(null)}
+            onClick={handleClick}
+            title="Click to select time"
+            style={{
+              position: 'relative', height: '52px',
+              background: 'linear-gradient(90deg, rgba(134,239,172,0.25), rgba(74,222,128,0.15))',
+              borderRadius: '10px', cursor: 'crosshair', overflow: 'hidden',
+              border: '1.5px solid var(--border, #e2e8f0)',
+              boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.05)',
+            }}
+          >
+            {/* Hour grid lines */}
+            {hours.map(h => (
+              <div key={h} style={{
+                position: 'absolute', left: `${((h - START_HOUR) / (END_HOUR - START_HOUR)) * 100}%`,
+                top: 0, bottom: 0, width: '1px',
+                background: h % 2 === 0 ? 'rgba(0,0,0,0.10)' : 'rgba(0,0,0,0.04)',
+              }} />
+            ))}
+
+            {/* Booked slots */}
+            {slots.map((s, i) => {
+              const sm = toMins(s.startTime), em = toMins(s.endTime);
+              if (sm == null || em == null) return null;
+              const isApproved = s.status === 'APPROVED';
+              return (
+                <div key={i}
+                  title={`${isApproved ? 'Approved' : 'Pending'}: ${s.startTime} – ${s.endTime}`}
+                  style={{
+                    position: 'absolute', left: pct(sm), width: wPct(sm, em),
+                    top: '5px', bottom: '5px',
+                    background: isApproved
+                      ? 'linear-gradient(135deg, #ef4444, #dc2626)'
+                      : 'linear-gradient(135deg, #f97316, #ea580c)',
+                    borderRadius: '6px', cursor: 'not-allowed',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '10px', fontWeight: 700, color: '#fff',
+                    overflow: 'hidden', whiteSpace: 'nowrap', padding: '0 4px',
+                    boxShadow: '0 1px 4px rgba(0,0,0,0.2)',
+                  }}
+                >
+                  {s.startTime}–{s.endTime}
+                </div>
+              );
+            })}
+
+            {/* Selected range highlight */}
+            {startMins != null && endMins != null && endMins > startMins && (
+              <div style={{
+                position: 'absolute', left: pct(startMins), width: wPct(startMins, endMins),
+                top: '3px', bottom: '3px',
+                background: 'rgba(99,102,241,0.35)',
+                border: '2px solid #6366f1',
+                borderRadius: '7px', pointerEvents: 'none',
+                backdropFilter: 'blur(2px)',
+              }} />
+            )}
+
+            {/* Start time anchor line */}
+            {startMins != null && (
+              <div style={{
+                position: 'absolute', left: pct(startMins),
+                top: 0, bottom: 0, width: '2.5px',
+                background: '#6366f1', borderRadius: '2px',
+                pointerEvents: 'none',
+                boxShadow: '0 0 6px rgba(99,102,241,0.6)',
+              }} />
+            )}
+
+            {/* Hover cursor line */}
+            {hoverTime && (
+              <div style={{
+                position: 'absolute',
+                left: pct(toMins(hoverTime)),
+                top: 0, bottom: 0, width: '1.5px',
+                background: 'rgba(99,102,241,0.5)',
+                pointerEvents: 'none',
+              }} />
+            )}
+          </div>
+
+          {/* Hour labels */}
+          <div style={{ position: 'relative', height: '18px', marginTop: '3px' }}>
+            {hours.filter(h => h % 3 === 0 || h === START_HOUR || h === END_HOUR).map(h => (
+              <span key={h} style={{
+                position: 'absolute',
+                left: `${((h - START_HOUR) / (END_HOUR - START_HOUR)) * 100}%`,
+                transform: 'translateX(-50%)',
+                fontSize: '10px', color: 'var(--text-hint)',
+              }}>
+                {h}:00
+              </span>
+            ))}
+          </div>
+
+          {/* Legend */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '8px', fontSize: '11px', color: 'var(--text-secondary)' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <span style={{ width: '12px', height: '12px', borderRadius: '3px', background: 'linear-gradient(135deg,#ef4444,#dc2626)', display: 'inline-block' }} />
+              Approved
+            </span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <span style={{ width: '12px', height: '12px', borderRadius: '3px', background: 'linear-gradient(135deg,#f97316,#ea580c)', display: 'inline-block' }} />
+              Pending
+            </span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <span style={{ width: '12px', height: '12px', borderRadius: '3px', background: 'rgba(99,102,241,0.35)', border: '2px solid #6366f1', display: 'inline-block' }} />
+              Your selection
+            </span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <span style={{ width: '12px', height: '12px', borderRadius: '3px', background: 'linear-gradient(90deg,rgba(134,239,172,0.4),rgba(74,222,128,0.2))', display: 'inline-block' }} />
+              Free
+            </span>
+          </div>
+        </>
+      )}
     </div>
   );
 }
