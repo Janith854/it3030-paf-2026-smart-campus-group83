@@ -93,6 +93,9 @@ export const bookingsApi = {
   reject: (id, reason) => req('PATCH', `/bookings/${id}/reject?reason=${encodeURIComponent(reason)}`),
   cancel: (id) => req('PATCH', `/bookings/${id}/cancel`),
   delete: (id) => req('DELETE', `/bookings/${id}`),
+  // Unique Feature: returns booked slots for a resource on a specific date
+  getAvailability: (resourceId, date) =>
+    req('GET', `/bookings/availability?resourceId=${encodeURIComponent(resourceId)}&date=${date}`),
 };
 
 // ── Tickets ───────────────────────────────────────────────────────────────────
