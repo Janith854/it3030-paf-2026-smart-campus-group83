@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ticketsApi, usersApi } from '../services/api';
 import { Plus, X, Wrench, MessageSquare, UserPlus, Pencil } from 'lucide-react';
 
@@ -26,6 +26,7 @@ export default function TicketsPage() {
   });
   const [images, setImages] = useState([]);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const load = async () => {
     setLoading(true);
@@ -54,9 +55,10 @@ export default function TicketsPage() {
   useEffect(() => {
     if (location.state?.openForm && !showForm) {
       setShowForm(true);
-      window.history.replaceState({}, document.title);
+      // Clear the state so it doesn't re-open on next render
+      navigate(location.pathname, { replace: true, state: {} });
     }
-  }, [location, showForm]);
+  }, [location.state, showForm, navigate, location.pathname]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
