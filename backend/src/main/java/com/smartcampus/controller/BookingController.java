@@ -1,6 +1,8 @@
 package com.smartcampus.controller;
 
+import com.smartcampus.dto.BookingDTO;
 import com.smartcampus.dto.request.BookingRequest;
+import com.smartcampus.dto.request.BookingUpdateRequest;
 import com.smartcampus.exception.AccessDeniedException;
 import com.smartcampus.model.Booking;
 import com.smartcampus.model.User;
@@ -14,6 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Module B — Booking Management
@@ -26,9 +29,10 @@ public class BookingController {
 
     private final BookingService bookingService;
 
+    // Feature #15: Return BookingDTO, not raw entity
     @PostMapping
-    public ResponseEntity<Booking> createBooking(@Valid @RequestBody BookingRequest request,
-                                                   @AuthenticationPrincipal UserPrincipal user) {
+    public ResponseEntity<BookingDTO> createBooking(@Valid @RequestBody BookingRequest request,
+                                                    @AuthenticationPrincipal UserPrincipal user) {
         Booking booking = new Booking();
         booking.setResourceId(request.getResourceId());
         booking.setBookingDate(request.getBookingDate());
@@ -38,53 +42,74 @@ public class BookingController {
         booking.setExpectedAttendees(request.getExpectedAttendees());
 
         return ResponseEntity.status(HttpStatus.CREATED)
-            .body(bookingService.createBooking(booking, user.getId()));
+            .body(BookingDTO.fromEntity(bookingService.createBooking(booking, user.getId())));
+    }
+
+    // Feature #12: Edit purpose / attendees on own PENDING booking
+    @PatchMapping("/{id}")
+    public ResponseEntity<BookingDTO> updateBooking(@PathVariable String id,
+                                                    @RequestBody BookingUpdateRequest request,
+                                                    @AuthenticationPrincipal UserPrincipal user) {
+        Booking updated = bookingService.updateBooking(
+            id, user.getId(), request.getPurpose(), request.getExpectedAttendees()
+        );
+        return ResponseEntity.ok(BookingDTO.fromEntity(updated));
     }
 
     @GetMapping("/my")
-    public ResponseEntity<List<Booking>> getMyBookings(@AuthenticationPrincipal UserPrincipal user) {
-        return ResponseEntity.ok(bookingService.getMyBookings(user.getId()));
+    public ResponseEntity<List<BookingDTO>> getMyBookings(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(
+            bookingService.getMyBookings(user.getId()).stream()
+                .map(BookingDTO::fromEntity)
+                .collect(Collectors.toList())
+        );
     }
 
+    // Feature #14: Pagination with page/size query params (defaults: page 0, size 20)
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<Booking>> getAllBookings(@RequestParam(required = false) String status) {
-        return ResponseEntity.ok(bookingService.getAllBookings(status));
+    public ResponseEntity<List<BookingDTO>> getAllBookings(
+            @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return ResponseEntity.ok(
+            bookingService.getAllBookings(status, page, size).stream()
+                .map(BookingDTO::fromEntity)
+                .collect(Collectors.toList())
+        );
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Booking> getById(@PathVariable String id,
-                                           @AuthenticationPrincipal UserPrincipal user) {
+    public ResponseEntity<BookingDTO> getById(@PathVariable String id,
+                                              @AuthenticationPrincipal UserPrincipal user) {
         Booking booking = bookingService.getBookingById(id);
         // Admins can view any booking; users can only view their own
         if (user.getRole() != User.Role.ADMIN && !booking.getUserId().equals(user.getId())) {
-            throw new AccessDeniedException(
-                "You do not have permission to view this booking"
-            );
+            throw new AccessDeniedException("You do not have permission to view this booking");
         }
-        return ResponseEntity.ok(booking);
+        return ResponseEntity.ok(BookingDTO.fromEntity(booking));
     }
 
     @PatchMapping("/{id}/approve")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Booking> approve(@PathVariable String id,
-                                             @AuthenticationPrincipal UserPrincipal admin) {
-        return ResponseEntity.ok(bookingService.approveBooking(id, admin.getId()));
+    public ResponseEntity<BookingDTO> approve(@PathVariable String id,
+                                              @AuthenticationPrincipal UserPrincipal admin) {
+        return ResponseEntity.ok(BookingDTO.fromEntity(bookingService.approveBooking(id, admin.getId())));
     }
 
     @PatchMapping("/{id}/reject")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Booking> reject(@PathVariable String id,
-                                            @RequestParam String reason,
-                                            @AuthenticationPrincipal UserPrincipal admin) {
-        return ResponseEntity.ok(bookingService.rejectBooking(id, reason, admin.getId()));
+    public ResponseEntity<BookingDTO> reject(@PathVariable String id,
+                                             @RequestParam String reason,
+                                             @AuthenticationPrincipal UserPrincipal admin) {
+        return ResponseEntity.ok(BookingDTO.fromEntity(bookingService.rejectBooking(id, reason, admin.getId())));
     }
 
     @PatchMapping("/{id}/cancel")
-    public ResponseEntity<Booking> cancel(@PathVariable String id,
-                                          @AuthenticationPrincipal UserPrincipal user) {
+    public ResponseEntity<BookingDTO> cancel(@PathVariable String id,
+                                             @AuthenticationPrincipal UserPrincipal user) {
         boolean isAdmin = user.getRole() == User.Role.ADMIN;
-        return ResponseEntity.ok(bookingService.cancelBooking(id, user.getId(), isAdmin));
+        return ResponseEntity.ok(BookingDTO.fromEntity(bookingService.cancelBooking(id, user.getId(), isAdmin)));
     }
 
     @DeleteMapping("/{id}")
