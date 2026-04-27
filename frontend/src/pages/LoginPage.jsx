@@ -31,7 +31,13 @@ export default function LoginPage() {
       });
       window.google.accounts.id.renderButton(
         document.getElementById('google-signin-button'),
-        { theme: 'filled_black', size: 'large', width: 320 }
+        { 
+          theme: 'outline', 
+          size: 'large', 
+          width: 320, 
+          shape: 'pill',
+          logo_alignment: 'left'
+        }
       );
     }
   }, [isRegistering]);
@@ -258,7 +264,7 @@ export default function LoginPage() {
             )}
           </div>
 
-          <Link to="/" className="login-card__back" style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'center' }}>
+          <Link to="/" className="login-card__back" style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}>
             <ArrowLeft size={16} />
             Back to Homepage
           </Link>
