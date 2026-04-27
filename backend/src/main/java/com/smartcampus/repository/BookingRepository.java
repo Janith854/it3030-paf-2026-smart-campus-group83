@@ -20,6 +20,10 @@ public interface BookingRepository extends MongoRepository<Booking, String> {
     Page<Booking> findByStatus(Booking.BookingStatus status, Pageable pageable);
     Page<Booking> findAll(Pageable pageable);
 
+    // Availability: all active bookings for a resource on a given date
+    @Query("{ 'resourceId': ?0, 'bookingDate': ?1, 'status': { $in: ['PENDING', 'APPROVED'] } }")
+    List<Booking> findByResourceIdAndDateAndActiveStatuses(String resourceId, LocalDate date);
+
     // Conflict detection: overlapping bookings for same resource on same date
     @Query("{ 'resourceId': ?0, 'bookingDate': ?1, " +
            "'status': { $in: ['PENDING', 'APPROVED'] }, " +
