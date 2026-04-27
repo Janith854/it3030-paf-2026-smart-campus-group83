@@ -2,14 +2,19 @@ package com.smartcampus.service.impl;
 
 import com.smartcampus.exception.ResourceNotFoundException;
 import com.smartcampus.model.Resource;
+import com.smartcampus.model.Booking;
+import com.smartcampus.model.Notification;
 import com.smartcampus.repository.ResourceRepository;
+import com.smartcampus.repository.BookingRepository;
 import com.smartcampus.service.ResourceService;
+import com.smartcampus.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import java.util.List;
+import java.time.LocalDate;
 
 /**
  * Module A — Facilities & Assets
@@ -21,6 +26,8 @@ public class ResourceServiceImpl implements ResourceService {
 
     private final ResourceRepository resourceRepository;
     private final MongoTemplate mongoTemplate;
+    private final BookingRepository bookingRepository;
+    private final NotificationService notificationService;
 
     @Override
     public Resource createResource(Resource resource) {
@@ -82,7 +89,42 @@ public class ResourceServiceImpl implements ResourceService {
         Resource existing = resourceRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Resource not found: " + id));
         existing.setStatus(status);
-        return resourceRepository.save(existing);
+        Resource saved = resourceRepository.save(existing);
+        
+        // Cancel bookings if resource becomes inactive
+        if (status == Resource.ResourceStatus.MAINTENANCE || status == Resource.ResourceStatus.OUT_OF_SERVICE) {
+            cancelActiveBookingsForResource(saved, status);
+        }
+        
+        return saved;
+    }
+
+    private void cancelActiveBookingsForResource(Resource resource, Resource.ResourceStatus newStatus) {
+        List<Booking> bookings = bookingRepository.findByResourceId(resource.getId());
+        LocalDate today = LocalDate.now();
+
+        for (Booking b : bookings) {
+            if ((b.getStatus() == Booking.BookingStatus.PENDING || b.getStatus() == Booking.BookingStatus.APPROVED)
+                && (b.getBookingDate().isEqual(today) || b.getBookingDate().isAfter(today))) {
+                
+                b.setStatus(Booking.BookingStatus.CANCELLED);
+                b.setRejectionReason("Resource is currently " + newStatus.name());
+                bookingRepository.save(b);
+
+                // Notify the user
+                String reason = newStatus == Resource.ResourceStatus.MAINTENANCE ? "maintenance" : "being out of service";
+                String message = String.format("Your booking for '%s' on %s has been cancelled due to the resource %s.",
+                        resource.getName(), b.getBookingDate(), reason);
+
+                notificationService.createNotification(
+                        b.getUserId(),
+                        "Booking Cancelled",
+                        message,
+                        Notification.NotificationType.BOOKING_CANCELLED,
+                        b.getId()
+                );
+            }
+        }
     }
 
     @Override
