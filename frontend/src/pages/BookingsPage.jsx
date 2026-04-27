@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useLocation } from 'react-router-dom';
 import { bookingsApi, resourcesApi } from '../services/api';
-import { Plus, X, CalendarDays, AlertTriangle, Trash2 } from 'lucide-react';
+import { Plus, X, CalendarDays, AlertTriangle, Trash2, Pencil } from 'lucide-react';
 
 // ── Inline confirmation / prompt dialog ─────────────────────────────────────
 function ConfirmDialog({ title, message, confirmLabel = 'Confirm', confirmClass = 'btn btn-danger',
@@ -81,6 +81,7 @@ export default function BookingsPage() {
   const [confirmCancel, setConfirmCancel] = useState(null);  // booking id
   const [confirmDelete, setConfirmDelete] = useState(null);  // booking id
   const [confirmReject, setConfirmReject] = useState(null);  // booking id
+  const [editBooking, setEditBooking] = useState(null);       // full booking object
 
   if (user?.role === 'TECHNICIAN') {
     return (
@@ -133,6 +134,11 @@ export default function BookingsPage() {
     try { await bookingsApi.delete(confirmDelete); load(); }
     catch (e) { setError(e.message); }
     finally { setConfirmDelete(null); }
+  };
+
+  const handleUpdate = async (id, data) => {
+    try { await bookingsApi.update(id, data); load(); setEditBooking(null); }
+    catch (e) { setError(e.message); }
   };
 
   const getResourceName = (id) => resources.find(r => r.id === id)?.name || id;
@@ -232,6 +238,16 @@ export default function BookingsPage() {
                             <button className="btn btn-danger btn-sm" onClick={() => setConfirmReject(b.id)}>Reject</button>
                           </>
                         )}
+                        {/* Feature #12: Edit own PENDING booking */}
+                        {!isAdmin && b.status === 'PENDING' && b.userId === user?.id && (
+                          <button
+                            className="btn btn-outline btn-sm"
+                            onClick={() => setEditBooking(b)}
+                            title="Edit booking"
+                          >
+                            <Pencil size={13} style={{ marginRight: '3px' }} />Edit
+                          </button>
+                        )}
                         {/* Admin can cancel PENDING or APPROVED; users cancel own PENDING */}
                         {(isAdmin
                           ? (b.status === 'PENDING' || b.status === 'APPROVED')
@@ -303,7 +319,115 @@ export default function BookingsPage() {
           onClose={() => setConfirmReject(null)}
         />
       )}
+
+      {/* Feature #12: Edit booking modal */}
+      {editBooking && (
+        <EditBookingModal
+          booking={editBooking}
+          onClose={() => setEditBooking(null)}
+          onSaved={(id, data) => handleUpdate(id, data)}
+        />
+      )}
     </>
+  );
+}
+
+/* ── Edit Booking Modal ────────────────────────────────────────────────────── */
+function EditBookingModal({ booking, onClose, onSaved }) {
+  const [purpose, setPurpose] = useState(booking.purpose || '');
+  const [expectedAttendees, setExpectedAttendees] = useState(
+    booking.expectedAttendees != null ? String(booking.expectedAttendees) : ''
+  );
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
+  const purposeError = purpose.trim().length > 0 && purpose.trim().length < 5
+    ? 'Purpose must be at least 5 characters.'
+    : purpose.trim().length > 200
+      ? 'Purpose cannot exceed 200 characters.'
+      : '';
+
+  const attendeesError = expectedAttendees !== '' && (
+    !Number.isInteger(Number(expectedAttendees)) || Number(expectedAttendees) < 1
+  ) ? 'Must be a whole number ≥ 1.' : '';
+
+  const canSubmit = !purposeError && !attendeesError && !submitting;
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!canSubmit) return;
+    setSubmitting(true);
+    setError('');
+    try {
+      await onSaved(booking.id, {
+        purpose: purpose.trim() || undefined,
+        expectedAttendees: expectedAttendees !== '' ? parseInt(expectedAttendees) : undefined,
+      });
+    } catch (err) {
+      setError(err.message);
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" style={{ maxWidth: '480px' }} onClick={e => e.stopPropagation()}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <h2 className="modal__title">Edit Booking</h2>
+          <button className="btn btn-ghost btn-sm" style={{ padding: '4px', border: 'none' }}
+                  onClick={onClose} aria-label="Close"><X size={18} /></button>
+        </div>
+
+        {error && <div className="alert-conflict" style={{ marginBottom: '1rem' }}>{error}</div>}
+
+        <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '1.25rem' }}>
+          Only <strong>Purpose</strong> and <strong>Expected Attendees</strong> can be updated on a pending booking.
+          To change the date, time, or resource, please cancel and create a new booking.
+        </p>
+
+        <form onSubmit={handleSubmit} noValidate>
+          <div className="form-group">
+            <label className="form-label flex-between" htmlFor="edit-purpose">
+              Purpose
+              <span className="text-muted" style={{ fontWeight: 'normal', fontSize: '11px' }}>{purpose.length}/200</span>
+            </label>
+            <input
+              id="edit-purpose"
+              type="text"
+              className={`form-input${purposeError ? ' form-input--error' : ''}`}
+              value={purpose}
+              maxLength={200}
+              onChange={e => setPurpose(e.target.value)}
+            />
+            {purposeError && <span className="form-field-error">{purposeError}</span>}
+          </div>
+
+          <div className="form-group">
+            <label className="form-label" htmlFor="edit-attendees">
+              Expected Attendees
+              <span className="text-muted" style={{ fontWeight: 'normal', marginLeft: '4px' }}>(optional)</span>
+            </label>
+            <input
+              id="edit-attendees"
+              type="number"
+              className={`form-input${attendeesError ? ' form-input--error' : ''}`}
+              min={1}
+              max={9999}
+              value={expectedAttendees}
+              onChange={e => setExpectedAttendees(e.target.value)}
+            />
+            {attendeesError && <span className="form-field-error">{attendeesError}</span>}
+          </div>
+
+          <div className="form-actions">
+            <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
+            <button type="submit" className="btn btn-primary" disabled={!canSubmit}>
+              {submitting ? 'Saving…' : 'Save Changes'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }
 
