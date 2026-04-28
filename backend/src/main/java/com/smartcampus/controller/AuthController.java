@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * Module E — Authentication & RBAC
- * Member 4: feature/auth
+ * Authentication & RBAC
+ * 
  */
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -42,11 +42,10 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
         AuthResponse response = authService.registerLocal(
-            request.getEmail(),
-            request.getPassword(),
-            request.getName(),
-            request.getRole()
-        );
+                request.getEmail(),
+                request.getPassword(),
+                request.getName(),
+                request.getRole());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -58,9 +57,8 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         AuthResponse response = authService.loginLocal(
-            request.getEmail(),
-            request.getPassword()
-        );
+                request.getEmail(),
+                request.getPassword());
         return ResponseEntity.ok(response);
     }
 
@@ -75,7 +73,7 @@ public class AuthController {
     @PatchMapping("/users/{id}/role")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<User> updateRole(@PathVariable String id,
-                                           @RequestParam User.Role role) {
+            @RequestParam User.Role role) {
         return ResponseEntity.ok(authService.updateRole(id, role));
     }
 

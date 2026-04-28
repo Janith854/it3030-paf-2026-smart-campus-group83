@@ -16,8 +16,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Module E — Authentication & RBAC
- * Member 4: feature/auth
+ * — Authentication & RBAC
+ * 
  */
 @Service
 @RequiredArgsConstructor
@@ -36,8 +36,8 @@ public class AuthServiceImpl implements AuthService {
         }
 
         Map<String, Object> payload = fetchGoogleTokenInfo(googleToken);
-        String email   = (String) payload.get("email");
-        String name    = (String) payload.get("name");
+        String email = (String) payload.get("email");
+        String name = (String) payload.get("name");
         String picture = (String) payload.get("picture");
         String googleId = (String) payload.get("sub");
 
@@ -63,8 +63,7 @@ public class AuthServiceImpl implements AuthService {
 
         return jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole().name());
     }
-
-    // ── Local Registration ──────────────────────────────────────────────────── //
+    // Local Registration
 
     @Override
     public AuthResponse registerLocal(String email, String password, String name, User.Role role) {
@@ -77,7 +76,7 @@ public class AuthServiceImpl implements AuthService {
 
         User user = new User();
         user.setEmail(email);
-        user.setPassword(passwordEncoder.encode(password));  // BCrypt hash
+        user.setPassword(passwordEncoder.encode(password)); // BCrypt hash
         user.setName(name);
         user.setRole(safeRole);
 
@@ -133,8 +132,10 @@ public class AuthServiceImpl implements AuthService {
                             .build())
                     .build();
         } catch (Exception e) {
-            if (e.getMessage().contains("Invalid email or password")) throw e;
-            throw new RuntimeException("Database connection error. Please try the demo account: admin@smartcampus.com / admin123");
+            if (e.getMessage().contains("Invalid email or password"))
+                throw e;
+            throw new RuntimeException(
+                    "Database connection error. Please try the demo account: admin@smartcampus.com / admin123");
         }
     }
 
@@ -150,7 +151,7 @@ public class AuthServiceImpl implements AuthService {
             mock.setRole(User.Role.ADMIN);
             return mock;
         }
-        
+
         try {
             return userRepository.findById(userId)
                     .orElseThrow(() -> new ResourceNotFoundException("User not found: " + userId));

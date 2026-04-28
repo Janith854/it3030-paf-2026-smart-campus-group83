@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Module D — Notifications
- * Member 4: feature/auth
+/*
+   Notifications
+ 
  */
 @RestController
 @RequestMapping("/api/v1/notifications")
@@ -33,7 +33,7 @@ public class NotificationController {
 
     @PatchMapping("/{id}/read")
     public ResponseEntity<Notification> markAsRead(@PathVariable String id,
-                                                     @AuthenticationPrincipal UserPrincipal user) {
+            @AuthenticationPrincipal UserPrincipal user) {
         return ResponseEntity.ok(notificationService.markAsRead(id, user.getId()));
     }
 
@@ -45,7 +45,7 @@ public class NotificationController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id,
-                                       @AuthenticationPrincipal UserPrincipal user) {
+            @AuthenticationPrincipal UserPrincipal user) {
         notificationService.deleteNotification(id, user.getId());
         return ResponseEntity.noContent().build();
     }
