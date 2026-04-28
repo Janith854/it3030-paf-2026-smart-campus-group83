@@ -5,12 +5,42 @@ import { usersApi } from '../services/api';
 import './NotificationPreferencesPage.css';
 
 const PREFERENCE_OPTIONS = [
-  { key: 'bookingApproved', label: 'Booking Approved', desc: 'When admin approves your booking' },
-  { key: 'bookingRejected', label: 'Booking Rejected', desc: 'When admin rejects your booking' },
-  { key: 'ticketStatusChanged', label: 'Ticket Status Changed', desc: 'When your ticket status changes' },
-  { key: 'newCommentOnTicket', label: 'New Comment on Ticket', desc: 'When someone comments on your ticket' },
-  { key: 'technicianAssigned', label: 'Technician Assigned', desc: 'When a technician is assigned' },
-  { key: 'generalAlerts', label: 'General Alerts', desc: 'System announcements' },
+  { 
+    key: 'bookingApproved', 
+    label: 'Booking Approved', 
+    desc: 'When admin approves your booking',
+    roles: ['USER']
+  },
+  { 
+    key: 'bookingRejected', 
+    label: 'Booking Rejected', 
+    desc: 'When admin rejects your booking',
+    roles: ['USER']
+  },
+  { 
+    key: 'ticketStatusChanged', 
+    label: 'Ticket Status Changed', 
+    desc: 'When your ticket status changes',
+    roles: ['USER']
+  },
+  { 
+    key: 'newCommentOnTicket', 
+    label: 'New Comment on Ticket', 
+    desc: 'When someone comments on your ticket',
+    roles: ['USER', 'TECHNICIAN']
+  },
+  { 
+    key: 'technicianAssigned', 
+    label: 'Technician Assigned', 
+    desc: 'When a technician is assigned',
+    roles: ['USER', 'TECHNICIAN']
+  },
+  { 
+    key: 'generalAlerts', 
+    label: 'General Alerts', 
+    desc: 'System announcements',
+    roles: ['USER', 'TECHNICIAN']
+  },
 ];
 
 export default function NotificationPreferencesPage() {
@@ -72,7 +102,9 @@ export default function NotificationPreferencesPage() {
       </div>
 
       <div className="preferences-card">
-        {PREFERENCE_OPTIONS.map((opt) => (
+        {PREFERENCE_OPTIONS.filter(opt => 
+          user?.role === 'ADMIN' || opt.roles.includes(user?.role)
+        ).map((opt) => (
           <div className="preference-item" key={opt.key}>
             <div className="preference-info">
               <span className="preference-label">{opt.label}</span>
