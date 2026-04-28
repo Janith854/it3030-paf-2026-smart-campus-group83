@@ -24,6 +24,7 @@ public class Booking {
     private BookingStatus status = BookingStatus.PENDING;
     private String rejectionReason;
     private String approvedByAdminId;
+    private String checkInToken;          // UUID generated on approval for secure QR URLs
     private boolean isCheckedIn = false;
     private LocalDateTime checkedInAt;
     @CreatedDate private LocalDateTime createdAt;
