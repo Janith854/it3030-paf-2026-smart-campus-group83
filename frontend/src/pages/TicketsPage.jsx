@@ -14,6 +14,7 @@ export default function TicketsPage() {
   const isTechnician = user?.role === 'TECHNICIAN';
   const isStaff = isAdmin || isTechnician;
   const [tickets, setTickets] = useState([]);
+  const [overview, setOverview] = useState({ total: 0, open: 0, inProgress: 0, resolved: 0 });
   const [technicians, setTechnicians] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -27,15 +28,31 @@ export default function TicketsPage() {
   const [images, setImages] = useState([]);
   const location = useLocation();
 
+  const formatCount = (value) => String(value).padStart(2, '0');
+
+  const buildOverview = (list) => {
+    const safe = Array.isArray(list) ? list : [];
+    setOverview({
+      total: safe.length,
+      open: safe.filter(t => t.status === 'OPEN').length,
+      inProgress: safe.filter(t => t.status === 'IN_PROGRESS').length,
+      resolved: safe.filter(t => t.status === 'RESOLVED').length,
+    });
+  };
+
   const load = async () => {
     setLoading(true);
     try {
       let data = [];
       if (isStaff) {
-        data = await ticketsApi.getAll(filterStatus || undefined);
+        data = await ticketsApi.getAll();
         if (isTechnician) {
           // Technicians only see their assigned tickets or open unassigned tickets. Better yet, strictly assigned as per spec.
           data = Array.isArray(data) ? data.filter(t => t.assignedTechnicianId === user.id) : [];
+        }
+        buildOverview(data);
+        if (filterStatus) {
+          data = data.filter(t => t.status === filterStatus);
         }
         if (isAdmin) {
            const techList = await usersApi.getTechnicians();
@@ -43,6 +60,7 @@ export default function TicketsPage() {
         }
       } else {
         data = await ticketsApi.getMy();
+        buildOverview(data);
       }
       setTickets(Array.isArray(data) ? data : []);
     } catch (e) { setError(e.message); }
@@ -151,6 +169,28 @@ export default function TicketsPage() {
       </div>
 
       {error && <div className="alert-conflict" style={{ marginBottom: '1rem' }}>{error}</div>}
+
+      <div className="tickets-overview mb-3">
+        <h2 className="tickets-overview__title">Tickets Overview</h2>
+        <div className="tickets-overview__grid">
+          <div className="tickets-overview__card tickets-overview__card--total">
+            <div className="tickets-overview__label">{isTechnician ? 'Assigned To Me' : isAdmin ? 'Total Tickets' : 'My Tickets'}</div>
+            <div className="tickets-overview__value">{loading ? '00' : formatCount(overview.total)}</div>
+          </div>
+          <div className="tickets-overview__card tickets-overview__card--new">
+            <div className="tickets-overview__label">{isTechnician ? 'Total Open' : 'New Tickets'}</div>
+            <div className="tickets-overview__value">{loading ? '00' : formatCount(overview.open)}</div>
+          </div>
+          <div className="tickets-overview__card tickets-overview__card--ongoing">
+            <div className="tickets-overview__label">On-Going Tickets</div>
+            <div className="tickets-overview__value">{loading ? '00' : formatCount(overview.inProgress)}</div>
+          </div>
+          <div className="tickets-overview__card tickets-overview__card--resolved">
+            <div className="tickets-overview__label">Resolved Tickets</div>
+            <div className="tickets-overview__value">{loading ? '00' : formatCount(overview.resolved)}</div>
+          </div>
+        </div>
+      </div>
 
       <div className="filter-bar flex-between" style={{ marginBottom: '20px' }}>
         <div className="status-tabs" style={{ margin: 0, border: 'none' }}>
