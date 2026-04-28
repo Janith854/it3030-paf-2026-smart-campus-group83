@@ -98,6 +98,9 @@ export const bookingsApi = {
     req('GET', `/bookings/availability?resourceId=${encodeURIComponent(resourceId)}&date=${date}`),
   // Innovation: QR code check-in for approved bookings
   checkIn: (id) => req('PATCH', `/bookings/${id}/check-in`),
+  // Token-based check-in (secure QR code flow)
+  getByToken: (token) => req('GET', `/bookings/check-in/token/${token}`),
+  checkInByToken: (token) => req('PATCH', `/bookings/check-in/token/${token}`),
 };
 
 // ── Tickets ───────────────────────────────────────────────────────────────────
