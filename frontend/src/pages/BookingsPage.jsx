@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useLocation } from 'react-router-dom';
 import { bookingsApi, resourcesApi } from '../services/api';
-import { Plus, X, CalendarDays, AlertTriangle, Trash2, Pencil, QrCode, ShieldCheck } from 'lucide-react';
+import { Plus, X, CalendarDays, AlertTriangle, Trash2, Pencil, QrCode, ShieldCheck, Download } from 'lucide-react';
 
 // ── Inline confirmation / prompt dialog ─────────────────────────────────────
 function ConfirmDialog({ title, message, confirmLabel = 'Confirm', confirmClass = 'btn btn-danger',
@@ -84,6 +84,7 @@ export default function BookingsPage() {
   const [confirmReject, setConfirmReject] = useState(null);  // booking id
   const [editBooking, setEditBooking] = useState(null);       // full booking object
   const [showQr, setShowQr] = useState(null);                  // booking object for QR modal
+  const [downloadingQr, setDownloadingQr] = useState(false);
 
   if (user?.role === 'TECHNICIAN') {
     return (
@@ -147,8 +148,35 @@ export default function BookingsPage() {
   };
 
   const handleUpdate = async (id, data) => {
-    try { await bookingsApi.update(id, data); load(); setEditBooking(null); }
-    catch (e) { setError(e.message); }
+    try {
+      await bookingsApi.update(id, data);
+      setEditBooking(null);
+      load();
+    } catch (err) {
+      alert(err.message || 'Failed to update booking');
+    }
+  };
+
+  // Innovation Feature: Download QR Code offline
+  const handleDownloadQr = async () => {
+    if (!showQr) return;
+    setDownloadingQr(true);
+    try {
+      const url = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(window.location.origin + '/check-in/token/' + showQr.checkInToken)}`;
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = `booking-qr-${showQr.id}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      alert('Failed to download QR code');
+    }
+    setDownloadingQr(false);
   };
 
   const getResourceName = (id) => resources.find(r => r.id === id)?.name || id;
@@ -381,7 +409,7 @@ export default function BookingsPage() {
             </p>
             <div style={{ background: '#fff', borderRadius: '12px', display: 'inline-block', padding: '16px', marginBottom: '1rem' }}>
               <img
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(window.location.origin + '/check-in/' + showQr.id)}`}
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(window.location.origin + '/check-in/token/' + showQr.checkInToken)}`}
                 alt="Booking QR Code"
                 width={220}
                 height={220}
@@ -389,13 +417,22 @@ export default function BookingsPage() {
               />
             </div>
             <div style={{ fontSize: '0.78rem', color: 'var(--text-hint)', marginBottom: '0.5rem', wordBreak: 'break-all' }}>
-              {window.location.origin}/check-in/{showQr.id}
+              {window.location.origin}/check-in/token/{showQr.checkInToken}
             </div>
             <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
               <strong>{getResourceName(showQr.resourceId)}</strong><br />
               {showQr.bookingDate} &bull; {showQr.startTime} &ndash; {showQr.endTime}
             </p>
-            <div className="form-actions" style={{ marginTop: '1rem' }}>
+            <div className="form-actions" style={{ marginTop: '1rem', display: 'flex', gap: '8px', justifyContent: 'center' }}>
+              <button 
+                className="btn btn-primary" 
+                onClick={handleDownloadQr}
+                disabled={downloadingQr}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+              >
+                <Download size={16} /> 
+                {downloadingQr ? 'Downloading...' : 'Save Image'}
+              </button>
               <button className="btn btn-ghost" onClick={() => setShowQr(null)}>Close</button>
             </div>
           </div>
