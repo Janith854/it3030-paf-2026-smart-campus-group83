@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { bookingsApi, ticketsApi, notificationsApi } from '../../services/api';
+import { bookingsApi, ticketsApi, notificationsApi, usersApi, resourcesApi } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { Clock, Wrench, Activity, ArrowRight, Users, Building2 } from 'lucide-react';
 import AnalyticsDashboard from '../AnalyticsDashboard';
@@ -23,7 +23,7 @@ export default function AdminDashboard() {
     async function load() {
       try {
         const [bookings, tickets, notifs, users, resources] = await Promise.all([
-          bookingsApi.getAll('PENDING').catch(() => []),
+          bookingsApi.getAll('PENDING', 0, 100).catch(() => []),
           ticketsApi.getAll().catch(() => []),
           notificationsApi.getAll().catch(() => []),
           usersApi.getAll().catch(() => []),
@@ -36,17 +36,19 @@ export default function AdminDashboard() {
         const uArray = Array.isArray(users) ? users : [];
         const rArray = Array.isArray(resources) ? resources : [];
 
+        const pendingBookings = bArray.filter(b => b.status === 'PENDING');
         const openTickets = tArray.filter(t => t.status === 'OPEN');
+        const activeResources = rArray.filter(r => r.status === 'ACTIVE');
 
         setStats({
           totalUsers: uArray.length,
-          pendingBookings: bArray.length,
+          pendingBookings: pendingBookings.length,
           openTickets: openTickets.length,
-          activeResources: rArray.length
+          activeResources: activeResources.length
         });
 
         // Take the latest 3-4 items for recent activity
-        setRecentPendingBookings(bArray.slice(-4).reverse());
+        setRecentPendingBookings(pendingBookings.slice(-4).reverse());
         setRecentOpenTickets(openTickets.slice(-4).reverse());
         setRecentNotifications(nArray.slice(0, 5));
       } catch (error) {
