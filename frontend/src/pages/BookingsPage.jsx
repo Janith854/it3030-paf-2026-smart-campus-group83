@@ -179,6 +179,15 @@ export default function BookingsPage() {
     setDownloadingQr(false);
   };
 
+  const handleManualCheckIn = async (id) => {
+    try {
+      await bookingsApi.checkIn(id);
+      load();
+    } catch (err) {
+      alert(err.message || 'Check-in failed. Please ensure you are within the allowed time window.');
+    }
+  };
+
   const getResourceName = (id) => resources.find(r => r.id === id)?.name || id;
 
   // ── Context-aware empty state ─────────────────────────────────────────────
@@ -317,14 +326,27 @@ export default function BookingsPage() {
                         )}
                         {/* Innovation: QR Code check-in for approved bookings */}
                         {b.status === 'APPROVED' && !b.checkedIn && (
-                          <button
-                            className="btn btn-outline btn-sm"
-                            onClick={() => setShowQr(b)}
-                            title="Show QR Code for check-in"
-                            style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-                          >
-                            <QrCode size={14} /> QR
-                          </button>
+                          <>
+                            <button
+                              className="btn btn-outline btn-sm"
+                              onClick={() => setShowQr(b)}
+                              title="Show QR Code for check-in"
+                              style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                            >
+                              <QrCode size={14} /> QR
+                            </button>
+                            {/* Manual Admin Check-in Override */}
+                            {isAdmin && (
+                              <button
+                                className="btn btn-success btn-sm"
+                                onClick={() => handleManualCheckIn(b.id)}
+                                title="Manually verify check-in"
+                                style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                              >
+                                <ShieldCheck size={14} /> Verify
+                              </button>
+                            )}
+                          </>
                         )}
 
                       </div>
@@ -735,6 +757,7 @@ function BookingModal({ resources, initialResourceId, onClose, onCreated }) {
               <input
                 id="bk-start"
                 type="time"
+                step="900"
                 className={inputClass('startTime')}
                 value={form.startTime}
                 onChange={e => handleChange('startTime', e.target.value)}
@@ -749,6 +772,7 @@ function BookingModal({ resources, initialResourceId, onClose, onCreated }) {
               <input
                 id="bk-end"
                 type="time"
+                step="900"
                 className={inputClass('endTime')}
                 value={form.endTime}
                 onChange={e => handleChange('endTime', e.target.value)}
