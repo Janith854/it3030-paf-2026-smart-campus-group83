@@ -2,12 +2,17 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { bookingsApi, ticketsApi, notificationsApi } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
-import { Clock, Wrench, Activity, ArrowRight } from 'lucide-react';
+import { Clock, Wrench, Activity, ArrowRight, Users, Building2 } from 'lucide-react';
 import AnalyticsDashboard from '../AnalyticsDashboard';
 
 export default function AdminDashboard() {
   const { user } = useAuth();
-  const [ticketOverview, setTicketOverview] = useState({ total: 0, newTickets: 0, ongoing: 0, resolved: 0 });
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    pendingBookings: 0,
+    openTickets: 0,
+    activeResources: 0
+  });
   const [recentPendingBookings, setRecentPendingBookings] = useState([]);
   const [recentOpenTickets, setRecentOpenTickets] = useState([]);
   const [recentNotifications, setRecentNotifications] = useState([]);
@@ -17,23 +22,27 @@ export default function AdminDashboard() {
   useEffect(() => {
     async function load() {
       try {
-        const [bookings, tickets, notifs] = await Promise.all([
+        const [bookings, tickets, notifs, users, resources] = await Promise.all([
           bookingsApi.getAll('PENDING').catch(() => []),
           ticketsApi.getAll().catch(() => []),
           notificationsApi.getAll().catch(() => []),
+          usersApi.getAll().catch(() => []),
+          resourcesApi.getAll().catch(() => []),
         ]);
 
         const bArray = Array.isArray(bookings) ? bookings : [];
         const tArray = Array.isArray(tickets) ? tickets : [];
         const nArray = Array.isArray(notifs) ? notifs : [];
+        const uArray = Array.isArray(users) ? users : [];
+        const rArray = Array.isArray(resources) ? resources : [];
 
         const openTickets = tArray.filter(t => t.status === 'OPEN');
 
-        setTicketOverview({
-          total: tArray.length,
-          newTickets: openTickets.length,
-          ongoing: tArray.filter(t => t.status === 'IN_PROGRESS').length,
-          resolved: tArray.filter(t => t.status === 'RESOLVED').length,
+        setStats({
+          totalUsers: uArray.length,
+          pendingBookings: bArray.length,
+          openTickets: openTickets.length,
+          activeResources: rArray.length
         });
 
         // Take the latest 3-4 items for recent activity
@@ -48,8 +57,6 @@ export default function AdminDashboard() {
     load();
   }, []);
 
-  const formatCount = (value) => String(value).padStart(2, '0');
-
   return (
     <>
       <div className="page-header">
@@ -59,24 +66,48 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      <div className="tickets-overview mb-3">
-        <h2 className="tickets-overview__title">Tickets Overview</h2>
-        <div className="tickets-overview__grid">
-          <div className="tickets-overview__card tickets-overview__card--total">
-            <div className="tickets-overview__label">Total Tickets</div>
-            <div className="tickets-overview__value">{loading ? '00' : formatCount(ticketOverview.total)}</div>
+      <div className="summary-grid mb-3">
+        {/* Total Users */}
+        <div className="summary-card border-blue">
+          <div className="summary-card__content">
+            <div className="summary-card__label">Total Users</div>
+            <div className="summary-card__value">{loading ? '--' : stats.totalUsers}</div>
           </div>
-          <div className="tickets-overview__card tickets-overview__card--new">
-            <div className="tickets-overview__label">New Tickets</div>
-            <div className="tickets-overview__value">{loading ? '00' : formatCount(ticketOverview.newTickets)}</div>
+          <div className="summary-card__icon bg-blue-wash text-blue">
+            <Users size={20} />
           </div>
-          <div className="tickets-overview__card tickets-overview__card--ongoing">
-            <div className="tickets-overview__label">On-Going Tickets</div>
-            <div className="tickets-overview__value">{loading ? '00' : formatCount(ticketOverview.ongoing)}</div>
+        </div>
+
+        {/* Pending Bookings */}
+        <div className="summary-card border-orange">
+          <div className="summary-card__content">
+            <div className="summary-card__label">Pending Bookings</div>
+            <div className="summary-card__value">{loading ? '--' : stats.pendingBookings}</div>
           </div>
-          <div className="tickets-overview__card tickets-overview__card--resolved">
-            <div className="tickets-overview__label">Resolved Tickets</div>
-            <div className="tickets-overview__value">{loading ? '00' : formatCount(ticketOverview.resolved)}</div>
+          <div className="summary-card__icon bg-orange-wash text-orange">
+            <Clock size={20} />
+          </div>
+        </div>
+
+        {/* Open Tickets */}
+        <div className="summary-card border-red">
+          <div className="summary-card__content">
+            <div className="summary-card__label">Open Tickets</div>
+            <div className="summary-card__value">{loading ? '--' : stats.openTickets}</div>
+          </div>
+          <div className="summary-card__icon bg-red-wash text-red">
+            <Wrench size={20} />
+          </div>
+        </div>
+
+        {/* Active Resources */}
+        <div className="summary-card border-green">
+          <div className="summary-card__content">
+            <div className="summary-card__label">Active Resources</div>
+            <div className="summary-card__value">{loading ? '--' : stats.activeResources}</div>
+          </div>
+          <div className="summary-card__icon bg-green-wash text-green">
+            <Building2 size={20} />
           </div>
         </div>
       </div>
