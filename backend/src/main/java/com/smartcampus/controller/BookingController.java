@@ -133,4 +133,12 @@ public class BookingController {
         bookingService.deleteBooking(id, user.getId(), isAdmin);
         return ResponseEntity.noContent().build();
     }
+
+    // ── QR Code Check-In endpoint (Innovation Feature) ─────────────────────────
+    @PatchMapping("/{id}/check-in")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<BookingDTO> checkIn(@PathVariable String id,
+                                              @AuthenticationPrincipal UserPrincipal admin) {
+        return ResponseEntity.ok(BookingDTO.fromEntity(bookingService.checkInBooking(id, admin.getId())));
+    }
 }
