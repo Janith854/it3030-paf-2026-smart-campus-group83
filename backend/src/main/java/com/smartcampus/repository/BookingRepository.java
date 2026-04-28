@@ -33,4 +33,7 @@ public interface BookingRepository extends MongoRepository<Booking, String> {
 
     // QR check-in: look up by secure token
     java.util.Optional<Booking> findByCheckInToken(String checkInToken);
+
+    // Auto-cancellation: find ghost bookings
+    List<Booking> findByStatusAndIsCheckedInFalse(Booking.BookingStatus status);
 }
