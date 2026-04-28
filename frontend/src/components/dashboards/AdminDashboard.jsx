@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useOutletContext } from 'react-router-dom';
-import { bookingsApi, ticketsApi, resourcesApi, usersApi, notificationsApi } from '../../services/api';
+import { useNavigate } from 'react-router-dom';
+import { bookingsApi, ticketsApi, notificationsApi } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
-import { Users, Clock, Wrench, Building2, Activity, ArrowRight } from 'lucide-react';
+import { Clock, Wrench, Activity, ArrowRight } from 'lucide-react';
 import AnalyticsDashboard from '../AnalyticsDashboard';
-
 
 export default function AdminDashboard() {
   const { user } = useAuth();
-  const [stats, setStats] = useState({ totalUsers: 0, pendingBookings: 0, openTickets: 0, activeResources: 0, unread: 0 });
+  const [ticketOverview, setTicketOverview] = useState({ total: 0, newTickets: 0, ongoing: 0, resolved: 0 });
   const [recentPendingBookings, setRecentPendingBookings] = useState([]);
   const [recentOpenTickets, setRecentOpenTickets] = useState([]);
   const [recentNotifications, setRecentNotifications] = useState([]);
@@ -18,31 +17,28 @@ export default function AdminDashboard() {
   useEffect(() => {
     async function load() {
       try {
-        const [usersData, bookings, tickets, resources, notifs] = await Promise.all([
-          usersApi.getAll().catch(() => []),
+        const [bookings, tickets, notifs] = await Promise.all([
           bookingsApi.getAll('PENDING').catch(() => []),
-          ticketsApi.getAll('OPEN').catch(() => []),
-          resourcesApi.getAll().catch(() => []),
+          ticketsApi.getAll().catch(() => []),
           notificationsApi.getAll().catch(() => []),
         ]);
 
-        const uArray = Array.isArray(usersData) ? usersData : [];
         const bArray = Array.isArray(bookings) ? bookings : [];
         const tArray = Array.isArray(tickets) ? tickets : [];
-        const rArray = Array.isArray(resources) ? resources : [];
         const nArray = Array.isArray(notifs) ? notifs : [];
 
-        setStats({
-          totalUsers: uArray.length,
-          pendingBookings: bArray.length,
-          openTickets: tArray.length,
-          activeResources: rArray.filter(r => r.status === 'ACTIVE').length,
-          unread: nArray.filter(n => !n.isRead).length
+        const openTickets = tArray.filter(t => t.status === 'OPEN');
+
+        setTicketOverview({
+          total: tArray.length,
+          newTickets: openTickets.length,
+          ongoing: tArray.filter(t => t.status === 'IN_PROGRESS').length,
+          resolved: tArray.filter(t => t.status === 'RESOLVED').length,
         });
 
         // Take the latest 3-4 items for recent activity
         setRecentPendingBookings(bArray.slice(-4).reverse());
-        setRecentOpenTickets(tArray.slice(-4).reverse());
+        setRecentOpenTickets(openTickets.slice(-4).reverse());
         setRecentNotifications(nArray.slice(0, 5));
       } catch (error) {
         console.error('Failed to load admin dashboard:', error);
@@ -52,12 +48,7 @@ export default function AdminDashboard() {
     load();
   }, []);
 
-  const cards = [
-    { label: 'Total Users', value: stats.totalUsers, icon: Users, color: '#3b82f6' },
-    { label: 'Pending Bookings', value: stats.pendingBookings, icon: Clock, color: '#f59e0b' },
-    { label: 'Open Tickets', value: stats.openTickets, icon: Wrench, color: '#ef4444' },
-    { label: 'Active Resources', value: stats.activeResources, icon: Building2, color: '#10b981' },
-  ];
+  const formatCount = (value) => String(value).padStart(2, '0');
 
   return (
     <>
@@ -68,22 +59,26 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      <div className="card-grid mb-3">
-        {cards.map((c, i) => (
-          <div className="stat-card" key={i} style={{ borderTop: `3px solid ${c.color}` }}>
-            <div className="flex-between">
-              <div>
-                <div className="stat-label">{c.label}</div>
-                <div className="stat-value">
-                  {loading ? '—' : c.value}
-                </div>
-              </div>
-              <div style={{ padding: '8px', borderRadius: '8px', background: `${c.color}15` }}>
-                <c.icon size={20} color={c.color} />
-              </div>
-            </div>
+      <div className="tickets-overview mb-3">
+        <h2 className="tickets-overview__title">Tickets Overview</h2>
+        <div className="tickets-overview__grid">
+          <div className="tickets-overview__card tickets-overview__card--total">
+            <div className="tickets-overview__label">Total Tickets</div>
+            <div className="tickets-overview__value">{loading ? '00' : formatCount(ticketOverview.total)}</div>
           </div>
-        ))}
+          <div className="tickets-overview__card tickets-overview__card--new">
+            <div className="tickets-overview__label">New Tickets</div>
+            <div className="tickets-overview__value">{loading ? '00' : formatCount(ticketOverview.newTickets)}</div>
+          </div>
+          <div className="tickets-overview__card tickets-overview__card--ongoing">
+            <div className="tickets-overview__label">On-Going Tickets</div>
+            <div className="tickets-overview__value">{loading ? '00' : formatCount(ticketOverview.ongoing)}</div>
+          </div>
+          <div className="tickets-overview__card tickets-overview__card--resolved">
+            <div className="tickets-overview__label">Resolved Tickets</div>
+            <div className="tickets-overview__value">{loading ? '00' : formatCount(ticketOverview.resolved)}</div>
+          </div>
+        </div>
       </div>
 
       <div style={{ marginBottom: '24px' }}>

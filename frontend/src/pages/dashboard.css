@@ -463,6 +463,65 @@ input, select, textarea {
 .stat-indicator.active { color: #d97706; }
 .stat-indicator.unread { color: #1e40af; }
 
+.tickets-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tickets-overview__title {
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.1;
+}
+
+.tickets-overview__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.tickets-overview__card {
+  border-radius: 14px;
+  padding: 20px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+  min-height: 118px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.tickets-overview__card--total {
+  background: #e9d5ff;
+}
+
+.tickets-overview__card--new {
+  background: #bfdbfe;
+}
+
+.tickets-overview__card--ongoing {
+  background: #fde7c0;
+}
+
+.tickets-overview__card--resolved {
+  background: #bbf7d0;
+}
+
+.tickets-overview__label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.tickets-overview__value {
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1;
+  color: #0f172a;
+}
+
 /* === BUTTONS === */
 .btn {
   display: inline-flex;
@@ -696,6 +755,20 @@ input, select, textarea {
   }
   .sidebar-overlay.open {
     display: block;
+  }
+
+  .tickets-overview__title {
+    font-size: 24px;
+  }
+
+  .tickets-overview__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .tickets-overview__grid {
+    grid-template-columns: 1fr;
   }
 }
 
