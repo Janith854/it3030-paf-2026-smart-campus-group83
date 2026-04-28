@@ -1,8 +1,8 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
   Zap, LayoutDashboard, CalendarDays, Building2,
-  Wrench, Bell, Users, LogOut, Settings
+  Wrench, Bell, Users, LogOut, Settings, ChevronRight
 } from 'lucide-react';
 import NotificationBell from '../components/NotificationBell';
 import './dashboard.css';
@@ -81,6 +81,11 @@ export default function DashboardLayout() {
     );
   }
 
+  const location = useLocation();
+  const pathSegments = location.pathname.split('/').filter(Boolean);
+  const currentPage = pathSegments[pathSegments.length - 1] || 'Dashboard';
+  const formattedPage = currentPage.charAt(0).toUpperCase() + currentPage.slice(1).replace(/-/g, ' ');
+
   return (
     <div className="app-layout">
       {/* Sidebar */}
@@ -134,25 +139,38 @@ export default function DashboardLayout() {
 
       {/* Top Navbar */}
       <header className="dashboard-navbar">
+        <div className="navbar-left-content">
+          <div className="breadcrumb-container">
+            <span className="breadcrumb-root">Workspace</span>
+            <ChevronRight size={14} className="breadcrumb-separator" />
+            <span className="breadcrumb-current">
+              {formattedPage}
+            </span>
+          </div>
+        </div>
+
         <div style={{ flex: 1 }}></div>
+
         <div className="dashboard-navbar-right">
           <NotificationBell />
-          <div className="dashboard-navbar-user">
-            <div className="user-avatar">
+          
+          <div className="navbar-user-pill">
+            <div className="user-avatar-modern">
               {user.picture ? (
-                <img src={user.picture} alt={user.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                <img src={user.picture} alt={user.name} />
               ) : (
                 initials
               )}
             </div>
-            <div>
-              <div className="user-name">{user.name || user.email}</div>
-              <div className="user-role-badge">
-                {isAdmin ? 'Admin' : isTechnician ? 'Tech' : 'User'}
+            <div className="user-info-modern">
+              <div className="user-name-modern">{user.name || user.email}</div>
+              <div className="user-role-modern">
+                {isAdmin ? 'Administrator' : isTechnician ? 'Technician' : 'Faculty'}
               </div>
             </div>
-            <button className="sidebar-sign-out" style={{ marginLeft: '12px' }} onClick={handleLogout} title="Logout">
-              <LogOut size={16} />
+            <div className="navbar-divider"></div>
+            <button className="navbar-logout-btn" onClick={handleLogout} title="Logout">
+              <LogOut size={18} />
             </button>
           </div>
         </div>

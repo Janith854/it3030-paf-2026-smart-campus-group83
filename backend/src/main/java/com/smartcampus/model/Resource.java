@@ -19,7 +19,17 @@ public class Resource {
     @NotBlank(message = "Location is required") private String location;
     private String description;
     private ResourceStatus status = ResourceStatus.ACTIVE;
-    private List<String> availabilityWindows;
+    @org.springframework.data.mongodb.core.mapping.Field("availabilityWindows")
+    @com.fasterxml.jackson.annotation.JsonProperty("availabilityWindow")
+    private String availabilityWindow;
+
+    /** Fallback for legacy data stored as a list in MongoDB */
+    public void setAvailabilityWindows(java.util.List<String> availabilityWindows) {
+        if (availabilityWindows != null && !availabilityWindows.isEmpty()) {
+            this.availabilityWindow = availabilityWindows.get(0);
+        }
+    }
+
     @CreatedDate private LocalDateTime createdAt;
     @LastModifiedDate private LocalDateTime updatedAt;
 

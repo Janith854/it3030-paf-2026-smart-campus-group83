@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ticketsApi, usersApi } from '../services/api';
 import { Plus, X, Wrench, MessageSquare, UserPlus, Pencil } from 'lucide-react';
 
@@ -14,11 +14,13 @@ export default function TicketsPage() {
   const isTechnician = user?.role === 'TECHNICIAN';
   const isStaff = isAdmin || isTechnician;
   const [tickets, setTickets] = useState([]);
+  const [overview, setOverview] = useState({ total: 0, open: 0, inProgress: 0, resolved: 0 });
   const [technicians, setTechnicians] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [filterStatus, setFilterStatus] = useState('');
   const [error, setError] = useState('');
+  const [newlyCreatedId, setNewlyCreatedId] = useState(null);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [comment, setComment] = useState('');
   const [formData, setFormData] = useState({
@@ -26,16 +28,33 @@ export default function TicketsPage() {
   });
   const [images, setImages] = useState([]);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const formatCount = (value) => String(value).padStart(2, '0');
+
+  const buildOverview = (list) => {
+    const safe = Array.isArray(list) ? list : [];
+    setOverview({
+      total: safe.length,
+      open: safe.filter(t => t.status === 'OPEN').length,
+      inProgress: safe.filter(t => t.status === 'IN_PROGRESS').length,
+      resolved: safe.filter(t => t.status === 'RESOLVED').length,
+    });
+  };
 
   const load = async () => {
     setLoading(true);
     try {
       let data = [];
       if (isStaff) {
-        data = await ticketsApi.getAll(filterStatus || undefined);
+        data = await ticketsApi.getAll();
         if (isTechnician) {
           // Technicians only see their assigned tickets or open unassigned tickets. Better yet, strictly assigned as per spec.
           data = Array.isArray(data) ? data.filter(t => t.assignedTechnicianId === user.id) : [];
+        }
+        buildOverview(data);
+        if (filterStatus) {
+          data = data.filter(t => t.status === filterStatus);
         }
         if (isAdmin) {
            const techList = await usersApi.getTechnicians();
@@ -43,8 +62,10 @@ export default function TicketsPage() {
         }
       } else {
         data = await ticketsApi.getMy();
+        buildOverview(data);
       }
-      setTickets(Array.isArray(data) ? data : []);
+      const sorted = Array.isArray(data) ? [...data].sort((x, y) => (y.id || 0) > (x.id || 0) ? 1 : -1) : [];
+      setTickets(sorted);
     } catch (e) { setError(e.message); }
     setLoading(false);
   };
@@ -52,11 +73,19 @@ export default function TicketsPage() {
   useEffect(() => { load(); }, [filterStatus]);
 
   useEffect(() => {
+    if (newlyCreatedId) {
+      const timer = setTimeout(() => setNewlyCreatedId(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [newlyCreatedId]);
+
+  useEffect(() => {
     if (location.state?.openForm && !showForm) {
       setShowForm(true);
-      window.history.replaceState({}, document.title);
+      // Clear the state so it doesn't re-open on next render
+      navigate(location.pathname, { replace: true, state: {} });
     }
-  }, [location, showForm]);
+  }, [location.state, showForm, navigate, location.pathname]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -65,8 +94,20 @@ export default function TicketsPage() {
       setError('You can upload a maximum of 3 images.');
       return;
     }
+
+    const preferredContact = formData.preferredContact.trim();
+    if (preferredContact) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const phoneRegex = /^\d{10}$/;
+      if (!emailRegex.test(preferredContact) && !phoneRegex.test(preferredContact)) {
+        setError('Preferred Contact must be a valid email or a 10-digit phone number.');
+        return;
+      }
+    }
+
     try {
-      await ticketsApi.create(formData, images);
+      const newTicket = await ticketsApi.create({ ...formData, preferredContact }, images);
+      setNewlyCreatedId(newTicket.id);
       setShowForm(false);
       setFormData({ category: 'IT/Network', description: '', priority: 'MEDIUM', location: '', preferredContact: '', resourceId: '' });
       setImages([]);
@@ -135,11 +176,33 @@ export default function TicketsPage() {
       <div className="page-header">
         <div>
           <h1 className="page-title">Maintenance Tickets</h1>
-          <p className="page-subtitle">{isStaff ? 'Manage all maintenance requests' : 'Report and track issues'}</p>
+          <p className="page-subtitle">{isStaff ? 'Manage all maintenance requests' : 'Lecturer/Student: view how to report an issue and create a ticket.'}</p>
         </div>
       </div>
 
       {error && <div className="alert-conflict" style={{ marginBottom: '1rem' }}>{error}</div>}
+
+      <div className="tickets-overview mb-3">
+        <h2 className="tickets-overview__title">Tickets Overview</h2>
+        <div className="tickets-overview__grid">
+          <div className="tickets-overview__card tickets-overview__card--total">
+            <div className="tickets-overview__label">{isTechnician ? 'Assigned To Me' : isAdmin ? 'Total Tickets' : 'My Tickets'}</div>
+            <div className="tickets-overview__value">{loading ? '00' : formatCount(overview.total)}</div>
+          </div>
+          <div className="tickets-overview__card tickets-overview__card--new">
+            <div className="tickets-overview__label">{isTechnician ? 'Total Open' : 'New Tickets'}</div>
+            <div className="tickets-overview__value">{loading ? '00' : formatCount(overview.open)}</div>
+          </div>
+          <div className="tickets-overview__card tickets-overview__card--ongoing">
+            <div className="tickets-overview__label">On-Going Tickets</div>
+            <div className="tickets-overview__value">{loading ? '00' : formatCount(overview.inProgress)}</div>
+          </div>
+          <div className="tickets-overview__card tickets-overview__card--resolved">
+            <div className="tickets-overview__label">Resolved Tickets</div>
+            <div className="tickets-overview__value">{loading ? '00' : formatCount(overview.resolved)}</div>
+          </div>
+        </div>
+      </div>
 
       <div className="filter-bar flex-between" style={{ marginBottom: '20px' }}>
         <div className="status-tabs" style={{ margin: 0, border: 'none' }}>
@@ -167,7 +230,7 @@ export default function TicketsPage() {
           <div className="empty-state">
             <div style={{ marginBottom: '16px', color: 'var(--text-hint)' }}><Wrench size={48} /></div>
             <div className="empty-state-title">No tickets found</div>
-            <p className="empty-state-desc">Click "Report Issue" to create a maintenance request.</p>
+            <p className="empty-state-desc">Click "Report Issue", fill in the details, then click "Submit Ticket" to create a maintenance request.</p>
           </div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
@@ -184,7 +247,7 @@ export default function TicketsPage() {
               </thead>
               <tbody>
                 {tickets.map(t => (
-                  <tr key={t.id}>
+                  <tr key={t.id} className={newlyCreatedId === t.id ? 'highlight-new' : ''}>
                     <td style={{ fontWeight: 500 }}>{t.category}</td>
                     <td style={{ maxWidth: '250px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.description}</td>
                     <td><span className={`badge badge-${t.priority?.toLowerCase() || 'pending'}`}>{t.priority}</span></td>
@@ -262,7 +325,7 @@ export default function TicketsPage() {
               </div>
               <div className="form-group">
                 <label className="form-label">Preferred Contact (optional)</label>
-                <input type="text" className="form-input" value={formData.preferredContact} onChange={e => setFormData({ ...formData, preferredContact: e.target.value })} placeholder="e.g. email or phone" />
+                <input type="text" className="form-input" value={formData.preferredContact} onChange={e => setFormData({ ...formData, preferredContact: e.target.value })} placeholder="e.g. name@example.com or 0771234567" />
               </div>
               <div className="form-group">
                 <label className="form-label">Images (max 3)</label>

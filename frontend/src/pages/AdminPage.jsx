@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { usersApi } from '../services/api';
 import { Users, Shield, Trash2 } from 'lucide-react';
+import AnalyticsDashboard from '../components/AnalyticsDashboard';
 
 const ROLES = ['USER', 'ADMIN', 'TECHNICIAN'];
 
@@ -56,6 +57,9 @@ export default function AdminPage() {
           <p className="page-subtitle">Manage user roles and permissions</p>
         </div>
       </div>
+
+      <AnalyticsDashboard />
+      <br />
 
       {error && <div className="alert-conflict" style={{ marginBottom: '1rem' }}>{error}</div>}
 

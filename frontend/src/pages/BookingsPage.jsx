@@ -74,6 +74,7 @@ export default function BookingsPage() {
   const [showForm, setShowForm] = useState(false);
   const [filter, setFilter] = useState('');
   const [error, setError] = useState('');
+  const [newlyCreatedId, setNewlyCreatedId] = useState(null);
   const location = useLocation();
   const [initialResourceId] = useState(location.state?.resourceId || '');
 
@@ -100,7 +101,8 @@ export default function BookingsPage() {
         isAdmin ? bookingsApi.getAll(filter || undefined) : bookingsApi.getMy(),
         resourcesApi.getAll(),
       ]);
-      setBookings(Array.isArray(b) ? b : []);
+      const sorted = Array.isArray(b) ? [...b].sort((x, y) => (y.id || 0) > (x.id || 0) ? 1 : -1) : [];
+      setBookings(sorted);
       setResources(Array.isArray(r) ? r : []);
       if ((location.state?.resourceId || location.state?.openForm) && !showForm) {
         setShowForm(true);
@@ -109,6 +111,13 @@ export default function BookingsPage() {
     } catch (e) { setError(e.message); }
     setLoading(false);
   };
+
+  useEffect(() => {
+    if (newlyCreatedId) {
+      const timer = setTimeout(() => setNewlyCreatedId(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [newlyCreatedId]);
 
   useEffect(() => { load(); }, [filter]);
 
@@ -177,13 +186,15 @@ export default function BookingsPage() {
             </button>
           ))}
         </div>
-        <button
-          className="btn btn-primary"
-          onClick={() => setShowForm(true)}
-          id="new-booking-btn"
-        >
-          <Plus size={16} /> New Booking
-        </button>
+        {!isAdmin && (
+          <button
+            className="btn btn-primary"
+            onClick={() => setShowForm(true)}
+            id="new-booking-btn"
+          >
+            <Plus size={16} /> New Booking
+          </button>
+        )}
       </div>
 
       {/* Bookings Table */}
@@ -211,7 +222,7 @@ export default function BookingsPage() {
               </thead>
               <tbody>
                 {bookings.map(b => (
-                  <tr key={b.id}>
+                  <tr key={b.id} className={newlyCreatedId === b.id ? 'highlight-new' : ''}>
                     <td style={{ fontWeight: 500 }}>{getResourceName(b.resourceId)}</td>
                     <td>{b.bookingDate}</td>
                     <td>{b.startTime} &ndash; {b.endTime}</td>
@@ -268,6 +279,7 @@ export default function BookingsPage() {
                             <Trash2 size={15} />
                           </button>
                         )}
+
                       </div>
                     </td>
                   </tr>
@@ -284,7 +296,11 @@ export default function BookingsPage() {
           resources={resources}
           initialResourceId={initialResourceId}
           onClose={() => setShowForm(false)}
-          onCreated={() => { setShowForm(false); load(); }}
+          onCreated={(newId) => { 
+            setShowForm(false); 
+            setNewlyCreatedId(newId); 
+            load(); 
+          }}
         />
       )}
 
@@ -542,8 +558,8 @@ function BookingModal({ resources, initialResourceId, onClose, onCreated }) {
         ...form,
         expectedAttendees: form.expectedAttendees ? parseInt(form.expectedAttendees) : null,
       };
-      await bookingsApi.create(payload);
-      onCreated();
+      const newBooking = await bookingsApi.create(payload);
+      onCreated(newBooking.id);
     } catch (err) {
       setServerError(err.message);
     } finally {

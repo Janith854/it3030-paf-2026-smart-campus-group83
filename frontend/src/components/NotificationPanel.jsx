@@ -10,7 +10,7 @@ export default function NotificationPanel({ onClose }) {
 
   const isAdmin = user?.role === 'ADMIN';
   const isTechnician = user?.role === 'TECHNICIAN';
-  const basePath = isAdmin ? '/admin' : (isTechnician ? '/technician' : '/lecturer');
+  const basePath = isAdmin ? '/admin-dashboard' : (isTechnician ? '/tech-dashboard' : '/user-dashboard');
 
   const handleMarkAsRead = async (e, id) => {
     e.stopPropagation();
@@ -94,9 +94,13 @@ export default function NotificationPanel({ onClose }) {
       </div>
 
       <div className="notif-panel-footer">
-        <a href="#view-all" className="notif-panel-view-all" onClick={handleViewAll}>
+        <button 
+          className="notif-panel-view-all" 
+          onClick={handleViewAll}
+          style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}
+        >
           View all notifications
-        </a>
+        </button>
       </div>
     </div>
   );

@@ -47,8 +47,8 @@ public class TicketController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Ticket> getById(@PathVariable String id) {
-        return ResponseEntity.ok(ticketService.getTicketById(id));
+    public ResponseEntity<Ticket> getById(@PathVariable String id, @AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ticketService.getTicketById(id, user));
     }
 
     @PatchMapping("/{id}/status")

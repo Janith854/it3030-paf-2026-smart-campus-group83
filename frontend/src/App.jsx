@@ -5,7 +5,6 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
 import DashboardLayout from './pages/DashboardLayout';
 // Dashboards
 import UserDashboard from './components/dashboards/UserDashboard';
@@ -19,6 +18,7 @@ import TicketsPage from './pages/TicketsPage';
 import NotificationsPage from './pages/NotificationsPage';
 import NotificationPreferencesPage from './pages/NotificationPreferencesPage';
 import AdminPage from './pages/AdminPage';
+import ResourceBookingsPage from './pages/ResourceBookingsPage';
 const DashboardRedirect = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
@@ -50,7 +50,7 @@ function App() {
             {/* Public */}
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/register" element={<Navigate to="/login" replace />} />
 
             {/* Dashboard Routing — role-based redirect */}
             <Route path="/dashboard" element={<DashboardRedirect />} />
@@ -78,6 +78,7 @@ function App() {
               <Route path="notifications" element={<NotificationsPage />} />
               <Route path="users" element={<AdminPage />} />
               <Route path="preferences" element={<NotificationPreferencesPage />} />
+              <Route path="resource-bookings" element={<ResourceBookingsPage />} />
             </Route>
             {/* Legacy alias */}
             <Route path="/admin/*" element={<Navigate to="/admin-dashboard" replace />} />

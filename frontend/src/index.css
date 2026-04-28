@@ -431,3 +431,14 @@ input, select, textarea {
   .section-title { font-size: 26px; }
   .section-subtitle { font-size: 16px; }
 }
+
+/* Highlight for newly created items */
+@keyframes highlight-fade {
+  0% { background-color: rgba(42, 157, 143, 0.2); }
+  100% { background-color: transparent; }
+}
+
+.highlight-new {
+  animation: highlight-fade 3s ease-out forwards;
+  border-left: 4px solid var(--primary) !important;
+}
