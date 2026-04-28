@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useLocation } from 'react-router-dom';
 import { bookingsApi, resourcesApi } from '../services/api';
-import { Plus, X, CalendarDays, AlertTriangle, Trash2, Pencil } from 'lucide-react';
+import { Plus, X, CalendarDays, AlertTriangle, Trash2, Pencil, QrCode, ShieldCheck } from 'lucide-react';
 
 // ── Inline confirmation / prompt dialog ─────────────────────────────────────
 function ConfirmDialog({ title, message, confirmLabel = 'Confirm', confirmClass = 'btn btn-danger',
@@ -83,6 +83,7 @@ export default function BookingsPage() {
   const [confirmDelete, setConfirmDelete] = useState(null);  // booking id
   const [confirmReject, setConfirmReject] = useState(null);  // booking id
   const [editBooking, setEditBooking] = useState(null);       // full booking object
+  const [showQr, setShowQr] = useState(null);                  // booking object for QR modal
 
   if (user?.role === 'TECHNICIAN') {
     return (
@@ -239,7 +240,14 @@ export default function BookingsPage() {
                         </div>
                       )}
                     </td>
-                    <td><span className={`badge badge-${b.status?.toLowerCase() || 'pending'}`}>{b.status}</span></td>
+                    <td>
+                      <span className={`badge badge-${b.status?.toLowerCase() || 'pending'}`}>{b.status}</span>
+                      {b.status === 'APPROVED' && b.checkedIn && (
+                        <span className="badge" style={{ background: 'rgba(16,185,129,0.15)', color: '#10b981', marginLeft: '6px', fontSize: '0.7rem', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                          <ShieldCheck size={11} /> Checked In
+                        </span>
+                      )}
+                    </td>
                     <td>
                       <div className="flex-gap">
                         {isAdmin && b.status === 'PENDING' && (
@@ -277,6 +285,17 @@ export default function BookingsPage() {
                             title="Delete booking"
                           >
                             <Trash2 size={15} />
+                          </button>
+                        )}
+                        {/* Innovation: QR Code check-in for approved bookings */}
+                        {b.status === 'APPROVED' && !b.checkedIn && (
+                          <button
+                            className="btn btn-outline btn-sm"
+                            onClick={() => setShowQr(b)}
+                            title="Show QR Code for check-in"
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                          >
+                            <QrCode size={14} /> QR
                           </button>
                         )}
 
@@ -343,6 +362,44 @@ export default function BookingsPage() {
           onClose={() => setEditBooking(null)}
           onSaved={(id, data) => handleUpdate(id, data)}
         />
+      )}
+
+      {/* Innovation: QR Code Check-In Modal */}
+      {showQr && (
+        <div className="modal-overlay" onClick={() => setShowQr(null)}>
+          <div className="modal" style={{ maxWidth: '420px', textAlign: 'center' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h2 className="modal__title" style={{ fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <QrCode size={20} style={{ color: 'var(--primary)' }} />
+                Booking QR Code
+              </h2>
+              <button className="btn btn-ghost btn-sm" style={{ padding: '4px', border: 'none' }}
+                      onClick={() => setShowQr(null)} aria-label="Close"><X size={18} /></button>
+            </div>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '1rem' }}>
+              Present this QR code to an administrator at the venue for check-in verification.
+            </p>
+            <div style={{ background: '#fff', borderRadius: '12px', display: 'inline-block', padding: '16px', marginBottom: '1rem' }}>
+              <img
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(window.location.origin + '/check-in/' + showQr.id)}`}
+                alt="Booking QR Code"
+                width={220}
+                height={220}
+                style={{ display: 'block' }}
+              />
+            </div>
+            <div style={{ fontSize: '0.78rem', color: 'var(--text-hint)', marginBottom: '0.5rem', wordBreak: 'break-all' }}>
+              {window.location.origin}/check-in/{showQr.id}
+            </div>
+            <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+              <strong>{getResourceName(showQr.resourceId)}</strong><br />
+              {showQr.bookingDate} &bull; {showQr.startTime} &ndash; {showQr.endTime}
+            </p>
+            <div className="form-actions" style={{ marginTop: '1rem' }}>
+              <button className="btn btn-ghost" onClick={() => setShowQr(null)}>Close</button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );
