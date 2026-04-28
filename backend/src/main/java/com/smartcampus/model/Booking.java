@@ -24,6 +24,8 @@ public class Booking {
     private BookingStatus status = BookingStatus.PENDING;
     private String rejectionReason;
     private String approvedByAdminId;
+    private boolean isCheckedIn = false;
+    private LocalDateTime checkedInAt;
     @CreatedDate private LocalDateTime createdAt;
     @LastModifiedDate private LocalDateTime updatedAt;
 
