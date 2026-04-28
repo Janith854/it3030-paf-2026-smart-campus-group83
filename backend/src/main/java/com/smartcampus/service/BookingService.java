@@ -17,5 +17,7 @@ public interface BookingService {
     Booking cancelBooking(String id, String userId, boolean isAdmin);
     void deleteBooking(String id, String userId, boolean isAdmin);
     Booking checkInBooking(String id, String adminId);
+    Booking checkInByToken(String token, String adminId);
+    Booking getBookingByToken(String token);
     List<BookingSlotDTO> getAvailability(String resourceId, LocalDate date);
 }
