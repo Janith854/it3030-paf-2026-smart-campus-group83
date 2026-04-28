@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Module B — Booking Management
@@ -35,11 +36,18 @@ public class BookingServiceImpl implements BookingService {
     private final UserRepository userRepository;
     private final ResourceRepository resourceRepository;
 
+    private final ConcurrentHashMap<String, Object> resourceLocks = new ConcurrentHashMap<>();
+
     @Override
     public Booking createBooking(Booking booking, String userId) {
         // Guard: end time must be after start time
         if (!booking.getStartTime().isBefore(booking.getEndTime())) {
             throw new RuntimeException("End time must be after start time");
+        }
+
+        // Granularity Guard: Time slots must be in 15-minute intervals
+        if (booking.getStartTime().getMinute() % 15 != 0 || booking.getEndTime().getMinute() % 15 != 0) {
+            throw new RuntimeException("Booking times must be in 15-minute intervals (e.g., 10:00, 10:15, 10:30).");
         }
 
         // Feature #13: Capacity vs. attendees validation
@@ -54,35 +62,41 @@ public class BookingServiceImpl implements BookingService {
             }
         }
 
-        List<Booking> conflicts = bookingRepository.findConflictingBookings(
-            booking.getResourceId(),
-            booking.getBookingDate(),
-            booking.getStartTime(),
-            booking.getEndTime()
-        );
-        if (!conflicts.isEmpty()) {
-            Booking conflict = conflicts.get(0);
-            throw new BookingConflictException(
-                "Resource already booked from " + conflict.getStartTime() + " to " + conflict.getEndTime()
+        // Concurrency Fix: Prevent double bookings by locking on ResourceId + Date
+        String lockKey = booking.getResourceId() + "-" + booking.getBookingDate().toString();
+        Object lock = resourceLocks.computeIfAbsent(lockKey, k -> new Object());
+
+        synchronized (lock) {
+            List<Booking> conflicts = bookingRepository.findConflictingBookings(
+                booking.getResourceId(),
+                booking.getBookingDate(),
+                booking.getStartTime(),
+                booking.getEndTime()
             );
+            if (!conflicts.isEmpty()) {
+                Booking conflict = conflicts.get(0);
+                throw new BookingConflictException(
+                    "Resource already booked from " + conflict.getStartTime() + " to " + conflict.getEndTime()
+                );
+            }
+
+            booking.setUserId(userId);
+            booking.setStatus(Booking.BookingStatus.PENDING);
+            Booking saved = bookingRepository.save(booking);
+
+            List<User> admins = userRepository.findByRole(User.Role.ADMIN);
+            for (User admin : admins) {
+                notificationService.createNotification(
+                    admin.getId(),
+                    "New Booking Request",
+                    "A new booking request for " + saved.getPurpose() + " is pending your approval.",
+                    Notification.NotificationType.BOOKING_CREATED,
+                    saved.getId()
+                );
+            }
+
+            return saved;
         }
-
-        booking.setUserId(userId);
-        booking.setStatus(Booking.BookingStatus.PENDING);
-        Booking saved = bookingRepository.save(booking);
-
-        List<User> admins = userRepository.findByRole(User.Role.ADMIN);
-        for (User admin : admins) {
-            notificationService.createNotification(
-                admin.getId(),
-                "New Booking Request",
-                "A new booking request for " + saved.getPurpose() + " is pending your approval.",
-                Notification.NotificationType.BOOKING_CREATED,
-                saved.getId()
-            );
-        }
-
-        return saved;
     }
 
     @Override
