@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { bookingsApi, ticketsApi, notificationsApi } from '../../services/api';
+import { bookingsApi, ticketsApi, notificationsApi, usersApi, resourcesApi } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { Clock, Wrench, Activity, ArrowRight, Users, Building2 } from 'lucide-react';
 import AnalyticsDashboard from '../AnalyticsDashboard';
