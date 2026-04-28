@@ -36,6 +36,8 @@ public class BookingDTO {
     private LocalDateTime createdAt;
     private String rejectionReason;
     private String approvedByAdminId;
+    private boolean isCheckedIn;
+    private LocalDateTime checkedInAt;
 
     public static BookingDTO fromEntity(Booking entity) {
         BookingDTO dto = new BookingDTO();
@@ -51,6 +53,8 @@ public class BookingDTO {
         dto.setCreatedAt(entity.getCreatedAt());
         dto.setRejectionReason(entity.getRejectionReason());
         dto.setApprovedByAdminId(entity.getApprovedByAdminId());
+        dto.setCheckedIn(entity.isCheckedIn());
+        dto.setCheckedInAt(entity.getCheckedInAt());
         return dto;
     }
 
@@ -68,6 +72,8 @@ public class BookingDTO {
         entity.setCreatedAt(this.createdAt);
         entity.setRejectionReason(this.rejectionReason);
         entity.setApprovedByAdminId(this.approvedByAdminId);
+        entity.setCheckedIn(this.isCheckedIn);
+        entity.setCheckedInAt(this.checkedInAt);
         return entity;
     }
 }
