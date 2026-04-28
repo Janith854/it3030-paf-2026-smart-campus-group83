@@ -30,4 +30,7 @@ public interface BookingRepository extends MongoRepository<Booking, String> {
            "'startTime': { $lt: ?3 }, 'endTime': { $gt: ?2 } }")
     List<Booking> findConflictingBookings(String resourceId, LocalDate date,
                                           LocalTime startTime, LocalTime endTime);
+
+    // QR check-in: look up by secure token
+    java.util.Optional<Booking> findByCheckInToken(String checkInToken);
 }
