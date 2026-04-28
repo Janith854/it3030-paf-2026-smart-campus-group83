@@ -573,6 +573,7 @@ input, select, textarea {
 }
 .btn-outline:hover {
   background: var(--primary-wash);
+  color: var(--primary);
 }
 
 .btn-ghost {
