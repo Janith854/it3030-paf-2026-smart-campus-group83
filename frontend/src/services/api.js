@@ -96,6 +96,8 @@ export const bookingsApi = {
   // Unique Feature: returns booked slots for a resource on a specific date
   getAvailability: (resourceId, date) =>
     req('GET', `/bookings/availability?resourceId=${encodeURIComponent(resourceId)}&date=${date}`),
+  // Innovation: QR code check-in for approved bookings
+  checkIn: (id) => req('PATCH', `/bookings/${id}/check-in`),
 };
 
 // ── Tickets ───────────────────────────────────────────────────────────────────
