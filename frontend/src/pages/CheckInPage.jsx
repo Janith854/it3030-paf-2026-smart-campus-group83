@@ -9,7 +9,7 @@ import { ShieldCheck, CalendarDays, Clock, MapPin, Users, AlertTriangle, QrCode,
  * details and confirm the check-in with one click.                            *
  * ──────────────────────────────────────────────────────────────────────────── */
 export default function CheckInPage() {
-  const { id } = useParams();
+  const { token } = useParams();
   const { user, loading: authLoading } = useAuth();
   const isAdmin = user?.role === 'ADMIN';
 
@@ -30,7 +30,7 @@ export default function CheckInPage() {
     setLoading(true);
     setError('');
     try {
-      const b = await bookingsApi.getById(id);
+      const b = await bookingsApi.getByToken(token);
       setBooking(b);
       try {
         const allResources = await resourcesApi.getAll();
@@ -47,7 +47,7 @@ export default function CheckInPage() {
     setChecking(true);
     setError('');
     try {
-      const updated = await bookingsApi.checkIn(id);
+      const updated = await bookingsApi.checkInByToken(token);
       setBooking(updated);
       setSuccess(true);
     } catch (e) {
@@ -149,9 +149,16 @@ export default function CheckInPage() {
         </h1>
 
         {alreadyDone && (
-          <p style={{ color: '#10b981', fontSize: '0.9rem', margin: '0 0 1.25rem', fontWeight: 500 }}>
-            This booking was successfully verified.
-          </p>
+          <div style={{ background: 'rgba(16,185,129,0.1)', padding: '12px', borderRadius: '8px', marginBottom: '1.25rem' }}>
+            <p style={{ color: '#10b981', fontSize: '0.9rem', margin: '0 0 4px', fontWeight: 500 }}>
+              This booking was successfully verified.
+            </p>
+            {booking.checkedInAt && (
+              <p style={{ color: '#059669', fontSize: '0.75rem', margin: 0 }}>
+                Check-in time: {new Date(booking.checkedInAt).toLocaleString()}
+              </p>
+            )}
+          </div>
         )}
 
         {notApproved && !alreadyDone && (
