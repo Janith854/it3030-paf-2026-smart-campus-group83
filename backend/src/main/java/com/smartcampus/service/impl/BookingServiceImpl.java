@@ -237,6 +237,34 @@ public class BookingServiceImpl implements BookingService {
 
         bookingRepository.delete(booking);
     }
+    // ── QR Code Check-In feature ─────────────────────────────────────────────── //
+    @Override
+    public Booking checkInBooking(String id, String adminId) {
+        Booking booking = bookingRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Booking not found: " + id));
+
+        if (booking.getStatus() != Booking.BookingStatus.APPROVED) {
+            throw new RuntimeException("Only APPROVED bookings can be checked in");
+        }
+
+        if (booking.isCheckedIn()) {
+            throw new RuntimeException("This booking has already been checked in");
+        }
+
+        booking.setCheckedIn(true);
+        booking.setCheckedInAt(java.time.LocalDateTime.now());
+        Booking saved = bookingRepository.save(booking);
+
+        notificationService.createNotification(
+            saved.getUserId(),
+            "Booking Checked In",
+            "Your booking for " + saved.getBookingDate() + " (" + saved.getStartTime() + " – " + saved.getEndTime() + ") has been verified.",
+            Notification.NotificationType.BOOKING_APPROVED,
+            saved.getId()
+        );
+
+        return saved;
+    }
 
     // ── Availability timeline feature ───────────────────────────────────────── //
     @Override
