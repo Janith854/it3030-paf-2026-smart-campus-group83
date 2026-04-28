@@ -134,11 +134,26 @@ public class BookingController {
         return ResponseEntity.noContent().build();
     }
 
-    // ── QR Code Check-In endpoint (Innovation Feature) ─────────────────────────
+    // ── QR Code Check-In endpoints (Innovation Feature) ────────────────────────
     @PatchMapping("/{id}/check-in")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<BookingDTO> checkIn(@PathVariable String id,
                                               @AuthenticationPrincipal UserPrincipal admin) {
         return ResponseEntity.ok(BookingDTO.fromEntity(bookingService.checkInBooking(id, admin.getId())));
+    }
+
+    // Token-based check-in (used by QR code scans for security)
+    @PatchMapping("/check-in/token/{token}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<BookingDTO> checkInByToken(@PathVariable String token,
+                                                     @AuthenticationPrincipal UserPrincipal admin) {
+        return ResponseEntity.ok(BookingDTO.fromEntity(bookingService.checkInByToken(token, admin.getId())));
+    }
+
+    // Token-based booking lookup (for the check-in verification screen)
+    @GetMapping("/check-in/token/{token}")
+    public ResponseEntity<BookingDTO> getByToken(@PathVariable String token,
+                                                  @AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(BookingDTO.fromEntity(bookingService.getBookingByToken(token)));
     }
 }
