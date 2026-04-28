@@ -1185,3 +1185,80 @@ input, select, textarea {
   background: var(--bg);
   color: var(--text);
 }
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.summary-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  transition: all 0.2s ease;
+}
+
+.summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.06);
+}
+
+.summary-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.summary-card__label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.summary-card__value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.summary-card__icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Card Specifics */
+.summary-card.border-blue { border-top: 3px solid #3b82f6; }
+.summary-card.border-orange { border-top: 3px solid #f97316; }
+.summary-card.border-red { border-top: 3px solid #ef4444; }
+.summary-card.border-green { border-top: 3px solid #10b981; }
+
+.bg-blue-wash { background: rgba(59, 130, 246, 0.1); }
+.bg-orange-wash { background: rgba(249, 115, 22, 0.1); }
+.bg-red-wash { background: rgba(239, 68, 68, 0.1); }
+.bg-green-wash { background: rgba(16, 185, 129, 0.1); }
+
+.text-blue { color: #2563eb; }
+.text-orange { color: #ea580c; }
+.text-red { color: #dc2626; }
+.text-green { color: #059669; }
+
+@media (max-width: 1024px) {
+  .summary-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .summary-grid { grid-template-columns: 1fr; }
+}
