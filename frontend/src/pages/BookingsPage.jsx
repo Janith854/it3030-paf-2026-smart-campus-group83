@@ -256,9 +256,9 @@ export default function BookingsPage() {
                     <td>{b.bookingDate}</td>
                     <td>{b.startTime} &ndash; {b.endTime}</td>
                     <td>
-                      {/* UX FIX #2: Show rejection reason under purpose when rejected */}
+                      {/* Show rejection/cancellation reason if it exists */}
                       <div>{b.purpose}</div>
-                      {b.status === 'REJECTED' && b.rejectionReason && (
+                      {b.rejectionReason && (
                         <div style={{
                           marginTop: '4px', fontSize: '0.78rem', color: 'var(--danger, #ef4444)',
                           display: 'flex', alignItems: 'flex-start', gap: '4px'
@@ -269,7 +269,7 @@ export default function BookingsPage() {
                       )}
                     </td>
                     <td>
-                      <span className={`badge badge-${b.status?.toLowerCase() || 'pending'}`}>{b.status}</span>
+                      <span className={`badge badge-${b.status?.toLowerCase() === 'no_show' ? 'rejected' : (b.status?.toLowerCase() || 'pending')}`}>{b.status?.replace('_', ' ')}</span>
                       {b.status === 'APPROVED' && b.checkedIn && (
                         <span className="badge" style={{ background: 'rgba(16,185,129,0.15)', color: '#10b981', marginLeft: '6px', fontSize: '0.7rem', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
                           <ShieldCheck size={11} /> Checked In
@@ -303,9 +303,9 @@ export default function BookingsPage() {
                           /* UX FIX #1: Cancel uses styled dialog, not window.confirm */
                           <button className="btn btn-outline btn-sm" onClick={() => setConfirmCancel(b.id)}>Cancel</button>
                         )}
-                        {/* UX FIX #3: Delete only shown for terminal statuses (CANCELLED/REJECTED) for users;
+                        {/* UX FIX #3: Delete only shown for terminal statuses (CANCELLED/REJECTED/NO_SHOW) for users;
                             admins can delete any booking */}
-                        {(isAdmin || b.status === 'CANCELLED' || b.status === 'REJECTED') && (
+                        {(isAdmin || b.status === 'CANCELLED' || b.status === 'REJECTED' || b.status === 'NO_SHOW') && (
                           <button
                             className="btn btn-ghost btn-sm"
                             style={{ border: 'none', padding: '4px', color: 'var(--danger, #ef4444)' }}
