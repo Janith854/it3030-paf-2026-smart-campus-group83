@@ -19,6 +19,7 @@ import NotificationsPage from './pages/NotificationsPage';
 import NotificationPreferencesPage from './pages/NotificationPreferencesPage';
 import AdminPage from './pages/AdminPage';
 import ResourceBookingsPage from './pages/ResourceBookingsPage';
+import CheckInPage from './pages/CheckInPage';
 const DashboardRedirect = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
@@ -51,6 +52,8 @@ function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<Navigate to="/login" replace />} />
+            {/* Innovation: QR Code Check-In verification page */}
+            <Route path="/check-in/:id" element={<CheckInPage />} />
 
             {/* Dashboard Routing — role-based redirect */}
             <Route path="/dashboard" element={<DashboardRedirect />} />
