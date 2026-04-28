@@ -159,6 +159,8 @@ public class BookingServiceImpl implements BookingService {
 
         booking.setStatus(Booking.BookingStatus.APPROVED);
         booking.setApprovedByAdminId(adminId);
+        // Generate a secure check-in token for QR code URLs
+        booking.setCheckInToken(java.util.UUID.randomUUID().toString());
         Booking saved = bookingRepository.save(booking);
 
         notificationService.createNotification(
@@ -242,13 +244,48 @@ public class BookingServiceImpl implements BookingService {
     public Booking checkInBooking(String id, String adminId) {
         Booking booking = bookingRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Booking not found: " + id));
+        return performCheckIn(booking, adminId);
+    }
 
+    @Override
+    public Booking checkInByToken(String token, String adminId) {
+        Booking booking = bookingRepository.findByCheckInToken(token)
+            .orElseThrow(() -> new ResourceNotFoundException("Invalid check-in token"));
+        return performCheckIn(booking, adminId);
+    }
+
+    @Override
+    public Booking getBookingByToken(String token) {
+        return bookingRepository.findByCheckInToken(token)
+            .orElseThrow(() -> new ResourceNotFoundException("Invalid check-in token"));
+    }
+
+    private Booking performCheckIn(Booking booking, String adminId) {
         if (booking.getStatus() != Booking.BookingStatus.APPROVED) {
             throw new RuntimeException("Only APPROVED bookings can be checked in");
         }
 
         if (booking.isCheckedIn()) {
             throw new RuntimeException("This booking has already been checked in");
+        }
+
+        // Fix #6: Only allow check-in on the actual booking date AND within the time window
+        LocalDate today = LocalDate.now();
+        java.time.LocalTime now = java.time.LocalTime.now();
+
+        if (!booking.getBookingDate().equals(today)) {
+            throw new RuntimeException(
+                "Check-in is only allowed on the booking date (" + booking.getBookingDate() + "). Today is " + today + "."
+            );
+        }
+
+        // Time window: 15 mins before start time, up to the end time
+        java.time.LocalTime allowedStart = booking.getStartTime().minusMinutes(15);
+        if (now.isBefore(allowedStart)) {
+            throw new RuntimeException("Check-in is not allowed yet. You can check in starting 15 minutes before the booking time (" + booking.getStartTime() + ").");
+        }
+        if (now.isAfter(booking.getEndTime())) {
+            throw new RuntimeException("This booking has already ended (" + booking.getEndTime() + "). Check-in is no longer allowed.");
         }
 
         booking.setCheckedIn(true);
