@@ -153,7 +153,7 @@ export default function LoginPage() {
         <div className="auth-card">
           <h2 className="auth-card__title">{isRegistering ? 'Create Account' : 'Sign In'}</h2>
           <p className="auth-card__subtitle">
-            {isRegistering ? 'Join as a Lecturer/Student or Technician.' : 'Continue with Google or enter your details.'}
+            {isRegistering ? 'Join as a Lecturer/Student or Technician.' : 'Enter your credentials to access your account.'}
           </p>
           
           {error && <div className="login-card__error">{error}</div>}
@@ -163,15 +163,7 @@ export default function LoginPage() {
             </div>
           )}
 
-          {!isRegistering && (
-            <>
-              <div 
-                id="google-signin-button" 
-                style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}
-              ></div>
-              <div className="auth-divider">or</div>
-            </>
-          )}
+
 
           {isRegistering ? (
             <form onSubmit={handleRegister}>
@@ -223,7 +215,8 @@ export default function LoginPage() {
               </button>
             </form>
           ) : (
-            <form onSubmit={handleLocalLogin}>
+            <>
+              <form onSubmit={handleLocalLogin}>
               <label className="auth-form-label">Email Address</label>
               <input type="email" name="email" required className="auth-form-input" placeholder="example@campus.edu" />
               
@@ -270,6 +263,12 @@ export default function LoginPage() {
                 )}
               </button>
             </form>
+            <div className="auth-divider">or sign in with</div>
+            <div 
+              id="google-signin-button" 
+              style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}
+            ></div>
+          </>
           )}
 
           <div style={{ textAlign: 'center', fontSize: '0.9rem', color: '#64748b', marginTop: '1.5rem' }}>

@@ -4,7 +4,6 @@ import com.smartcampus.dto.response.AuthResponse;
 import com.smartcampus.model.User;
 import java.util.List;
 
-/** Member 4 implements this */
 public interface AuthService {
     String loginWithGoogle(String googleToken);
 
