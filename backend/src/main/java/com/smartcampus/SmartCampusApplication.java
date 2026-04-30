@@ -18,6 +18,15 @@ public class SmartCampusApplication {
             .ignoreIfMissing()
             .load();
             
+        // Fallback to backend folder if not found in root (common for monorepos)
+        if (dotenv.get("JWT_SECRET") == null) {
+            dotenv = Dotenv.configure()
+                .directory("./backend")
+                .ignoreIfMalformed()
+                .ignoreIfMissing()
+                .load();
+        }
+            
         dotenv.entries().forEach(entry -> {
             if (System.getProperty(entry.getKey()) == null && System.getenv(entry.getKey()) == null) {
                 System.setProperty(entry.getKey(), entry.getValue());
