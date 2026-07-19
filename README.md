@@ -1,1 +1,1 @@
-# it3030-paf-2026-smart-campus-group84
+#Smart-Campus-Management-System
